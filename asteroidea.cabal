@@ -1,13 +1,13 @@
 name:                asteroidea
 version:             0.1
 -- synopsis:
--- description:
+description:         Fractal generator
 -- homepage:
 -- license:
 -- license-file:
-author:              Author name here
-maintainer:          author@email.com
-copyright:           2017 Author name here
+author:              Haalon
+-- maintainer:       
+-- copyright:        
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
@@ -16,7 +16,13 @@ library
   hs-source-dirs:      src
   ghc-options:         -Wall -fno-warn-type-defaults
   exposed-modules:     Asteroidea
+  other-modules:       ClassField
+                     , Types
+                     , Const
   build-depends:       base >= 4.7 && < 5
+                     , gloss
+                     , random
+                     , matrix
   default-language:    Haskell2010
 
 executable asteroidea
@@ -29,10 +35,16 @@ executable asteroidea
 
 test-suite asteroidea-test
   type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       base
-                     , asteroidea
+  hs-source-dirs:      src
+  main-is:             ../test/Spec.hs
+  other-modules:       ClassField
+                     , Types
+                     , Const
+  build-depends:       JustNothing
+                     , base
+                     , gloss
+                     , random
+                     , matrix
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
