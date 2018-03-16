@@ -8,19 +8,26 @@ import Data.Matrix
 
 run :: IO ()
 run = do
--- | Генератор случайных чисел, начальная инииализация
+-- | Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
 -- | Запуск симуляции
-  simulate display color fps initField imageScan (updateField genRand) 
+  simulate window colour fps initField imageScan (updateField genRand) 
   where
-    -- | окно
-    display = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
+    window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
     -- FullScreen
-    color = backGrCol
+    colour = backGrCol
     fps = fpsMax
     initField :: Field
     initField = createField sizeX sizeY
+    -- | Вывод поля на экран
     imageScan :: Field -> Picture
     imageScan field =
-      pictures (concat
-      [[ Color (unsafeGet i j field) (Line [(fromIntegral i,fromIntegral j),(fromIntegral i,fromIntegral j)]) | i<- [1..sizeX]] | j <- [1..sizeY]])
+      pictures $ concat
+      [
+        [ Color
+          (unsafeGet i j field) $
+          Line [(fromIntegral i,fromIntegral j)]
+          | i <- [1..sizeX]
+        ] 
+        | j <- [1..sizeY]
+      ]

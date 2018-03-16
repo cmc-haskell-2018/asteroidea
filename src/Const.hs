@@ -22,7 +22,8 @@ outerIter = 80000
 backGrCol :: Color
 backGrCol = black
 fpsMax :: Int
-fpsMax = 30
+fpsMax = 1
+--30
 numCast :: Float
 numCast = 1000
 --100000
