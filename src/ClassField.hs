@@ -42,7 +42,7 @@ iter (f, cgen) n
 iter a _ = a
 
 -- | Генерация новой точки
--- | Дайте мне трансоформы, и я сверну мир
+-- | Дайте мне трансформы, и я сверну мир
 newCast :: CastGen -> CastGen
 newCast (a,b) = (a,b)
 -- | BiUnitSquarePoint random from [-1,1)^2
