@@ -40,7 +40,7 @@ test-suite asteroidea-test
   other-modules:       ClassField
                      , Types
                      , Const
-  build-depends:       JustNothing
+  build-depends:       Asteroidea
                      , base
                      , gloss
                      , random

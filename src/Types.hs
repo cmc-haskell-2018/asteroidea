@@ -50,19 +50,20 @@ calcVariation (Var s p f) a = s |*| (f p a)
 radius :: Project
 radius (x,y) = sqrt(x*x +y*y)
 
-getNeigbours:: Double->Vec->[Vec]
-getNeigbours dl (x,y) = [v11,v12,v21,v22]
+getNeigbours::Num a =>  a->(a,a)->[(a,a)]
+--getNeigbours :: Double -> Vec -> [Vec]
+getNeigbours dl (x,y) = [v11,v12,v22,v21]
   where
     v11 = (x+dl,y+dl)
     v12 = (x+dl,y-dl)
     v21 = (x-dl,y+dl)
     v22 = (x-dl,y-dl)
 
-nthNeigbours :: Integer->[Vec]
+nthNeigbours :: Int -> [Vec]
 nthNeigbours 0 = [(0,0)]
 nthNeigbours n = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
   where
-    dl = 2**(- (fromInteger n))
+    dl = 2 ** (- fromIntegral n)
 
 biUnitTiling :: [Vec]
 biUnitTiling = concat  [ nthNeigbours i | i <- [0,1..]]

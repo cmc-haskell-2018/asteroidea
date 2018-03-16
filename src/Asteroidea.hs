@@ -5,6 +5,7 @@ import ClassField
 import System.Random
 import Const
 import Data.Matrix
+import Types
 
 run :: IO ()
 run = do
@@ -15,11 +16,10 @@ run = do
   where
     colour = backGrCol
     fps = fpsMax
---updateCap _ _ = id
-window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
--- FullScreen
-initField :: Field
-initField = createField sizeX sizeY
+    window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
+    -- FullScreen
+    initField :: Field
+    initField = createField sizeX sizeY
 -- | Вывод поля на экран
 imageScan :: Field -> Picture
 imageScan field =
@@ -27,13 +27,8 @@ imageScan field =
   [
     [ Color
       (unsafeGet i j field) $
-      Polygon
-        [
-          (fihsX i - 0.5, fihsY j - 0.5) ,
-          (fihsX i + 0.5, fihsY j - 0.5) ,
-          (fihsX i + 0.5, fihsY j + 0.5) ,
-          (fihsX i - 0.5, fihsY j + 0.5)
-        ]
+      Polygon $
+      (getNeigbours dl (fihsX i, fihsY j))
       | i <- [1..sizeX]
     ] 
     | j <- [1..sizeY]
@@ -41,3 +36,4 @@ imageScan field =
   where
     fihsX i = (fromIntegral i)-halfSizeX
     fihsY j = (fromIntegral j)-halfSizeY
+    dl = 0.5
