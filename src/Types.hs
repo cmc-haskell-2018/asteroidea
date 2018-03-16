@@ -4,7 +4,7 @@ import Control.Category
 import System.Random
 import Graphics.Gloss
 
-type VariationCatVarunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 
+type VariationFunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 
 type Project = Vec ->  Double
 type Vec = (Double, Double) 
 
@@ -52,18 +52,18 @@ biUnitTiling = concat  [ nthNeigbours i | i <- [0,1..]]
 
 
 -- примеры преобразований
-spherical :: VariationCatVarunc
+spherical :: VariationFunc
 spherical _ (gen ,p@(x,y))  = (gen, (1/r^2 *x, 1/r^2*y))
   where r = radius p
 
-juliaN :: VariationCatVarunc
+juliaN :: VariationFunc
 juliaN (List (power:dist:_)) (gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t) , r**(dist/power)*(sin t)))
   where r = radius p
         k = fst $ (random gen) :: Double 
         p3 = fromIntegral $ truncate (k*power)
         t = ((atan2 y x) + 2*pi*p3)/power
 
-affineTransform :: VariationCatVarunc 
+affineTransform :: VariationFunc 
 affineTransform (Matrix m) (gen,(x,y)) = (gen, (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m))
 
 data AffineMatrix = AffineMatrix {
@@ -93,5 +93,9 @@ data Model = Model {
   tranforms :: [Transform],
   camera :: Maybe Transform,
   gradient :: [Color] 
---position ?
+  -- Размер картинки, зум и поворот.
+  width :: Int,
+  height :: Int,
+  scale :: Double,
+  rotation :: Double
 } 
