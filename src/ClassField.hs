@@ -49,21 +49,20 @@ newCast (a,b) = (a,b)
 -- | with color from [0,1) and pointer for model
 -- | PRNG is asking and answering as g
 busPoint :: StdGen -> Int -> CastGen
-busPoint g n =
-  let
-    point = ((!!) biUnitTiling n)
-    --(colC, gR) = random g
+busPoint g i = (busPointList g) !! i
+busPointList :: StdGen -> [CastGen]
+busPointList g = [((point,colC),g) | point <- biUnitTiling]
+  where
     colC = 0.5
-  in ((point, colC), g)
 
 -- | Размещение точки в поле
 plot :: Cast -> Field -> Field
 -- TODO conception : alpha blending
-plot ((ordX, ordY), colC) f =
+plot ((ordX, ordY), colC) field =
   setElem
     colour
     coord
-    f
+    field
       where
         colour = green -- colC
         coord = (trr sizeX ordX, trr sizeY ordY)

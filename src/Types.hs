@@ -1,6 +1,6 @@
 module Types where
-import Prelude hiding ((.),id)
-import Control.Category
+import Prelude  
+--import Control.Category
 import System.Random
 import Graphics.Gloss
 
@@ -8,29 +8,45 @@ type VariationFunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Mayb
 type Project = Vec ->  Double
 type Vec = (Double, Double) 
 
---для обертки вариации.
-data CatVar a b = CatVar Params (Params->a->b)
-instance Category CatVar where
-  id = CatVar None (\_ a -> a)
-  --(.) :: (CatVar p) b c -> (CatVar p) a b -> (CatVar p) a c 
-  (.) (CatVar p2 bc) (CatVar p1 ab) = CatVar None (\_ a -> bc p2 (ab p1 a))
--- композиция работает, пример: calcVariation (dbgAffine . dbgSpherical)  (defGen , (1,1))
-  
-data Params = None | List [Double] | Matrix AffineMatrix
--- | преобразование из точки в точку
-type Variation = CatVar (StdGen,Vec) (StdGen,Vec)
 
-dbgSpherical :: Variation
-dbgSpherical = CatVar None spherical
+{--
+-- категория значительно затуманивает устройтсво обертки, и усложняет добавление других данных к обертке
+-- в ответ мы получаем лишь возможность использовать знакомую точку для композиции
+-- так стоит ли это того?  
+data Var a b = Var Params (Params->a->b)
+instance Category Var where
+  id = Var None (\_ a -> a)
+  --(.) :: (Var p) b c -> (Var p) a b -> (Var p) a c 
+  (.) (Var p2 bc) (Var p1 ab) = Var None (\_ a -> bc p2 (ab p1 a))
+-- композиция работает, пример: calcVariation (dbgAffine . dbgSpherical)  (defGen , (1,1))
+  --}
+data Params = None | List [Double] | Matrix AffineMatrix
+
+data Variation = Var {
+  vScale :: Double,
+  params :: Params,
+  function :: VariationFunc
+}
+
+defGen :: StdGen
+defGen = mkStdGen 42 --For debug purposes
+
+--произведение КОРТЕЖА из генератора и вектора на скаляр
+(|*|)::Double->(StdGen,Vec) -> (StdGen,Vec)
+(|*|) scl (gen, (x,y)) = (gen, (scl*x , scl*y))
+
+dbgSpherical1 :: Variation
+dbgSpherical1 = Var 1 None spherical
+
+dbgSpherical2 :: Variation
+dbgSpherical2 = Var (-2) None spherical
 
 dbgAffine :: Variation
-dbgAffine = CatVar (Matrix (AffineMatrix 2 0 0 2 1 1)) affineTransform
+dbgAffine = Var 1 (Matrix (AffineMatrix 2 0 0 2 1 1)) affineTransform
 
 calcVariation :: Variation -> (StdGen,Vec)-> (StdGen,Vec)
-calcVariation (CatVar p f) a = f p a  
+calcVariation (Var s p f) a = s |*| (f p a)  
 
--- Возможно стоит хранить параметры вариаций вместе с ними самими в некой обертке?
-defGen = mkStdGen 42 --CatVaror debug purposes
 radius :: Project
 radius (x,y) = sqrt(x*x +y*y)
 
@@ -95,10 +111,10 @@ data Model = Model {
   modelName :: String,
   tranforms :: [Transform],
   camera :: Maybe Transform,
-  gradient :: [Color],
+  gradient :: [Color], -- стоит сделать матрицей
   -- Размер картинки, зум и поворот.
   width :: Int,
   height :: Int,
-  scale :: Double,
+  mScale :: Double,
   rotation :: Double
 } 
