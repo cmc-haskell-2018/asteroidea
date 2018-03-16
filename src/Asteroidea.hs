@@ -15,6 +15,7 @@ run = do
   where
     colour = backGrCol
     fps = fpsMax
+--updateCap _ _ = id
 window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
 -- FullScreen
 initField :: Field
@@ -26,8 +27,17 @@ imageScan field =
   [
     [ Color
       (unsafeGet i j field) $
-      Line [(fromIntegral i,fromIntegral j)]
+      Polygon
+        [
+          (fihsX i - 0.5, fihsY j - 0.5) ,
+          (fihsX i + 0.5, fihsY j - 0.5) ,
+          (fihsX i + 0.5, fihsY j + 0.5) ,
+          (fihsX i - 0.5, fihsY j + 0.5)
+        ]
       | i <- [1..sizeX]
     ] 
     | j <- [1..sizeY]
   ]
+  where
+    fihsX i = (fromIntegral i)-halfSizeX
+    fihsY j = (fromIntegral j)-halfSizeY

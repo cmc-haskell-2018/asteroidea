@@ -7,9 +7,15 @@ innerIter = 1
 lowThreshold :: Int
 lowThreshold = 20
 sizeX :: Int
-sizeX = 1920
+sizeX = 640
+-- 1920
+halfSizeX :: Float
+halfSizeX = fromIntegral sizeX/2
 sizeY :: Int
-sizeY = 1080
+sizeY = 360
+-- 1080
+halfSizeY :: Float
+halfSizeY = fromIntegral sizeY/2
 startPosX :: Int
 startPosX = 0
 startPosY :: Int
