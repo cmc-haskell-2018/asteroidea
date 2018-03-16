@@ -17,6 +17,7 @@ instance Category CatVar where
 -- композиция работает, пример: calcVariation (dbgAffine . dbgSpherical)  (defGen , (1,1))
   
 data Params = None | List [Double] | Matrix AffineMatrix
+-- | преобразование из точки в точку
 type Variation = CatVar (StdGen,Vec) (StdGen,Vec)
 
 dbgSpherical :: Variation
@@ -77,6 +78,7 @@ oy :: Double } deriving(Show)
 idMatrix :: AffineMatrix
 idMatrix = AffineMatrix 1 0 0 1 0 0
 
+-- | Преобразование точки, цвета и всего такого
 data Transform = Transform {
 transformName :: String,
 variation :: Variation, -- возможны линейные комбинации, композиция, параметры =>
@@ -88,6 +90,7 @@ opacity :: Double,
 xaos :: [Double]
 }
 
+-- | Глобальный фрактал
 data Model = Model {
   modelName :: String,
   tranforms :: [Transform],
