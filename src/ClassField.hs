@@ -9,46 +9,61 @@ import Const
 -- | Поле есть матрица цветов
 type Field = Matrix Color
 
--- создание изначального поля
+-- | Создание изначального поля
 createField :: Int -> Int -> Field
 createField x y = matrix x y (initFunction x y)
+-- | Начальное заполнение фона
 initFunction :: Int -> Int -> ((Int,Int)->Color)
 initFunction x y =
-  ( \_ -> black)
+  ( \_ -> makeColor 0.1 0.7 0.2 1.0)
 
 -- | обновление поля - добавление в него серий бросков, числом от дельты времени
-updateField :: RandomGen g => g -> a -> Float -> Field -> Field
-updateField gR viewPoint dt field = (generator gR field (floor (dt*numCast)))
+updateField :: StdGen -> viewPoint -> Float -> Field -> Field
+updateField gR _ dt field = (generator gR field (floor (dt*numCast)))
 -- | генератор нового поля
-generator :: RandomGen g => g -> Field -> Int -> Field
-generator g f n | n > 0  = rty (iter (busPoint g n) f 0) (n-1)
+generator :: StdGen -> Field -> Int -> Field
+generator g f n | n > 0  = rty (iter (f,(busPoint g n)) 0) (n-1)
   where
-    rty (a,b) = generator b a
-generator g f _  = f
+    rty (f,(_,g)) = generator g f
+generator _ f _  = f
 
 -- | Точка, начальный цвет в карте градиентов [0,1), указатель
-type Cast = (Vec, Double, Integer)
+type Cast = (Vec, Double)
+type CastGen = ((Vec, Double),StdGen)
 -- | Iterator for loop inner_iter
 -- | new Field, new PRNG
-iter :: RandomGen g => (Cast, g) -> Field -> Int -> (Field, g)
-iter (cast, gen) f n
-  | n<lowThreshold  = iter (newCast cast gen) f (n+1)
-  | n>innerIter  = (f, gen)
-iter (cast, gen) f n
-  = iter (newCast cast gen) (plot cast f) (n+1)
+-- | броски одной точки
+iter :: (Field, CastGen) -> Int -> (Field, CastGen)
+iter (f, cgen) n
+  | n<lowThreshold  = iter (f,(newCast cgen)) (n+1)
+  | n<innerIter  = iter (pack (newCast cgen)) (n+1)
+  where
+    pack newC@(cast, _) = ((plot cast f), newC)
+iter a _ = a
 
-newCast :: RandomGen g => Cast -> g -> (Cast,g)
-newCast a b = (a,b)
--- | BiUnitSquarePoint random from [-1,1)^2, with color from [0,1) and pointer for model, PRNG is asking and answering as g
+-- | Генерация новой точки
+-- | Дайте мне трансоформы, и я сверну мир
+newCast :: CastGen -> CastGen
+newCast (a,b) = (a,b)
+-- | BiUnitSquarePoint random from [-1,1)^2
+-- | with color from [0,1) and pointer for model
+-- | PRNG is asking and answering as g
+busPoint :: StdGen -> Int -> CastGen
+busPoint g i = (busPointList g) !! i
+busPointList :: StdGen -> [CastGen]
+busPointList g = [((point,colC),g) | point <- biUnitTiling]
+  where
+    colC = 0.5
 
-busPoint :: RandomGen g => g -> Int -> (Cast,g)
-busPoint g n =
-  let
-    point = ((!!) biUnitTiling n)
-    (colC, g0) = random g
-    (trrD, gR) = random g0
-    model = floor(trrD*modelCount)
-  in ((point, colC, model), gR)
-
+-- | Размещение точки в поле
 plot :: Cast -> Field -> Field
-plot ((ordX, ordY), colC, _) f = setElem (black)  (truncate ordX, truncate ordY) f
+-- TODO conception : alpha blending
+plot ((ordX, ordY), colC) field =
+  setElem
+    colour
+    coord
+    field
+      where
+        colour = green -- colC
+        coord = (trr sizeX ordX, trr sizeY ordY)
+        trr size z = truncate((z+1)*(fromIntegral size)/2)

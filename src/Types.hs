@@ -21,6 +21,7 @@ instance Category Var where
 -- композиция работает, пример: calcVariation (dbgAffine . dbgSpherical)  (defGen , (1,1))
   --}
 data Params = None | List [Double] | Matrix AffineMatrix
+
 data Variation = Var {
   vScale :: Double,
   params :: Params,
@@ -93,6 +94,7 @@ oy :: Double } deriving(Show)
 idMatrix :: AffineMatrix
 idMatrix = AffineMatrix 1 0 0 1 0 0
 
+-- | Преобразование точки, цвета и всего такого
 data Transform = Transform {
 transformName :: String,
 variation :: Variation, -- возможны линейные комбинации, композиция, параметры =>
@@ -104,11 +106,12 @@ opacity :: Double,
 xaos :: [Double]
 }
 
+-- | Глобальный фрактал
 data Model = Model {
   modelName :: String,
   tranforms :: [Transform],
   camera :: Maybe Transform,
-  gradient :: [Color], -- стоит сделать матрицей 
+  gradient :: [Color], -- стоит сделать матрицей
   -- Размер картинки, зум и поворот.
   width :: Int,
   height :: Int,
