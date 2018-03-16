@@ -1,31 +1,35 @@
 module Types where
-import Prelude --hiding ((.),id)
---import Control.Category
+import Prelude hiding ((.),id)
+import Control.Category
 import System.Random
 import Graphics.Gloss
 
-type VariationFunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 
---Композиция работает
---Например ((spherical None).(spherical None).(spherical None)) (defGen ,(1,2))  (что эквивалентно единичному применению сферического отображения)
+type VariationCatVarunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 
 type Project = Vec ->  Double
 type Vec = (Double, Double) 
 
-{--
-newtype F a b = F (a->b)
-instance Category F where
-  id = F (\a -> a)
-  --(.) :: (F p) b c -> (F p) a b -> (F p) a c 
-  (.) (F bc) (F ab) = F (\a -> bc (ab a))
---}
+--для обертки вариации.
+data CatVar a b = CatVar Params (Params->a->b)
+instance Category CatVar where
+  id = CatVar None (\_ a -> a)
+  --(.) :: (CatVar p) b c -> (CatVar p) a b -> (CatVar p) a c 
+  (.) (CatVar p2 bc) (CatVar p1 ab) = CatVar None (\_ a -> bc p2 (ab p1 a))
+-- композиция работает, пример: calcVariation (dbgAffine . dbgSpherical)  (defGen , (1,1))
   
 data Params = None | List [Double] | Matrix AffineMatrix
---type Variation = (StdGen,Vec) -> (StdGen,Vec)
---instance Category Variation where
---(.) :: cat b c -> cat a b -> cat a c
---  (.) (Variation g2 p2 v2) (Variation g p v) = 
+type Variation = CatVar (StdGen,Vec) (StdGen,Vec)
+
+dbgSpherical :: Variation
+dbgSpherical = CatVar None spherical
+
+dbgAffine :: Variation
+dbgAffine = CatVar (Matrix (AffineMatrix 2 0 0 2 1 1)) affineTransform
+
+calcVariation :: Variation -> (StdGen,Vec)-> (StdGen,Vec)
+calcVariation (CatVar p f) a = f p a  
 
 -- Возможно стоит хранить параметры вариаций вместе с ними самими в некой обертке?
-defGen = mkStdGen 42 --For debug purposes
+defGen = mkStdGen 42 --CatVaror debug purposes
 radius :: Project
 radius (x,y) = sqrt(x*x +y*y)
 
@@ -48,18 +52,18 @@ biUnitTiling = concat  [ nthNeigbours i | i <- [0,1..]]
 
 
 -- примеры преобразований
-spherical :: VariationFunc
+spherical :: VariationCatVarunc
 spherical _ (gen ,p@(x,y))  = (gen, (1/r^2 *x, 1/r^2*y))
   where r = radius p
 
-juliaN :: VariationFunc
+juliaN :: VariationCatVarunc
 juliaN (List (power:dist:_)) (gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t) , r**(dist/power)*(sin t)))
   where r = radius p
         k = fst $ (random gen) :: Double 
         p3 = fromIntegral $ truncate (k*power)
         t = ((atan2 y x) + 2*pi*p3)/power
 
-affineTransform :: VariationFunc 
+affineTransform :: VariationCatVarunc 
 affineTransform (Matrix m) (gen,(x,y)) = (gen, (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m))
 
 data AffineMatrix = AffineMatrix {
