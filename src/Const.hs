@@ -22,9 +22,6 @@ startPosY :: Int
 startPosY = 0
 zoom :: Float
 zoom = 0.5*1000
-outerIter :: Int
-outerIter = 80000 
---Поглощено NumCast
 backGrCol :: Color
 -- Цвет заднего фона
 backGrCol = black

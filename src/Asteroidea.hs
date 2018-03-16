@@ -25,15 +25,18 @@ imageScan :: Field -> Picture
 imageScan field =
   pictures $ concat
   [
-    [ Color
+    [ -- | Покраска в цвет точки,
+      Color
+      -- | не контролируя выход за границы массива,
       (unsafeGet i j field) $
+      -- | квадрата, покрывающего данную точку
       Polygon $
-      (getNeigbours dl (fihsX i, fihsY j))
+      (getNeigbours dl (fishX i, fishY j))
       | i <- [1..sizeX]
     ] 
     | j <- [1..sizeY]
   ]
   where
-    fihsX i = (fromIntegral i)-halfSizeX
-    fihsY j = (fromIntegral j)-halfSizeY
+    fishX i = (fromIntegral i)-halfSizeX
+    fishY j = (fromIntegral j)-halfSizeY
     dl = 0.5
