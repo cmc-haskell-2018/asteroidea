@@ -7,22 +7,27 @@ innerIter = 1
 lowThreshold :: Int
 lowThreshold = 20
 sizeX :: Int
-sizeX = 1920
+sizeX = 640
+-- 1920
+halfSizeX :: Float
+halfSizeX = fromIntegral sizeX/2
 sizeY :: Int
-sizeY = 1080
+sizeY = 360
+-- 1080
+halfSizeY :: Float
+halfSizeY = fromIntegral sizeY/2
 startPosX :: Int
 startPosX = 0
 startPosY :: Int
 startPosY = 0
 zoom :: Float
 zoom = 0.5*1000
-outerIter :: Int
-outerIter = 80000 
---Поглощено NumCast
 backGrCol :: Color
+-- Цвет заднего фона
 backGrCol = black
 fpsMax :: Int
-fpsMax = 30
+fpsMax = 1
+--30
 numCast :: Float
 numCast = 1000
 --100000

@@ -5,22 +5,38 @@ import ClassField
 import System.Random
 import Const
 import Data.Matrix
+import Types
 
 run :: IO ()
 run = do
--- | Генератор случайных чисел, начальная инииализация
+-- | Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
 -- | Запуск симуляции
-  simulate display color fps initField imageScan (updateField genRand) 
+  simulate window colour fps initField imageScan (updateField genRand) 
   where
-    -- | окно
-    display = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
-    -- FullScreen
-    color = backGrCol
+    colour = backGrCol
     fps = fpsMax
+    window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
+    -- FullScreen
     initField :: Field
     initField = createField sizeX sizeY
-    imageScan :: Field -> Picture
-    imageScan field =
-      pictures (concat
-      [[ Color (unsafeGet i j field) (Line [(fromIntegral i,fromIntegral j),(fromIntegral i,fromIntegral j)]) | i<- [1..sizeX]] | j <- [1..sizeY]])
+-- | Вывод поля на экран
+imageScan :: Field -> Picture
+imageScan field =
+  pictures $ concat
+  [
+    [ -- | Покраска в цвет точки,
+      Color
+      -- | не контролируя выход за границы массива,
+      (unsafeGet i j field) $
+      -- | квадрата, покрывающего данную точку
+      Polygon $
+      (getNeigbours dl (fishX i, fishY j))
+      | i <- [1..sizeX]
+    ] 
+    | j <- [1..sizeY]
+  ]
+  where
+    fishX i = (fromIntegral i)-halfSizeX
+    fishY j = (fromIntegral j)-halfSizeY
+    dl = 0.5

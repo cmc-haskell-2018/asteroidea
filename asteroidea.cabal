@@ -31,6 +31,9 @@ executable asteroidea
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , asteroidea
+                     , gloss
+                     , random
+                     , matrix
   default-language:    Haskell2010
 
 test-suite asteroidea-test
@@ -40,8 +43,7 @@ test-suite asteroidea-test
   other-modules:       ClassField
                      , Types
                      , Const
-  build-depends:       JustNothing
-                     , base
+  build-depends:       base >= 4.7 && < 5
                      , gloss
                      , random
                      , matrix
