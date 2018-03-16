@@ -20,6 +20,7 @@ outerIter :: Int
 outerIter = 80000 
 --Поглощено NumCast
 backGrCol :: Color
+-- Цвет заднего фона
 backGrCol = black
 fpsMax :: Int
 fpsMax = 1

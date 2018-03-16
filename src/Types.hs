@@ -92,7 +92,7 @@ data Model = Model {
   modelName :: String,
   tranforms :: [Transform],
   camera :: Maybe Transform,
-  gradient :: [Color] 
+  gradient :: [Color],
   -- Размер картинки, зум и поворот.
   width :: Int,
   height :: Int,

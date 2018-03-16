@@ -15,7 +15,7 @@ createField x y = matrix x y (initFunction x y)
 -- | Начальное заполнение фона
 initFunction :: Int -> Int -> ((Int,Int)->Color)
 initFunction x y =
-  ( \_ -> black)
+  ( \_ -> makeColor 0.1 0.7 0.2 1.0)
 
 -- | обновление поля - добавление в него серий бросков, числом от дельты времени
 updateField :: StdGen -> viewPoint -> Float -> Field -> Field
