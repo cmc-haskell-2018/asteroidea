@@ -22,9 +22,12 @@ updateField :: StdGen -> viewPoint -> Float -> Field -> Field
 updateField gR _ dt field = (generator gR field (floor (dt*numCast)))
 -- | генератор нового поля
 generator :: StdGen -> Field -> Int -> Field
-generator g f n | n > 0  = rty (iter (f,(busPoint g n)) 0) (n-1)
+--generator g f n | n > 0  = rty (iter (f,(busPoint g n)) 0) (n-1)
+generator g f n | n > 0  = rty ( temp (f,(busPoint g n)) 0) (n-1)
   where
     rty (f,(_,g)) = generator g f
+    temp (_,cGen) _ = pack cGen
+    pack newC@(cast, _) = ((plot cast f), newC)
 generator _ f _  = f
 
 -- | Точка, начальный цвет в карте градиентов [0,1), указатель
@@ -35,10 +38,15 @@ type CastGen = ((Vec, Double),StdGen)
 -- | броски одной точки
 iter :: (Field, CastGen) -> Int -> (Field, CastGen)
 iter (f, cgen) n
+  | n<lowThreshold = iter (f,(newCast cgen)) (n+1)
+  | n<innerIter = iter (f,(newCast cgen)) (n+1)
+  | otherwise = (f, cgen)
+{--iter (f, cgen) n
   | n<lowThreshold  = iter (f,(newCast cgen)) (n+1)
   | n<innerIter  = iter (pack (newCast cgen)) (n+1)
+  | otherwise = (f,cgen)
   where
-    pack newC@(cast, _) = ((plot cast f), newC)
+    pack newC@(cast, _) = ((plot cast f), newC)--}
 iter a _ = a
 
 -- | Генерация новой точки
@@ -81,4 +89,4 @@ control (a,b)
       x >   half size
 -- | alpha blending colours
 merge :: Double -> Color -> Color
-merge colC colour = colour
+merge colC colour = red

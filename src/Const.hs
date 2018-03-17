@@ -2,7 +2,7 @@ module Const where
 import Graphics.Gloss
 
 innerIter :: Int
-innerIter = 1
+innerIter = 30
 --1000
 lowThreshold :: Int
 lowThreshold = 20
@@ -30,7 +30,7 @@ backGrCol :: Color
 -- Цвет заднего фона
 backGrCol = black
 fpsMax :: Int
-fpsMax = 30
+fpsMax = 1
 numCast :: Float
 numCast = 1000
 --100000
