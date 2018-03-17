@@ -15,11 +15,10 @@ createField x y = matrix x y (initFunction x y)
 -- | Начальное заполнение фона
 initFunction :: Int -> Int -> ((Int,Int)->Color)
 initFunction x y =
-  ( \_ -> makeColor 0.1 0.1 0.2 1.0)
+  ( \_ -> makeColor 0.1 0.5 0.2 1.0)
 
 -- | обновление поля - добавление в него серий бросков, числом от дельты времени
 updateField :: StdGen -> viewPoint -> Float -> Field -> Field
-updateField _ _ _ field = field
 updateField gR _ dt field = (generator gR field (floor (dt*numCast)))
 -- | генератор нового поля
 generator :: StdGen -> Field -> Int -> Field
@@ -58,19 +57,6 @@ busPointList g =
     colC = 0.5
 
 -- | Размещение точки в поле
-{--
-plot :: Cast -> Field -> Field
--- TODO conception : alpha blending
-plot ((ordX, ordY), colC) field =
-  setElem
-    colour
-    coord
-    field
-      where
-        colour = green -- colC
-        coord = (trr sizeX ordX, trr sizeY ordY)
-        trr size z = truncate((z+1)*(fromIntegral size)/2)
---}
 plot :: Cast -> Field -> Field
 plot ((ordX, ordY), colC) field
   | flag = setElem colour coord field
@@ -80,19 +66,19 @@ plot ((ordX, ordY), colC) field
     getPoint (a,b) = unsafeGet a b field
     flag = control (ordX, ordY)
     coord = (trr sizeX ordX, trr sizeY ordY)
-    trr size = truncate . (+ half size)
+    trr size = truncate . (+ ((fromIntegral size)/2))
 -- | проверка границ
 control :: (Double,Double) -> Bool
 control (a,b)
-  | cond            a = False
-  | (< -half sizeX) a = False
-  | (>  half sizeX) a = False
-  | cond            b = False
-  | (< -half sizeY) b = False
-  | (>  half sizeY) b = False
-  | otherwise         = True
+  | cond sizeX a = False
+  | cond sizeY b = False
+  | otherwise        = True
   where
-    cond x = isNaN x || isInfinite x
+    cond size x =
+      isNaN x ||
+      isInfinite x ||
+      x < - half size ||
+      x >   half size
 -- | alpha blending colours
 merge :: Double -> Color -> Color
 merge colC colour = colour
