@@ -50,6 +50,6 @@ imageScan field =
     | j <- [1..sizeY]
   ]
   where
-    fishX i = (fromIntegral i)-halfSizeX
-    fishY j = (fromIntegral j)-halfSizeY
+    fishX i = (fromIntegral i-1) - (half sizeX)
+    fishY j = (fromIntegral j-1) - (half sizeY)
     dl = 0.5

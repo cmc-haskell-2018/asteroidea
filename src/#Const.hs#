@@ -3,14 +3,14 @@ import Graphics.Gloss
 
 innerIter :: Int
 innerIter = 1
---1000
+x--1000
 lowThreshold :: Int
 lowThreshold = 20
 sizeX :: Int
 sizeX = 640
 -- 1920
 half :: (Fractional a) => Int -> a
-half size = (fromIntegral sizeX)/2
+half size = fromIntegral sizeX/2
 sizeY :: Int
 sizeY = 360
 -- 1080
