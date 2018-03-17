@@ -26,8 +26,7 @@ backGrCol :: Color
 -- Цвет заднего фона
 backGrCol = black
 fpsMax :: Int
-fpsMax = 1
---30
+fpsMax = 30
 numCast :: Float
 numCast = 1000
 --100000

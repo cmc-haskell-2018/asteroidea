@@ -1,6 +1,7 @@
 module Asteroidea where
 
 import Graphics.Gloss
+-- import Graphics.Gloss.Raster.Field
 import ClassField
 import System.Random
 import Const
@@ -13,6 +14,7 @@ run = do
   genRand <- newStdGen
 -- | Запуск симуляции
   simulate window colour fps initField imageScan (updateField genRand) 
+  --playField window (1,1) fps initField getWorldPoint cap (updateField genRand 1)
   where
     colour = backGrCol
     fps = fpsMax
@@ -20,7 +22,18 @@ run = do
     -- FullScreen
     initField :: Field
     initField = createField sizeX sizeY
--- | Вывод поля на экран
+    cap :: a -> Field -> Field
+    cap _ = id
+{--
+-- | Вывод поля на экран playField
+getWorldPoint :: Field -> Point -> Color
+getWorldPoint field (i,j) =
+  unsafeGet trrI trrJ field
+  where
+    trrI = round $ halfSizeX + i*(fromIntegral sizeX)
+    trrJ = round $ halfSizeY + j*(fromIntegral sizeY)
+--}
+-- | Вывод поля на экран simulate
 imageScan :: Field -> Picture
 imageScan field =
   pictures $ concat

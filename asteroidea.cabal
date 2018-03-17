@@ -21,6 +21,7 @@ library
                      , Const
   build-depends:       base >= 4.7 && < 5
                      , gloss
+                     --, gloss-raster
                      , random
                      , matrix
   default-language:    Haskell2010
@@ -32,6 +33,7 @@ executable asteroidea
   build-depends:       base
                      , asteroidea
                      , gloss
+                     --, gloss-raster
                      , random
                      , matrix
   default-language:    Haskell2010

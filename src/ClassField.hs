@@ -51,7 +51,8 @@ newCast (a,b) = (a,b)
 busPoint :: StdGen -> Int -> CastGen
 busPoint g i = (busPointList g) !! i
 busPointList :: StdGen -> [CastGen]
-busPointList g = [((point,colC),g) | point <- biUnitTiling]
+busPointList g = 
+  [((point,colC),g) | point <- biUnitTiling]
   where
     colC = 0.5
 
