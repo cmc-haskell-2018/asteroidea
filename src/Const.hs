@@ -2,24 +2,28 @@ module Const where
 import Graphics.Gloss
 
 innerIter :: Int
-innerIter = 1
+innerIter = 30
 --1000
 lowThreshold :: Int
 lowThreshold = 20
 sizeX :: Int
 sizeX = 640
 -- 1920
-halfSizeX :: Float
-halfSizeX = fromIntegral sizeX/2
+half :: (Fractional a) => Int -> a
+half size = (fromIntegral size)/2
+
 sizeY :: Int
 sizeY = 360
 -- 1080
-halfSizeY :: Float
-halfSizeY = fromIntegral sizeY/2
+
 startPosX :: Int
 startPosX = 0
 startPosY :: Int
 startPosY = 0
+{--
+half :: (Fractional a) => Int -> a
+half size = (fromIntegral sizeX)/2
+--}
 zoom :: Float
 zoom = 0.5*1000
 backGrCol :: Color
@@ -27,7 +31,6 @@ backGrCol :: Color
 backGrCol = black
 fpsMax :: Int
 fpsMax = 1
---30
 numCast :: Float
 numCast = 1000
 --100000
