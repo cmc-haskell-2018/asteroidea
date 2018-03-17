@@ -11,11 +11,15 @@ sizeX = 640
 -- 1920
 halfSizeX :: Float
 halfSizeX = fromIntegral sizeX/2
+halfXD :: Double
+halfXD = fromIntegral sizeX/2
 sizeY :: Int
 sizeY = 360
 -- 1080
 halfSizeY :: Float
 halfSizeY = fromIntegral sizeY/2
+halfYD :: Double
+halfYD = fromIntegral sizeY/2
 startPosX :: Int
 startPosX = 0
 startPosY :: Int

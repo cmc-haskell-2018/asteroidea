@@ -58,13 +58,26 @@ busPointList g =
 
 -- | Размещение точки в поле
 plot :: Cast -> Field -> Field
--- TODO conception : alpha blending
-plot ((ordX, ordY), colC) field =
-  setElem
-    colour
-    coord
-    field
-      where
-        colour = green -- colC
-        coord = (trr sizeX ordX, trr sizeY ordY)
-        trr size z = truncate((z+1)*(fromIntegral size)/2)
+plot ((ordX, ordY), colC) field
+  | flag = setElem colour coord field
+  where
+    colour = merge colC $ getPoint coord
+    getPoint (a,b) = unsafeGet a b field
+    flag = control (ordX, ordY)
+    coord = (trr sizeX ordX, trr sizeY ordY)
+    trr size = round . ((fromIntegral size)/2*) . (+1)
+     -- | проверка границ
+    control :: (Double,Double) -> Bool
+    control (a,b)
+      | isNaN       a = False
+      | isInfinite  a = False
+      | (< -halfXD) a = False
+      | (>  halfXD) a = False
+      | isNaN       b = False
+      | isInfinite  b = False
+      | (< -halfYD) b = False
+      | (>  halfYD) b = False
+      | otherwise     = True
+-- | alpha blending colours
+merge colC colour = colour
+        
