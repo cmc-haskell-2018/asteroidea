@@ -42,6 +42,11 @@ dbgAffine4 :: Variation
 dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affineTransform
 
 -- | отображение в радиус цилиндрических координат
+=======
+
+calcVariation :: Variation -> (StdGen,Vec)-> (StdGen,Vec)
+calcVariation (Var s p f) a = s |*| (f p a)  
+
 radius :: Project
 radius (x,y) = sqrt (x*x +y*y)
 -- | отображение в кожффициент потенциала в точке
@@ -79,7 +84,6 @@ t4 :: Transform
 -- ^ DEBUG transform 4
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 
--- | DEBUG example Model
 exampleModel :: Model 
 exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
   where
