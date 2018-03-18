@@ -8,7 +8,7 @@ module Variation where
 import Prelude  
 --import Control.Category
 import System.Random
---import Graphics.Gloss
+import Graphics.Gloss
 import Types
 
 -- | random generator for debug purposes
@@ -65,44 +65,24 @@ juliaN _ a = a
 affineTransform :: VariationFunc 
 affineTransform (Matrix m) (gen,(x,y)) = (gen, (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m))
 affineTransform _ a = a
-
-{--
-data Transform = Transform {
-transformName :: String,
-variation :: Variation,  
-weight :: Double,
-colorPosition :: Double,
-colorSpeed :: Double,
-opacity :: Double,
-xaos :: [Double]
-}
---}
 t1 :: Transform
+-- ^ DEBUG transform 1
 t1 = Transform "t1" dbgAffine1 1 1 0 1 []
 t2 :: Transform
+-- ^ DEBUG transform 2
 t2 = Transform "t2" dbgAffine2 1 0.889 0 1 []
 t3 :: Transform
+-- ^ DEBUG transform 3
 t3 = Transform "t3" dbgAffine3 1 1 0 1 []
 t4 :: Transform
+-- ^ DEBUG transform 4
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 
-
-{--
-data Model = Model {
-  modelName :: String,
-  tranforms :: [Transform],
-  camera :: Maybe Transform,
-  gradient :: [Color],
-  width :: Int,
-  height :: Int,
-  mScale :: Double,
-  rotation :: Double
-} 
---}
+-- | DEBUG example Model
 exampleModel :: Model 
 exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
   where
-   grad = [] 
+   grad = [blue] 
 
 {--
 <flame name="69" version="Apophysis 7x" size="1024 1024" center="0 0" scale="512" cam_dof="1.631" oversample="1" filter="0.2" quality="1" background="0 0 0" brightness="8.65217391304348" gamma="5" vibrancy="1.1" estimator_radius="9" estimator_minimum="0" estimator_curve="0.4" enable_de="0" plugins="" new_linear="1" curves="0 0 1 0 0 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1" >

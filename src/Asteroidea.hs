@@ -38,7 +38,7 @@ cap _ = id
 -- | Вывод поля на экран playField
 getWorldPoint :: World -> Point -> Color
 getWorldPoint bnw (i,j) =
-  getElem trrI trrJ (field bnw)
+  getElem trrI trrJ (mugenga bnw)
   where
     trrI = round ((i+1)*(half sizeX) ) + 1
     trrJ = round ((j+1)*(half sizeY) ) + 1

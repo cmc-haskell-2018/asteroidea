@@ -11,12 +11,12 @@ import System.Random
 import Data.Matrix
 import Graphics.Gloss
 --import Const
-
+-- | Обёртка над Field, играющая роль мира. Без грязного IO.
 data World =
   World {
-    field :: Field,
-    gen   :: StdGen,
-    bus   :: [Cast]
+    mugenga :: Field,
+    getSGen :: StdGen,
+    busList :: [Cast]
         }
 -- | Вариация как она есть, с параметрами, перевод CastGen -> CastGen
 type VariationFunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 

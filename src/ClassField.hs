@@ -35,15 +35,15 @@ updateWorld dt bnw =
 
 -- | генератор нового поля
 generator :: World -> Int -> Int -> World
-generator bnw m n | n<m  = rty (iter (field bnw, busPoint bnw) 0) m (n+1)
+generator bnw m n | n<m  = rty (iter (mugenga bnw, busPoint bnw) 0) m (n+1)
   where
-    rty (a,(_,b)) = generator . World a b $ tail . bus $ bnw
+    rty (a,(_,b)) = generator . World a b $ tail . busList $ bnw
 generator a _ _  = a
 
 -- | BiUnitSquarePoint  from [-1,1)^2
 -- with colour 0.5
 busPoint :: World -> CastGen
-busPoint bnw = (head $ bus bnw, gen bnw)
+busPoint bnw = (head $ busList bnw, getSGen bnw)
 
 -- | Iterator for loop inner_iter
 -- new Field, new PRNG
@@ -63,12 +63,12 @@ newCast (a,b) = (a,b)
 
 -- | Размещение точки в поле
 plot :: Cast -> Field -> Field
-plot ((ordX, ordY), colC) mugenga
-  | flag = setElem colour coord mugenga
-  | otherwise = mugenga
+plot ((ordX, ordY), colC) field
+  | flag = setElem colour coord field
+  | otherwise = field
   where
     colour = merge colC $ getPoint coord
-    getPoint (a,b) = getElem a b mugenga
+    getPoint (a,b) = getElem a b field
     flag = control (ordX, ordY)
     coord = ((trr sizeX) ordX, (trr sizeY) ordY)
     trr size = truncate . (+ ((fromIntegral size)/2))
