@@ -25,8 +25,8 @@ initFunction _ _ =
 -}
 
 -- | обновление поля - добавление в него серий бросков, числом от дельты времени
-updateField :: StdGen -> viewPoint -> Float -> Field -> Field
-updateField gR _ dt field = 
+updateField :: StdGen -> Float -> Field -> Field
+updateField gR dt field = 
   generator
   gR
   field

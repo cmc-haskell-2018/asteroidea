@@ -45,7 +45,7 @@ juliaN :: VariationFunc
 juliaN (List (power:dist:_)) (gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t) , r**(dist/power)*(sin t)))
   where r = radius p
         k = fst $ (random gen) :: Double 
-        p3 = fromIntegral . truncate $ k*power
+        p3 = fromInteger . truncate $ k*power
         t = ((atan2 y x) + 2*pi*p3)/power
 juliaN _ a = a
 
