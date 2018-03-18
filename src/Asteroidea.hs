@@ -10,9 +10,9 @@ import Types
 -- | Поехали!
 run :: IO ()
 run = do
--- | Генератор случайных чисел, начальная инициализация
+  -- ^ Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
--- | Запуск симуляции
+  -- ^ Запуск симуляции
   --simulate window colour fps initField imageScan (updateField genRand) 
   playField window (1,1) fps initField getWorldPoint cap (updateField genRand 1)
   where
@@ -21,6 +21,7 @@ run = do
     window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
     -- FullScreen
     initField :: Field
+    -- ^ создание поля, см. ClassField
     initField = createField sizeX sizeY
     cap :: a -> Field -> Field
     cap _ = id
