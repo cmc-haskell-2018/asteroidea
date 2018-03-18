@@ -41,12 +41,6 @@ dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 (-0.5))) affineTransfor
 dbgAffine4 :: Variation
 dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affineTransform
 
--- | отображение в радиус цилиндрических координат
-=======
-
-calcVariation :: Variation -> (StdGen,Vec)-> (StdGen,Vec)
-calcVariation (Var s p f) a = s |*| (f p a)  
-
 radius :: Project
 radius (x,y) = sqrt (x*x +y*y)
 -- | отображение в кожффициент потенциала в точке
