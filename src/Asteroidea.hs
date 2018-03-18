@@ -1,3 +1,9 @@
+{-|
+Module      : Asteroidea
+Description : Main module, starting simulation
+Copyright   : Just Nothing
+Stability   : in progress
+-}
 module Asteroidea where
 
 import Graphics.Gloss
@@ -7,43 +13,45 @@ import System.Random
 import Const
 import Data.Matrix
 import Types
-
+-- | Поехали!
 run :: IO ()
 run = do
--- | Генератор случайных чисел, начальная инициализация
+-- Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
--- | Запуск симуляции
-  --simulate window colour fps initField imageScan (updateField genRand) 
-  playField window (1,1) fps initField getWorldPoint cap (updateField genRand 1)
+-- Запуск симуляции
+--simulate window colour fps initField imageScan (updateField genRand) 
+  playField window (1,1) fps initField getWorldPoint cap (updateField genRand)
   where
-    colour = backGrCol
+-- colour = backGrCol
     fps = fpsMax
     window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
-    -- FullScreen
-    initField :: Field
-    initField = createField sizeX sizeY
-    cap :: a -> Field -> Field
-    cap _ = id
+-- FullScreen
+initField :: Field
+-- ^ создание поля, см. ClassField
+initField = createField sizeX sizeY
+-- | заглушка
+cap :: a -> Field -> Field
+cap _ = id
 
 -- | Вывод поля на экран playField
 getWorldPoint :: Field -> Point -> Color
 getWorldPoint field (i,j) =
   getElem trrI trrJ field
   where
-    trrI = round ((half sizeX) + i)
-    trrJ = round ((half sizeY) + j)
+    trrI = round ((i+1)*(half sizeX) ) + 1
+    trrJ = round ((j+1)*(half sizeY) ) + 1
 
--- | Вывод поля на экран simulate
 {--
+-- | Вывод поля на экран simulate
 imageScan :: Field -> Picture
 imageScan field =
   pictures $ concat
   [
-    [ -- | Покраска в цвет точки,
+    [ -- ^ Покраска в цвет точки,
       Color
-      -- | не контролируя выход за границы массива,
+      -- ^ не контролируя выход за границы массива,
       (unsafeGet i j field) $
-      -- | квадрата, покрывающего данную точку
+      -- ^ квадрата, покрывающего данную точку
       Polygon $
       (getNeigbours dl (fishX i, fishY j))
       | i <- [1..sizeX]

@@ -19,6 +19,7 @@ library
   other-modules:       ClassField
                      , Types
                      , Const
+                     , Variation
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster
@@ -45,6 +46,7 @@ test-suite asteroidea-test
   other-modules:       ClassField
                      , Types
                      , Const
+                     , Variation
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , random
