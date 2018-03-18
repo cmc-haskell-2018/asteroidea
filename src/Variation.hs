@@ -65,9 +65,7 @@ juliaN _ a = a
 affineTransform :: VariationFunc 
 affineTransform (Matrix m) (gen,(x,y)) = (gen, (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m))
 affineTransform _ a = a
--- | тождественное преобразование
-idMatrix :: AffineMatrix
-idMatrix = AffineMatrix 1 0 0 1 0 0
+
 t1 :: Transform
 -- ^ DEBUG transform 1
 t1 = Transform "t1" dbgAffine1 1 1 0 1 []
