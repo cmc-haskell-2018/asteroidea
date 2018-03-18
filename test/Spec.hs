@@ -19,3 +19,4 @@ let
   flag ((ordX, ordY), colC) = control (ordX, ordY)
   coord ((ordX, ordY), colC) = ((trr sizeX) ordX, (trr sizeY) ordY)
 :}
+--}
