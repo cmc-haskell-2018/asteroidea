@@ -18,7 +18,13 @@ createField x y = matrix x y (initFunction x y)
 -- | Начальное заполнение фона
 initFunction :: Int -> Int -> ((Int,Int)->Color)
 initFunction _ _ =
-  (\_ -> makeColorI 34 139 34 255)
+  (\(a,b) ->
+     makeColorI
+     (a `div` 10 + 34)
+     139
+     (b `div` 10 + 34)
+     255
+  )
 {-| ^ веселья ради можно поставить что-то ещё,
  но цвет лесной зелени приятен глазу, как ветви молодых деревьев в летнем саду.
  >>> ( \_ -> makeColor 0.13 0.54 0.13 1.0)

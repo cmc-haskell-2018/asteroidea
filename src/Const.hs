@@ -5,8 +5,30 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 module Const where
-import Graphics.Gloss
-
+import Variation (mainModel)
+import Graphics.Gloss.Data.Color (Color,makeColor)
+import Types (width,height,mScale,rotation)
+-- | x size of field, model, window, etc
+sizeX :: Int
+sizeX = width  mainModel
+-- | y size of field, model, window, etc
+sizeY :: Int
+sizeY = height mainModel
+-- | rotation in radian
+rotRad :: Double
+rotRad = (pi/360*) $ rotation mainModel
+-- | sin rotation
+sinTheta :: Float
+sinTheta = realToFrac . (/zoomFactor) $ (sin rotRad)
+-- | cos rotation
+cosTheta :: Float
+cosTheta = realToFrac . (/zoomFactor) $ (cos rotRad)
+-- | Zoom Factor, scaling
+zoomFactor :: Double
+zoomFactor = exp . mScale $ mainModel
+-- | Цвет заднего фона
+backGrCol :: Color
+backGrCol = makeColor 0 0 0 1
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
 innerIter = 30
@@ -14,18 +36,18 @@ innerIter = 30
 -- | нижний порог числа бросков точки, после которого начинается отрисовка
 lowThreshold :: Int
 lowThreshold = 20
--- | стартовый размер поля
+-- | стартовый размер окна
 -- не хочу рисковать лагами
 -- 1920
-sizeX :: Int
-sizeX = 640
+winX :: Int
+winX = 640
 -- | половина поля, выраженная в вещественных значениях
 half :: (Fractional a) => Int -> a
 half size = (fromIntegral size)/2
--- | стартовый размер поля 
+-- | стартовый размер окна 
 -- 1080
-sizeY :: Int
-sizeY = 360
+winY :: Int
+winY = 360
 -- | стартовая позиция окна
 startPosX :: Int
 startPosX = 0
@@ -35,10 +57,6 @@ startPosY = 0
 -- | Фактор zoom.
 zoom :: Float
 zoom = 0.5*1000
-backGrCol :: Color
--- ^ Цвет заднего фона
--- Точно нужен в Gloss simulate, deprecated
-backGrCol = black
 fpsMax :: Int
 -- ^ максимальная частота кадров.
 -- единица это минимум

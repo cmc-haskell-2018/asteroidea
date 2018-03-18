@@ -13,7 +13,8 @@ import Data.Matrix
 
 import Const
 import Types
-import ClassField
+import ClassField (createField, updateWorld)
+
 
 -- | Поехали!
 run :: IO ()
@@ -21,50 +22,35 @@ run = do
 -- Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
 -- Запуск симуляции
---simulate window colour fps initField imageScan (updateField genRand)
---colour = backGrCol
-  playField window (1,1) fps (initWorld genRand) getWorldPoint cap updateWorld
-  where
-    fps = fpsMax
-    window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
--- FullScreen
+  playField
+    (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
+-- ^ window -- FullScreen
+    (1,1) -- ^ Number of pixels to draw per point. ???
+    fpsMax
+    (initWorld genRand)
+    getWorldPoint -- ^ Print World
+    cap -- ^ Event handler
+    updateWorld
+-- | Act of Creation
+-- создание мира
 initWorld :: StdGen -> World
--- ^ создание мира
-initWorld sgen = World (createField sizeX sizeY) sgen busPointList
+initWorld sGen = World (createField sizeX sizeY) sGen busPointList
 -- | заглушка на месте обработки событий
 cap :: a -> World -> World
 cap _ = id
 
 -- | Вывод поля на экран playField
 getWorldPoint :: World -> Point -> Color
-getWorldPoint bnw (i,j) =
-  getElem trrI trrJ (mugenga bnw)
+getWorldPoint bnw (i,j)
+  | flag = getElem trrI trrJ (mugenga bnw)
+  | otherwise = backGrCol
   where
-    trrI = round ((i+1)*(half sizeX) ) + 1
-    trrJ = round ((j+1)*(half sizeY) ) + 1
-
-{--
--- | Вывод поля на экран simulate
-imageScan :: Field -> Picture
-imageScan field =
-  pictures $ concat
-  [
-    [ -- ^ Покраска в цвет точки,
-      Color
-      -- ^ не контролируя выход за границы массива,
-      (unsafeGet i j field) $
-      -- ^ квадрата, покрывающего данную точку
-      Polygon $
-      (getNeigbours dl (fishX i, fishY j))
-      | i <- [1..sizeX]
-    ] 
-    | j <- [1..sizeY]
-  ]
-  where
-    fishX i = (fromIntegral i-1) - (half sizeX)
-    fishY j = (fromIntegral j-1) - (half sizeY)
-    dl = 0.5
---}
+    trrI = round ((x+1)*(half sizeX) ) + 1
+    trrJ = round ((y+1)*(half sizeY) ) + 1
+    x = j*sinTheta + i*cosTheta
+    y = j*cosTheta - i*sinTheta
+    flag = not (cond sizeX trrI|| cond sizeY trrJ)
+    cond size a = a < 1 || a > size
 
 -- | Cast Infinite List
 busPointList :: [Cast]

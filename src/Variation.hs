@@ -11,6 +11,10 @@ import System.Random
 import Graphics.Gloss
 import Types
 
+-- | Main Model, global fractal
+mainModel :: Model
+mainModel = exampleModel
+
 -- | random generator for debug purposes
 defGen :: StdGen
 defGen = mkStdGen 42 
@@ -79,7 +83,7 @@ t4 :: Transform
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 
 exampleModel :: Model 
-exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
+exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 (-1) 10
   where
    grad = [blue]
 
