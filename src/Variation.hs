@@ -83,7 +83,7 @@ t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 exampleModel :: Model 
 exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
   where
-   grad = [blue] 
+   grad = [blue]
 
 {--
    <palette count="256" format="RGB">

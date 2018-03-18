@@ -83,8 +83,10 @@ transformName :: String,
 -- variation :: [ [(Double, Variation)] ] ??
 variation :: Variation,  
 weight :: Double,
+-- ^ вес в вероятностном распределении
 colorPosition :: Double,
 colorSpeed :: Double,
+-- ^ калибровка коэффициентов при смешении
 opacity :: Double,
 xaos :: [Double]
 }
