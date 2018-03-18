@@ -31,7 +31,8 @@ updateField gR _ dt field =
   gR
   field
   (floor (dt*numCast))
-  0 -- ^ просто для того, чтобы нумерация была удобной
+-- ^ просто для того, чтобы нумерация была удобной
+  0 
 -- | генератор нового поля
 generator :: StdGen -> Field -> Int -> Int -> Field
 --generator g f m n | n < m  = rty (iter (f,(busPoint g n)) 0) m (n+1)
