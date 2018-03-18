@@ -1,3 +1,9 @@
+{-|
+Module      : Types
+Description : declarating types, implementation of main data, etc
+Copyright   : Just Nothing
+Stability   : in progress
+-}
 module Types where
 import Prelude  
 --import Control.Category

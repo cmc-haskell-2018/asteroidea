@@ -1,3 +1,9 @@
+{-|
+Module      : ClassField
+Description : operations with field, generating invocation to Model
+Copyright   : Just Nothing
+Stability   : in progress
+-}
 module ClassField where
 
 import Graphics.Gloss
@@ -13,9 +19,10 @@ createField x y = matrix x y (initFunction x y)
 initFunction :: Int -> Int -> ((Int,Int)->Color)
 initFunction _ _ =
   (\_ -> makeColorI 34 139 34 255)
-  -- ^ веселья ради можно поставить что-то ещё
-  -- но цвет лесной зелени приятен глазу, как листва деревьев в летнем саду
-  -- >>> ( \_ -> makeColor 0.13 0.54 0.13 1.0)
+{-| ^ веселья ради можно поставить что-то ещё,
+      но цвет лесной зелени приятен глазу, как листва деревьев в летнем саду.
+ >>> ( \_ -> makeColor 0.13 0.54 0.13 1.0)
+-}
 
 -- | обновление поля - добавление в него серий бросков, числом от дельты времени
 updateField :: StdGen -> viewPoint -> Float -> Field -> Field
@@ -28,10 +35,10 @@ updateField gR _ dt field =
 -- | генератор нового поля
 generator :: StdGen -> Field -> Int -> Int -> Field
 --generator g f m n | n < m  = rty (iter (f,(busPoint g n)) 0) m (n+1)
-generator g f m n | n < m  = rty ( temp (f,(busPoint g n)) 0) m (n+1)
+generator g f m n | n < m  = rty ( temp (f,(busPoint g n)) ) m (n+1)
   where
-    rty (f,(_,g)) = generator g f
-    temp (_,cGen) _ = pack cGen
+    rty (a,(_,b)) = generator b a
+    temp (_,cGen) = pack cGen
     pack newC@(cast, _) = ((plot cast f), newC)
 generator _ f _ _  = f
 
@@ -45,7 +52,6 @@ iter (f, cgen) n
   | otherwise = (f, cgen)
   where
     pack newC@(cast, _) = ((plot cast f), newC)
-iter a _ = a
 
 -- | Генерация новой точки
 -- Дайте мне трансформы, и я сверну мир
@@ -105,4 +111,4 @@ control (a,b) = not (cond sizeX a || cond sizeY b)
       x >   half size
 -- | alpha blending colours
 merge :: Double -> Color -> Color
-merge colC colour = red
+merge _ _ = red

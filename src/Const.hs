@@ -1,3 +1,9 @@
+{-|
+Module      : Const
+Description : Parameters for program and convertation functions
+Copyright   : Just Nothing
+Stability   : in progress
+-}
 module Const where
 import Graphics.Gloss
 

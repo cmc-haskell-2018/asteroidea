@@ -1,3 +1,9 @@
+{-|
+Module      : Variation
+Description : examples and instances for variation, transform, mb Model
+Copyright   : Just Nothing
+Stability   : in progress
+-}
 module Variation where
 import Prelude  
 --import Control.Category

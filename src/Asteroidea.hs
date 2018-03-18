@@ -1,3 +1,9 @@
+{-|
+Module      : Asteroidea
+Description : Main module, starting simulation
+Copyright   : Just Nothing
+Stability   : in progress
+-}
 module Asteroidea where
 
 import Graphics.Gloss
@@ -16,7 +22,7 @@ run = do
   --simulate window colour fps initField imageScan (updateField genRand) 
   playField window (1,1) fps initField getWorldPoint cap (updateField genRand 1)
   where
-    colour = backGrCol
+    -- colour = backGrCol
     fps = fpsMax
     window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
     -- FullScreen
