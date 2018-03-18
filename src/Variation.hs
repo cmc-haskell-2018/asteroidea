@@ -8,36 +8,51 @@ module Variation where
 import Prelude  
 --import Control.Category
 import System.Random
---import Graphics.Gloss
+import Graphics.Gloss
 import Types
 
+-- | random generator for debug purposes
 defGen :: StdGen
-defGen = mkStdGen 42 --For debug purposes
+defGen = mkStdGen 42 
 
---произведение КОРТЕЖА из генератора и вектора на скаляр
+-- | произведение КОРТЕЖА из генератора и вектора на скаляр
 (|*|)::Double->(StdGen,Vec) -> (StdGen,Vec)
 (|*|) scl (gen, (x,y)) = (gen, (scl*x , scl*y))
+-- | применение вариации
+calcVariation :: Variation -> (StdGen,Vec)-> (StdGen,Vec)
+calcVariation (Var s p f) a = s |*| (f p a)
 
+-- | DEBUG sphere 1
 dbgSpherical1 :: Variation
 dbgSpherical1 = Var 1 None spherical
-
+-- | DEBUG sphere 2
 dbgSpherical2 :: Variation
 dbgSpherical2 = Var (-2) None spherical
-
-calcVariation :: Variation -> (StdGen,Vec)-> (StdGen,Vec)
-calcVariation (Var s p f) a = s |*| (f p a)  
+-- | DEBUG affine 1
+dbgAffine1 :: Variation
+dbgAffine1 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0.5)) affineTransform
+-- | DEBUG affine 2
+dbgAffine2 :: Variation
+dbgAffine2 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) (-0.5))) affineTransform
+-- | DEBUG affine 3
+dbgAffine3 :: Variation
+dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 (-0.5))) affineTransform
+-- | DEBUG affine 4
+dbgAffine4 :: Variation
+dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affineTransform
 
 radius :: Project
 radius (x,y) = sqrt (x*x +y*y)
-
+-- | отображение в кожффициент потенциала в точке
 potent :: Project
 potent p = 1 / (radius p) ^ (2::Int)
 
--- примеры преобразований
+-- ======== примеры преобразований
+-- | сферическое преобразование
 spherical :: VariationFunc
 spherical _ (gen ,p@(x,y))  = (gen, (coef *x, coef *y))
   where coef = potent p
-
+-- | отображение в стиле множества Жюлиа
 juliaN :: VariationFunc
 juliaN (List (power:dist:_)) (gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t) , r**(dist/power)*(sin t)))
   where r = radius p
@@ -45,66 +60,30 @@ juliaN (List (power:dist:_)) (gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t) , r*
         p3 = fromInteger . truncate $ k*power
         t = ((atan2 y x) + 2*pi*p3)/power
 juliaN _ a = a
-
+-- | афинное преобразование
 affineTransform :: VariationFunc 
 affineTransform (Matrix m) (gen,(x,y)) = (gen, (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m))
 affineTransform _ a = a
 
-dbgAffine1 :: Variation
-dbgAffine1 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0.5)) affineTransform
-
-dbgAffine2 :: Variation
-dbgAffine2 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) (-0.5))) affineTransform
-
-dbgAffine3 :: Variation
-dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 (-0.5))) affineTransform
-
-dbgAffine4 :: Variation
-dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affineTransform
-
-{--
-data Transform = Transform {
-transformName :: String,
-variation :: Variation,  
-weight :: Double,
-colorPosition :: Double,
-colorSpeed :: Double,
-opacity :: Double,
-xaos :: [Double]
-}
---}
 t1 :: Transform
+-- ^ DEBUG transform 1
 t1 = Transform "t1" dbgAffine1 1 1 0 1 []
 t2 :: Transform
+-- ^ DEBUG transform 2
 t2 = Transform "t2" dbgAffine2 1 0.889 0 1 []
 t3 :: Transform
+-- ^ DEBUG transform 3
 t3 = Transform "t3" dbgAffine3 1 1 0 1 []
 t4 :: Transform
+-- ^ DEBUG transform 4
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 
-{--
-data Model = Model {
-  modelName :: String,
-  tranforms :: [Transform],
-  camera :: Maybe Transform,
-  gradient :: [Color],
-  width :: Int,
-  height :: Int,
-  mScale :: Double,
-  rotation :: Double
-} 
---}
 exampleModel :: Model 
 exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
   where
-   grad = [] 
+   grad = [blue]
 
 {--
-<flame name="69" version="Apophysis 7x" size="1024 1024" center="0 0" scale="512" cam_dof="1.631" oversample="1" filter="0.2" quality="1" background="0 0 0" brightness="8.65217391304348" gamma="5" vibrancy="1.1" estimator_radius="9" estimator_minimum="0" estimator_curve="0.4" enable_de="0" plugins="" new_linear="1" curves="0 0 1 0 0 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1" >
-   <xform weight="0.5" color="1" linear="1" flatten="1" coefs="0.5 0 0 0.5 0.5 -1" opacity="1" name="test"/>
-   <xform weight="0.5" color="0.889" linear="1" flatten="1" coefs="-0.5 0 0 0.5 -0.5 0.5" opacity="1" />
-   <xform weight="0.5" color="0" linear="1" flatten="1" coefs="0 -0.5 -0.5 0 0.5 0.5" opacity="1" name="test2"/>
-   <xform weight="0.5" color="0" symmetry="1" linear="1" flatten="1" coefs="0 0.5 -0.5 0 -0.5 -0.5" opacity="1" />
    <palette count="256" format="RGB">
       4B6ECA0AA1F007B8EC78DAF7A3E9EBB3E9E9A4EBE5A4E9E6
       6AAEEB04B8EB03B9EB1EB6CB6BB7AB7FCBA5B0BC94CFAA52
@@ -139,5 +118,4 @@ exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
       6B76666B787E6A87994A3EBE3E20A20A326D053A30003B2A
       0137290434280731251F2F250A272301232500121D160F05
    </palette>
-</flame>
 --}

@@ -7,7 +7,6 @@ Stability   : in progress
 module Const where
 import Graphics.Gloss
 
-
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
 innerIter = 30
@@ -38,6 +37,7 @@ zoom :: Float
 zoom = 0.5*1000
 backGrCol :: Color
 -- ^ Цвет заднего фона
+-- Точно нужен в Gloss simulate, deprecated
 backGrCol = black
 fpsMax :: Int
 -- ^ максимальная частота кадров.
