@@ -14,9 +14,9 @@ import Graphics.Gloss
 -- | Обёртка над Field, играющая роль мира. Без грязного IO.
 data World =
   World {
-    mugenga :: Field,
-    getSGen :: StdGen,
-    busList :: [Cast]
+    mugenga :: Field,  -- ^ 無限の写真
+    getSGen :: StdGen, -- ^ standart pseudorandom number generator
+    busList :: [Cast]  -- ^ BiUnitSquare coverage list
         }
 -- | Вариация как она есть, с параметрами, перевод CastGen -> CastGen
 type VariationFunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 
@@ -68,6 +68,7 @@ data AffineMatrix = AffineMatrix {
   ox :: Double, 
   oy :: Double
 } deriving(Show)
+
 -- | тождественное преобразование
 idMatrix :: AffineMatrix
 idMatrix = AffineMatrix 1 0 0 1 0 0
