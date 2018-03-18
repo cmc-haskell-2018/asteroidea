@@ -56,7 +56,7 @@ iter (f, cgen) n
   where
     pack newC@(cast, _) = ((plot cast f), newC)
 
--- | Генерация новой точки
+-- | TODO Генерация новой точки
 -- Дайте мне трансформы, и я сверну мир
 newCast :: CastGen -> CastGen
 newCast (a,b) = (a,b)
@@ -81,6 +81,6 @@ control (a,b) = not (cond sizeX a || cond sizeY b)
       isInfinite x ||
       x < - half size ||
       x >   half size
--- | alpha blending colours
+-- | TODO alpha blending colours
 merge :: Double -> Color -> Color
 merge _ _ = red

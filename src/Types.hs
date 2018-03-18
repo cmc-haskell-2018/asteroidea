@@ -11,13 +11,15 @@ import System.Random
 import Data.Matrix
 import Graphics.Gloss
 --import Const
+
 -- | Обёртка над Field, играющая роль мира. Без грязного IO.
 data World =
   World {
-    mugenga :: Field,  -- ^ 無限の写真
+    mugenga :: Field,  -- ^ 無限画
     getSGen :: StdGen, -- ^ standart pseudorandom number generator
     busList :: [Cast]  -- ^ BiUnitSquare coverage list
         }
+
 -- | Вариация как она есть, с параметрами, перевод CastGen -> CastGen
 type VariationFunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 
 -- | Любое отображение из R2 -> R
@@ -91,7 +93,6 @@ xaos :: [Double]
 data Model = Model {
   modelName :: String,
   -- | череда трансформ
-  -- 
   tranforms :: [Transform],
   -- viewPoint, условно
   camera :: Maybe Transform,

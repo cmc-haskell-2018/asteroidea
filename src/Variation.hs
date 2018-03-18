@@ -86,11 +86,6 @@ exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
    grad = [blue] 
 
 {--
-<flame name="69" version="Apophysis 7x" size="1024 1024" center="0 0" scale="512" cam_dof="1.631" oversample="1" filter="0.2" quality="1" background="0 0 0" brightness="8.65217391304348" gamma="5" vibrancy="1.1" estimator_radius="9" estimator_minimum="0" estimator_curve="0.4" enable_de="0" plugins="" new_linear="1" curves="0 0 1 0 0 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1 0 0 1 0 0 1 1 1 1 1 1 1" >
-   <xform weight="0.5" color="1" linear="1" flatten="1" coefs="0.5 0 0 0.5 0.5 -1" opacity="1" name="test"/>
-   <xform weight="0.5" color="0.889" linear="1" flatten="1" coefs="-0.5 0 0 0.5 -0.5 0.5" opacity="1" />
-   <xform weight="0.5" color="0" linear="1" flatten="1" coefs="0 -0.5 -0.5 0 0.5 0.5" opacity="1" name="test2"/>
-   <xform weight="0.5" color="0" symmetry="1" linear="1" flatten="1" coefs="0 0.5 -0.5 0 -0.5 -0.5" opacity="1" />
    <palette count="256" format="RGB">
       4B6ECA0AA1F007B8EC78DAF7A3E9EBB3E9E9A4EBE5A4E9E6
       6AAEEB04B8EB03B9EB1EB6CB6BB7AB7FCBA5B0BC94CFAA52
@@ -125,5 +120,4 @@ exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
       6B76666B787E6A87994A3EBE3E20A20A326D053A30003B2A
       0137290434280731251F2F250A272301232500121D160F05
    </palette>
-</flame>
 --}
