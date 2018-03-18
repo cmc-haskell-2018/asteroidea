@@ -5,11 +5,19 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 module Types where
-import Prelude  
+import Prelude
 --import Control.Category
 import System.Random
 import Data.Matrix
 import Graphics.Gloss
+--import Const
+
+data World =
+  World {
+    field :: Field,
+    gen   :: StdGen,
+    bus   :: [Cast]
+        }
 -- | Вариация как она есть, с параметрами, перевод CastGen -> CastGen
 type VariationFunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 
 -- | Любое отображение из R2 -> R
@@ -31,7 +39,7 @@ type CastGen = ((Vec, Double),StdGen)
 -- В ответ мы получаем лишь возможность использовать
 -- знакомую точку (.) для композиции.
 -- Так стоит ли это того?  
-data Var a b = Var Params (Params->a->b)
+newtype Var a b = Var Params (Params->a->b)
 instance Category Var where
   id = Var None (\_ a -> a)
 -- @
@@ -97,4 +105,4 @@ data Model = Model {
   mScale :: Double,
   -- | и поворот.
   rotation :: Double
-} 
+}
