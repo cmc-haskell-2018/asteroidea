@@ -2,14 +2,13 @@ main :: IO ()
 main = putStrLn "Test suite not yet implemented"
 
 {--
-
-:{
 import System.Random
 import Data.Matrix
+:{
 let 
   gen = mkStdGen 42
-  f = createField 3 3
-  pack newC@(cast, _) = ((plot cast f), newC)
+  field = createField sizeX sizeY
+  pack newC@(cast, _) = ((plot cast field), newC)
   ctrl ((point,col),gen) = control point
   castgen = busPoint (mkStdGen 42) 8
   cast = fst castgen

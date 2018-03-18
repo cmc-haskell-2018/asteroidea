@@ -19,48 +19,53 @@ initFunction x y =
 
 -- | обновление поля - добавление в него серий бросков, числом от дельты времени
 updateField :: StdGen -> viewPoint -> Float -> Field -> Field
-updateField gR _ dt field = (generator gR field (floor (dt*numCast)))
+updateField gR _ dt field = 
+  generator
+  gR
+  field
+  3 --(floor (dt*numCast))
+  -- 2 в центре пр-уг
+  -- 3 ниже центра пр-уг
+  0
 -- | генератор нового поля
-generator :: StdGen -> Field -> Int -> Field
---generator g f n | n > 0  = rty (iter (f,(busPoint g n)) 0) (n-1)
-generator g f n | n > 0  = rty ( temp (f,(busPoint g n)) 0) (n-1)
+generator :: StdGen -> Field -> Int -> Int -> Field
+--generator g f m n | n < m  = rty (iter (f,(busPoint g n)) 0) m (n+1)
+generator g f m n | n < m  = rty ( temp (f,(busPoint g n)) 0) m (n+1)
   where
     rty (f,(_,g)) = generator g f
     temp (_,cGen) _ = pack cGen
     pack newC@(cast, _) = ((plot cast f), newC)
-generator _ f _  = f
+generator _ f _ _  = f
 
--- | Точка, начальный цвет в карте градиентов [0,1), указатель
+-- | Точка и цвет в карте градиентов [0,1)
 type Cast = (Vec, Double)
+-- | Бросок с привязанным генератором
 type CastGen = ((Vec, Double),StdGen)
 -- | Iterator for loop inner_iter
--- | new Field, new PRNG
--- | броски одной точки
+-- new Field, new PRNG
+-- броски одной точки
 iter :: (Field, CastGen) -> Int -> (Field, CastGen)
 iter (f, cgen) n
   | n<lowThreshold = iter (f,(newCast cgen)) (n+1)
-  | n<innerIter = iter (f,(newCast cgen)) (n+1)
+  | n<innerIter = iter (pack (newCast cgen)) (n+1)
   | otherwise = (f, cgen)
-{--iter (f, cgen) n
-  | n<lowThreshold  = iter (f,(newCast cgen)) (n+1)
-  | n<innerIter  = iter (pack (newCast cgen)) (n+1)
-  | otherwise = (f,cgen)
   where
-    pack newC@(cast, _) = ((plot cast f), newC)--}
+    pack newC@(cast, _) = ((plot cast f), newC)
 iter a _ = a
 
 -- | Генерация новой точки
--- | Дайте мне трансформы, и я сверну мир
+-- Дайте мне трансформы, и я сверну мир
 newCast :: CastGen -> CastGen
 newCast (a,b) = (a,b)
 -- | BiUnitSquarePoint random from [-1,1)^2
--- | with color from [0,1) and pointer for model
--- | PRNG is asking and answering as g
+-- with color from [0,1)
+-- PRNG is asking and answering as g
 busPoint :: StdGen -> Int -> CastGen
-busPoint g i = (busPointList g) !! i
-busPointList :: StdGen -> [CastGen]
-busPointList g = 
-  [((point,colC),g) | point <- biUnitTiling]
+busPoint g i = (busPointList !! i, g)
+-- | Cast Infinite List
+busPointList :: [Cast]
+busPointList = 
+  [(point,colC) | point <- biUnitTiling]
   where
     colC = 0.5
 
@@ -71,16 +76,13 @@ plot ((ordX, ordY), colC) field
   | otherwise = field
   where
     colour = merge colC $ getPoint coord
-    getPoint (a,b) = unsafeGet a b field
+    getPoint (a,b) = getElem a b field
     flag = control (ordX, ordY)
-    coord = (trr sizeX ordX, trr sizeY ordY)
+    coord = ((trr sizeX) ordX, (trr sizeY) ordY)
     trr size = truncate . (+ ((fromIntegral size)/2))
 -- | проверка границ
 control :: (Double,Double) -> Bool
-control (a,b)
-  | cond sizeX a = False
-  | cond sizeY b = False
-  | otherwise        = True
+control (a,b) = not (cond sizeX a || cond sizeY b)
   where
     cond size x =
       isNaN x ||

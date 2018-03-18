@@ -68,7 +68,6 @@ nthNeigbours n = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
 biUnitTiling :: [Vec]
 biUnitTiling = concat  [ nthNeigbours i | i <- [0,1..]]
 
-
 -- примеры преобразований
 spherical :: VariationFunc
 spherical _ (gen ,p@(x,y))  = (gen, (1/r^2 *x, 1/r^2*y))

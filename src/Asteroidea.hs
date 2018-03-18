@@ -7,7 +7,7 @@ import System.Random
 import Const
 import Data.Matrix
 import Types
-
+-- | Поехали!
 run :: IO ()
 run = do
 -- | Генератор случайных чисел, начальная инициализация
@@ -30,20 +30,20 @@ getWorldPoint :: Field -> Point -> Color
 getWorldPoint field (i,j) =
   getElem trrI trrJ field
   where
-    trrI = round ((half sizeX) + i)
-    trrJ = round ((half sizeY) + j)
+    trrI = round ((i+1)*(half sizeX) ) + 1
+    trrJ = round ((j+1)*(half sizeY) ) + 1
 
--- | Вывод поля на экран simulate
 {--
+-- | Вывод поля на экран simulate
 imageScan :: Field -> Picture
 imageScan field =
   pictures $ concat
   [
-    [ -- | Покраска в цвет точки,
+    [ -- ^ Покраска в цвет точки,
       Color
-      -- | не контролируя выход за границы массива,
+      -- ^ не контролируя выход за границы массива,
       (unsafeGet i j field) $
-      -- | квадрата, покрывающего данную точку
+      -- ^ квадрата, покрывающего данную точку
       Polygon $
       (getNeigbours dl (fishX i, fishY j))
       | i <- [1..sizeX]
