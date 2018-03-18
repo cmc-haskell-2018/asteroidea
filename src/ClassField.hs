@@ -31,16 +31,14 @@ updateField gR _ dt field =
   gR
   field
   (floor (dt*numCast))
+  (0::Int)
 -- ^ просто для того, чтобы нумерация была удобной
-  0 
+
 -- | генератор нового поля
 generator :: StdGen -> Field -> Int -> Int -> Field
---generator g f m n | n < m  = rty (iter (f,(busPoint g n)) 0) m (n+1)
-generator g f m n | n < m  = rty ( temp (f,(busPoint g n)) ) m (n+1)
+generator g f m n | n < m  = rty (iter (f,(busPoint g n)) 0) m (n+1)
   where
     rty (a,(_,b)) = generator b a
-    temp (_,cGen) = pack cGen
-    pack newC@(cast, _) = ((plot cast f), newC)
 generator _ f _ _  = f
 
 -- | Iterator for loop inner_iter

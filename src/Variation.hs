@@ -34,7 +34,7 @@ radius :: Project
 radius (x,y) = sqrt (x*x +y*y)
 
 potent :: Project
-potent p = 1 / (radius p) ^ 2
+potent p = 1 / (radius p) ^ (2::Int)
 
 -- примеры преобразований
 spherical :: VariationFunc
@@ -45,7 +45,7 @@ juliaN :: VariationFunc
 juliaN (List (power:dist:_)) (gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t) , r**(dist/power)*(sin t)))
   where r = radius p
         k = fst $ (random gen) :: Double 
-        p3 = fromIntegral $ truncate (k*power)
+        p3 = fromIntegral . truncate $ k*power
         t = ((atan2 y x) + 2*pi*p3)/power
 juliaN _ a = a
 
