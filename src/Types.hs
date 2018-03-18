@@ -72,7 +72,7 @@ transformName :: String,
 -- variation :: [ [(Double, Variation)] ] ??
 variation :: Variation,  
 weight :: Double,
-colorPosition :: Double,
+colorPosition :: Double, 
 colorSpeed :: Double,
 opacity :: Double,
 xaos :: [Double]

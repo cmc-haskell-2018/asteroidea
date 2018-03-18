@@ -24,18 +24,6 @@ dbgSpherical1 = Var 1 None spherical
 dbgSpherical2 :: Variation
 dbgSpherical2 = Var (-2) None spherical
 
-dbgAffine1 :: Variation
-dbgAffine1 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0.5)) affineTransform
-
-dbgAffine2 :: Variation
-dbgAffine2 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) (-0.5))) affineTransform
-
-dbgAffine3 :: Variation
-dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 (-0.5))) affineTransform
-
-dbgAffine4 :: Variation
-dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affineTransform
-
 calcVariation :: Variation -> (StdGen,Vec)-> (StdGen,Vec)
 calcVariation (Var s p f) a = s |*| (f p a)  
 
@@ -62,6 +50,18 @@ affineTransform :: VariationFunc
 affineTransform (Matrix m) (gen,(x,y)) = (gen, (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m))
 affineTransform _ a = a
 
+dbgAffine1 :: Variation
+dbgAffine1 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0.5)) affineTransform
+
+dbgAffine2 :: Variation
+dbgAffine2 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) (-0.5))) affineTransform
+
+dbgAffine3 :: Variation
+dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 (-0.5))) affineTransform
+
+dbgAffine4 :: Variation
+dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affineTransform
+
 {--
 data Transform = Transform {
 transformName :: String,
@@ -81,7 +81,6 @@ t3 :: Transform
 t3 = Transform "t3" dbgAffine3 1 1 0 1 []
 t4 :: Transform
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
-
 
 {--
 data Model = Model {
