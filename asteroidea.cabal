@@ -20,7 +20,7 @@ library
   other-modules:       ClassField
                      , Types
                      , Const
-                     , Variation
+                     , Variations
                      , GVector
                      , Gradient
   build-depends:       base >= 4.7 && < 5
@@ -50,7 +50,7 @@ test-suite asteroidea-test
   other-modules:       ClassField
                      , Types
                      , Const
-                     , Variation
+                     , Variations
                      , GVector
                      , Gradient
   build-depends:       base >= 4.7 && < 5
