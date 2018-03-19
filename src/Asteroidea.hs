@@ -21,57 +21,35 @@ run = do
 -- Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
 -- Запуск симуляции
---simulate window colour fps initField imageScan (updateField genRand)
---colour = backGrCol
-  playField window (1,1) fps (initWorld genRand) getWorldPoint cap updateWorld
+  playField window (1,1) fps (initWorld genRand) getter cap update
   where
     fps = fpsMax
-    window = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
--- FullScreen
+    getter = getWorldPoint
+    window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
+    update = updateWorld
+-- window -- FullScreen
+
+-- | Act of Creation
+-- создание мира
 initWorld :: StdGen -> World
--- ^ создание мира
-initWorld sgen = World (createField sizeX sizeY) sgen busPointList
+initWorld sGen = World (createField sizeX sizeY) sGen busPointList
 -- | заглушка на месте обработки событий
 cap :: a -> World -> World
 cap _ = id
 
 -- | Вывод поля на экран playField
 getWorldPoint :: World -> Point -> Color
-getWorldPoint bnw (i,j) =
-  getElem trrI trrJ (mugenga bnw)
+getWorldPoint bnw (i,j)
+  | flag = getElem trrI trrJ (mugenga bnw)
+  | otherwise = backGrCol
   where
-    trrI = round ((i+1)*(half sizeX) ) + 1
-    trrJ = round ((j+1)*(half sizeY) ) + 1
+    x = j*sinTheta + i*cosTheta
+    y = j*cosTheta - i*sinTheta
+    trrI = round (x*halfX - shiftX)
+    trrJ = round (y*halfY - shiftY)
+    flag = not (cond sizeX trrI|| cond sizeY trrJ)
+    cond size a = a < 1 || a > size
 
-{--
--- | Вывод поля на экран simulate
-imageScan :: Field -> Picture
-imageScan field =
-  pictures $ concat
-  [
-    [ -- ^ Покраска в цвет точки,
-      Color
-      -- ^ не контролируя выход за границы массива,
-      (unsafeGet i j field) $
-      -- ^ квадрата, покрывающего данную точку
-      Polygon $
-      (getNeigbours dl (fishX i, fishY j))
-      | i <- [1..sizeX]
-    ] 
-    | j <- [1..sizeY]
-  ]
-  where
-    fishX i = (fromIntegral i-1) - (half sizeX)
-    fishY j = (fromIntegral j-1) - (half sizeY)
-    dl = 0.5
---}
-
--- | Cast Infinite List
-busPointList :: [Cast]
-busPointList = 
-  [(point, colC) | point <- biUnitTiling]
-  where
-    colC = 0.5
 -- | соседи одной точки, расположенные в центрах окружающих квадратов
 -- порядок обхода - по контуру
 -- полиморф только из-за повторного использования в Gloss simulate
@@ -89,6 +67,7 @@ nthNeigbours n | n>0 = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
   where
     dl = 2 ** (- fromIntegral n)
 nthNeigbours _ = [(0,0)]
+-- | Cast Infinite List
 -- | бесконечный список соседей
-biUnitTiling :: [Vec]
-biUnitTiling = concat [ nthNeigbours i | i <- [0,1..]]
+busPointList :: [Vec]
+busPointList = concat [ nthNeigbours i | i <- [0,1..]]
