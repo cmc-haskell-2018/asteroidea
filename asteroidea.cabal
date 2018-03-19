@@ -25,6 +25,7 @@ library
                      , Gradient
                      , Examples
                      , PostColoring
+                     , VarTree
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster
@@ -57,6 +58,7 @@ test-suite asteroidea-test
                      , Gradient
                      , Examples
                      , PostColoring
+                     , VarTree
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , random
