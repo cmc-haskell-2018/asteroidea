@@ -7,18 +7,37 @@ Stability   : in progress
 module ClassField where
 
 import Graphics.Gloss
--- import System.Random
+import System.Random
 import Data.Matrix
 import Types
 import Const
-
+import GVector()
+-- | Обёртка над Field, играющая роль мира. Без грязного IO.
+data World =
+  World  {
+    mugenga :: Field,  -- ^ 無限画
+    getSGen :: StdGen, -- ^ standart pseudorandom number generator
+    busList :: [Vec]  -- ^ BiUnitSquare coverage list
+        }
+-- | Точка и цвет в карте градиентов [0,1)
+type Cast = (Vec, Double)
+-- | Бросок с привязанным генератором
+type CastGen = (GVec,Double)
+-- | Поле есть матрица цветов
+type Field = Matrix Color
 -- | Создание изначального поля
 createField :: Int -> Int -> Field
 createField x y = matrix x y (initFunction x y)
 -- | Начальное заполнение фона
 initFunction :: Int -> Int -> ((Int,Int)->Color)
 initFunction _ _ =
-  (\_ -> makeColorI 34 139 34 255)
+  (\(a,b) ->
+     makeColorI
+     (a `div` 10 + 1)
+     (140 - a `div` 106 - b `div` 60)
+     (34 + b `div` 10)
+     255
+  )
 {-| ^ веселья ради можно поставить что-то ещё,
  но цвет лесной зелени приятен глазу, как ветви молодых деревьев в летнем саду.
  >>> ( \_ -> makeColor 0.13 0.54 0.13 1.0)
@@ -37,13 +56,13 @@ updateWorld dt bnw =
 generator :: World -> Int -> Int -> World
 generator bnw m n | n<m  = rty (iter (mugenga bnw, busPoint bnw) 0) m (n+1)
   where
-    rty (a,(_,b)) = generator . World a b $ tail . busList $ bnw
+    rty (f,(gvec,_)) = generator . World f (vgGen gvec) $ tail . busList $ bnw
 generator a _ _  = a
 
 -- | BiUnitSquarePoint  from [-1,1)^2
 -- with colour 0.5
 busPoint :: World -> CastGen
-busPoint bnw = (head $ busList bnw, getSGen bnw)
+busPoint bnw = (GVec (getSGen bnw) (head $ busList bnw), 0.5)
 
 -- | Iterator for loop inner_iter
 -- new Field, new PRNG
@@ -54,12 +73,12 @@ iter (f, cgen) n
   | n<innerIter = iter (pack (newCast cgen)) (n+1)
   | otherwise = (f, cgen)
   where
-    pack newC@(cast, _) = ((plot cast f), newC)
+    pack newC@(gvec, colour) = ((plot (vgVec gvec, colour) f), newC)
 
 -- | TODO Генерация новой точки
 -- Дайте мне трансформы, и я сверну мир
 newCast :: CastGen -> CastGen
-newCast (a,b) = (a,b)
+newCast a = a
 
 -- | Размещение точки в поле
 plot :: Cast -> Field -> Field
@@ -74,13 +93,13 @@ plot ((ordX, ordY), colC) field
     trr size = truncate . (+ ((fromIntegral size)/2))
 -- | проверка границ
 control :: (Double,Double) -> Bool
-control (a,b) = not (cond sizeX a || cond sizeY b)
+control (a,b) = not (cond halfX a || cond halfY b)
   where
     cond size x =
       isNaN x ||
       isInfinite x ||
-      x < - half size ||
-      x >   half size
+      x < - size ||
+      x >   size
 -- | TODO alpha blending colours
 merge :: Double -> Color -> Color
 merge _ _ = red

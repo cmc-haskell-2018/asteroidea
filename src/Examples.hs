@@ -46,7 +46,7 @@ t3 = Transform "t3" dbgAffine3 1 1 0 1 []
 t4 :: Transform
 -- ^ DEBUG transform 4
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
-
+-- | exampleModel 69
 exampleModel :: Model 
 exampleModel = Model "69" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
   where

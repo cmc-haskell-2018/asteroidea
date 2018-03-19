@@ -5,8 +5,43 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 module Const where
-import Graphics.Gloss
-
+import Examples (exampleModel)
+import Graphics.Gloss.Data.Color (Color,makeColor)
+import Types (Model,width,height,mScale,rotation)
+-- | export example model
+mainModel :: Model
+mainModel = exampleModel
+-- | x size of field, model, window, etc
+sizeX :: Int
+sizeX = width  mainModel
+-- | y size of field, model, window, etc
+sizeY :: Int
+sizeY = height mainModel
+-- | смещение центра фрактала по оси абсцисс 
+shiftX :: Float
+shiftX = -1 - halfX
+-- | смещение центра фрактала по оси ординат
+shiftY :: Float
+shiftY = -1 - halfY
+-- | rotation in radian
+rotRad :: Double
+rotRad = (pi/360*) $ rotation mainModel
+-- | sin rotation
+sinTheta :: Float
+sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
+-- | cos rotation
+cosTheta :: Float
+cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
+-- | Scale Factor
+scaleFactor :: Double
+scaleFactor = (mScale mainModel) / 50
+{- Zoom Factor, scaling
+zoomFactor :: Double
+zoomFactor = exp
+-}
+-- | Цвет заднего фона
+backGrCol :: Color
+backGrCol = makeColor 0 0 0 1
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
 innerIter = 30
@@ -14,31 +49,28 @@ innerIter = 30
 -- | нижний порог числа бросков точки, после которого начинается отрисовка
 lowThreshold :: Int
 lowThreshold = 20
--- | стартовый размер поля
+-- | стартовый размер окна
 -- не хочу рисковать лагами
 -- 1920
-sizeX :: Int
-sizeX = 640
+winX :: Int
+winX = 640
 -- | половина поля, выраженная в вещественных значениях
-half :: (Fractional a) => Int -> a
-half size = (fromIntegral size)/2
--- | стартовый размер поля 
+halfX :: (Fractional a) => a
+halfX = (fromIntegral sizeX)/2
+-- | половина поля, выраженная в вещественных значениях
+halfY :: (Fractional a) => a
+halfY = (fromIntegral sizeY)/2
+-- | стартовый размер окна 
 -- 1080
-sizeY :: Int
-sizeY = 360
+winY :: Int
+winY = 360
 -- | стартовая позиция окна
 startPosX :: Int
 startPosX = 0
 -- | честно, ни малейшего понятия, будут ли здесь не нули
 startPosY :: Int
 startPosY = 0
--- | Фактор zoom.
-zoom :: Float
-zoom = 0.5*1000
-backGrCol :: Color
--- ^ Цвет заднего фона
--- Точно нужен в Gloss simulate, deprecated
-backGrCol = black
+
 fpsMax :: Int
 -- ^ максимальная частота кадров.
 -- единица это минимум
