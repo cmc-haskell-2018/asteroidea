@@ -54,7 +54,7 @@ spherical _ (gen ,p@(x,y))  = (gen, (coef *x, coef *y))
   where coef = potent p
 -- | отображение в стиле множества Жюлиа
 juliaN :: VariationFunc
-juliaN (List (power:dist:_)) (gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t) , r**(dist/power)*(sin t)))
+juliaN (List (power:dist:_)) (next gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t) , r**(dist/power)*(sin t)))
   where r = radius p
         k = fst $ (random gen) :: Double 
         p3 = fromInteger . truncate $ k*power
