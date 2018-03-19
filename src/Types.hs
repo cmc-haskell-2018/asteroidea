@@ -4,12 +4,13 @@ Description : declarating types, implementation of main data, etc
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Types where
+module Types (module Types, module GVector) where -- re-export GVector for Everyone using Types
 import Prelude
 --import Control.Category
 import System.Random
 import Data.Matrix
 import Graphics.Gloss
+import GVector
 --import Const
 
 -- | Обёртка над Field, играющая роль мира. Без грязного IO.
@@ -21,13 +22,9 @@ data World =
         }
 
 -- | Вариация как она есть, с параметрами, перевод CastGen -> CastGen
-type VariationFunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 
+type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возможно стоит использовать Nan'ы 
 -- | Любое отображение из R2 -> R
 type Project = Vec ->  Double
--- | Вектор Double
--- VS Gloss.Data.Point Float
--- вектор не привязан к СК.
-type Vec = (Double, Double) 
 -- | Поле есть матрица цветов
 type Field = Matrix Color
 -- | Точка и цвет в карте градиентов [0,1)
