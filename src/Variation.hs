@@ -11,10 +11,6 @@ import System.Random
 import Graphics.Gloss
 import Types
 
--- | random generator for debug purposes
-defGen :: StdGen
-defGen = mkStdGen 42 
-
 -- | произведение КОРТЕЖА из генератора и вектора на скаляр
 (|*|)::Double->(StdGen,Vec) -> (StdGen,Vec)
 (|*|) scl (gen, (x,y)) = (gen, (scl*x , scl*y))

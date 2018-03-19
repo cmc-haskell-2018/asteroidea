@@ -11,6 +11,9 @@ import System.Random
 import Graphics.Gloss
 import Types
 
+-- | random generator for debug purposes
+defGen :: StdGen
+defGen = mkStdGen 42 
 -- | DEBUG sphere 1
 dbgSpherical1 :: Variation
 dbgSpherical1 = Var 1 None spherical
