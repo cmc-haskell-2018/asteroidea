@@ -14,7 +14,7 @@ import Types
 
 -- | random generator for debug purposes
 defGen :: StdGen
-defGen = mkStdGen 42 
+defGen = mkStdGen 47
 -- | DEBUG sphere 1
 dbgSpherical1 :: Variation
 dbgSpherical1 = Var 1 None spherical
@@ -33,6 +33,12 @@ dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 (-0.5))) affineTransfor
 -- | DEBUG affine 4
 dbgAffine4 :: Variation
 dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affineTransform
+-- | DEBUG square
+dbgSquare :: Variation
+dbgSquare = Var (1) None square
+-- | DEBUG GVec
+dbgGVec :: GVec
+dbgGVec = GVec defGen (1,1)
 
 t1 :: Transform
 -- ^ DEBUG transform 1

@@ -74,3 +74,18 @@ spiral _ g@(GVec gen _) = GVec gen (r' * (cos th + sin r) , r' * (sin th - cos r
   where th = antiPhase g
         r = magnitude g
         r' = 1/(magnitude g)
+
+-- | hyperbolic
+hyperbolic :: VariationFunc
+hyperbolic _ g@(GVec gen _) = GVec gen ( (sin th)/r, r*(cos th) )
+  where th = antiPhase g
+        r = magnitude g
+
+-- | square
+square :: VariationFunc
+square _ (GVec gen _) = GVec (snd n2) (psi1 - 0.5 , psi2 - 0.5)
+  where n1 = random gen 
+        psi1 = fst n1 
+        n2 = random (snd n1) 
+        psi2 = fst n2 
+

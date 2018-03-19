@@ -4,7 +4,7 @@ Description : declarating types, implementation of main data, etc
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Types (module Types, module GVector) where -- re-export GVector for Everyone using Types
+module Types (module Types, module GVector, module System.Random) where -- re-export GVector for Everyone using Types
 import Prelude
 --import Control.Category
 import System.Random

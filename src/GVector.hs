@@ -16,7 +16,7 @@ type Vec = (Double, Double)
 data GVec = GVec {
   vgGen :: StdGen,
   vgVec :: Vec
-}
+}deriving(Show)
 
 gvX :: GVec -> Double
 gvX (GVec _ (x ,_)) = x 
