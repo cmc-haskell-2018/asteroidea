@@ -23,6 +23,8 @@ library
                      , Variations
                      , GVector
                      , Gradient
+                     , Examples
+                     , PostColoring
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster
@@ -53,6 +55,8 @@ test-suite asteroidea-test
                      , Variations
                      , GVector
                      , Gradient
+                     , Examples
+                     , PostColoring
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , random

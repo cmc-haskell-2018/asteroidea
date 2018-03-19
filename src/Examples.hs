@@ -7,6 +7,7 @@ Stability   : in progress
 module Examples where
 import Prelude  
 --import Control.Category
+import Variations
 import System.Random
 import Graphics.Gloss
 import Types
