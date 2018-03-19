@@ -13,24 +13,11 @@ import Graphics.Gloss
 import GVector
 --import Const
 
--- | Обёртка над Field, играющая роль мира. Без грязного IO.
-data World =
-  World {
-    mugenga :: Field,  -- ^ 無限画
-    getSGen :: StdGen, -- ^ standart pseudorandom number generator
-    busList :: [Cast]  -- ^ BiUnitSquare coverage list
-        }
 
--- | Вариация как она есть, с параметрами, перевод CastGen -> CastGen
+-- | Вариация как она есть, с параметрами, перевод GVec -> GVec
 type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возможно стоит использовать Nan'ы 
 -- | Любое отображение из R2 -> R
 type Project = Vec ->  Double
--- | Поле есть матрица цветов
-type Field = Matrix Color
--- | Точка и цвет в карте градиентов [0,1)
-type Cast = (Vec, Double)
--- | Бросок с привязанным генератором
-type CastGen = ((Vec, Double),StdGen)
 
 {--
 -- Категория значительно затуманивает устройство обёртки,

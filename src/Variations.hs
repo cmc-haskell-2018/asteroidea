@@ -14,10 +14,10 @@ import Types
 calcVariation :: Variation -> GVec-> GVec
 calcVariation (Var s p f) a = s |*| (f p a)
 
-
+-- | проекция модуль радиус-вектора полярных координат
 radius :: Project
 radius (x,y) = sqrt (x*x +y*y)
--- | отображение в кожффициент потенциала в точке
+-- | отображение в коэффициент потенциала в точке
 potent :: Project
 potent p = 1 / (radius p) ^ (2::Int)
 

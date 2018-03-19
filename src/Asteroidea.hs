@@ -13,8 +13,7 @@ import Data.Matrix
 
 import Const
 import Types
-import ClassField (createField, updateWorld)
-
+import ClassField
 
 -- | Поехали!
 run :: IO ()
@@ -22,15 +21,14 @@ run = do
 -- Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
 -- Запуск симуляции
-  playField
-    (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
--- ^ window -- FullScreen
-    (1,1) -- ^ Number of pixels to draw per point. ???
-    fpsMax
-    (initWorld genRand)
-    getWorldPoint -- ^ Print World
-    cap -- ^ Event handler
-    updateWorld
+  playField window (1,1) fps (initWorld genRand) getter cap update
+  where
+    fps = fpsMax
+    getter = getWorldPoint
+    window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
+    update = updateWorld
+-- window -- FullScreen
+
 -- | Act of Creation
 -- создание мира
 initWorld :: StdGen -> World
@@ -52,12 +50,6 @@ getWorldPoint bnw (i,j)
     flag = not (cond sizeX trrI|| cond sizeY trrJ)
     cond size a = a < 1 || a > size
 
--- | Cast Infinite List
-busPointList :: [Cast]
-busPointList = 
-  [(point, colC) | point <- biUnitTiling]
-  where
-    colC = 0.5
 -- | соседи одной точки, расположенные в центрах окружающих квадратов
 -- порядок обхода - по контуру
 -- полиморф только из-за повторного использования в Gloss simulate
@@ -75,6 +67,7 @@ nthNeigbours n | n>0 = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
   where
     dl = 2 ** (- fromIntegral n)
 nthNeigbours _ = [(0,0)]
+-- | Cast Infinite List
 -- | бесконечный список соседей
-biUnitTiling :: [Vec]
-biUnitTiling = concat [ nthNeigbours i | i <- [0,1..]]
+busPointList :: [Vec]
+busPointList = concat [ nthNeigbours i | i <- [0,1..]]

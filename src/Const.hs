@@ -5,9 +5,12 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 module Const where
-import Variation (mainModel)
+import Examples (exampleModel)
 import Graphics.Gloss.Data.Color (Color,makeColor)
-import Types (width,height,mScale,rotation)
+import Types (Model,width,height,mScale,rotation)
+-- | export example model
+mainModel :: Model
+mainModel = exampleModel
 -- | x size of field, model, window, etc
 sizeX :: Int
 sizeX = width  mainModel
@@ -19,13 +22,13 @@ rotRad :: Double
 rotRad = (pi/360*) $ rotation mainModel
 -- | sin rotation
 sinTheta :: Float
-sinTheta = realToFrac . (/zoomFactor) $ (sin rotRad)
+sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
 -- | cos rotation
 cosTheta :: Float
-cosTheta = realToFrac . (/zoomFactor) $ (cos rotRad)
+cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
 -- | Zoom Factor, scaling
-zoomFactor :: Double
-zoomFactor = exp . mScale $ mainModel
+scaleFactor :: Double
+scaleFactor = exp ((mScale $ mainModel)-50)
 -- | Цвет заднего фона
 backGrCol :: Color
 backGrCol = makeColor 0 0 0 1
