@@ -34,3 +34,19 @@ nextGen (GVec gen v) = GVec (snd $ next gen) v
 instance Eq GVec where
   (==) gv1 gv2 = vgVec gv1 == vgVec gv2
 
+phase :: GVec->Double
+phase (GVec _ (0,0)) = 0
+phase (GVec _ (x,y)) = atan2 y x
+
+magnitude :: GVec->Double
+magnitude (GVec _ (x,y)) = sqrt (x*x +y*y)
+
+instance Num GVec where
+  (+) (GVec g (x1,y1)) (GVec _ (x2,y2)) = GVec g ( x1+x2, y1+y2) 
+  (*) (GVec g (x1,y1)) (GVec _ (x2,y2)) = GVec g ( x1*x2-y1*y2, x1*y2+x2*y1)
+  negate (GVec g (x1,y1)) = GVec g (negate x1, negate y1)
+  abs gv@(GVec g _) = GVec g (magnitude gv, 0) 
+  signum (GVec g (0,0)) = GVec g (0, 0)
+  signum gv@(GVec g (x,y)) = GVec g (x/r, y/r) where r = magnitude gv
+  fromInteger i = (GVec (mkStdGen 42) (fromInteger i,0))
+
