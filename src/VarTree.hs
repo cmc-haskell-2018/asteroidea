@@ -8,7 +8,6 @@ module VarTree where
 import Prelude  
 import System.Random
 import Types
-import GVector
 
 type Operation = GVec->GVec->GVec
 type Path = [Int]

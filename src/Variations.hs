@@ -8,9 +8,7 @@ module Variations where
 import Prelude  
 --import Control.Category
 import System.Random
-import Graphics.Gloss
 import Types
-import GVector
 
 -- | применение вариации
 calcVariation :: Variation -> GVec-> GVec
