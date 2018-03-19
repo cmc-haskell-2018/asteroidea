@@ -14,24 +14,21 @@ import Types
 calcVariation :: Variation -> GVec-> GVec
 calcVariation (Var s p f) a = s |*| (f p a)
 
--- | проекция модуль радиус-вектора полярных координат
-radius :: Project
-radius (x,y) = sqrt (x*x +y*y)
 -- | отображение в коэффициент потенциала в точке
-potent :: Project
-potent p = 1 / (radius p) ^ (2::Int)
+--potent :: Project
+--potent p = 1 / (magnitude p) ^ (2::Int)
 
 
 -- ======== преобразования
 -- | сферическое преобразование
 spherical :: VariationFunc
-spherical _ (GVec gen p@(x,y))  = GVec gen (coef *x, coef *y)
-  where coef = potent p
+spherical _ g@(GVec gen (x,y))  = GVec gen (coef *x, coef *y)
+  where coef = 1 / (radiusSqr g)
 
 -- | отображение в стиле множества Жюлиа
 juliaN :: VariationFunc --nexGen isn't the most efficient way, you d better take next gen from that (random gen) :: Double from k
-juliaN (List (power:dist:_)) (GVec gen p@(x,y)) = nextGen (GVec gen (r**(dist/power)*(cos t) , r**(dist/power)*(sin t))) 
-  where r = radius p
+juliaN (List (power:dist:_)) g@(GVec gen (x,y)) = nextGen (GVec gen (r**(dist/power)*(cos t) , r**(dist/power)*(sin t))) 
+  where r = magnitude g
         k = fst $ (random gen) :: Double 
         p3 = fromInteger . truncate $ k*power
         t = ((atan2 y x) + 2*pi*p3)/power
@@ -52,29 +49,28 @@ sinusoidal _ (GVec gen (x,y)) = GVec gen ((sin x), (sin y))
 
 -- | swirl
 swirl :: VariationFunc
-swirl _ (GVec gen p@(x,y)) = GVec gen ((x * (sin r2) - y * (cos r2)) , (x * (cos r2) + y * (sin r2)))
-  where r2 = (radius p) ^ (2::Int)
-
+swirl _ g@(GVec gen (x,y)) = GVec gen ((x * (sin r2) - y * (cos r2)) , (x * (cos r2) + y * (sin r2)))
+  where r2 = (radiusSqr g)
 -- | horseshoe
 horseshoe :: VariationFunc
-horseshoe _ (GVec gen p@(x,y)) = GVec gen (r' * (x - y) * (x + y) , r'*2*x*y)
-  where r' = 1/(radius p)
+horseshoe _ g@(GVec gen (x,y)) = GVec gen (r' * (x - y) * (x + y) , r'*2*x*y)
+  where r' = 1/(magnitude g)
 
 -- | polar
 polar :: VariationFunc
-polar _ g@(GVec gen p) = GVec gen (th/pi, r - 1)
-  where th = phase g
-        r = radius p
+polar _ g@(GVec gen _) = GVec gen (th/pi, r - 1)
+  where th = antiPhase g
+        r = magnitude g
 
 -- | disc
 disc :: VariationFunc
-disc  _ g@(GVec gen p) = GVec gen (th'*(sin (pi * r)) ,th' * (cos (pi * r)))
-  where th' = (phase g)/pi
-        r = radius p
+disc  _ g@(GVec gen _) = GVec gen (th'*(sin (pi * r)) ,th' * (cos (pi * r)))
+  where th' = (antiPhase g)/pi
+        r = magnitude g
 
 -- | spiral
 spiral :: VariationFunc
-spiral _ g@(GVec gen p) = GVec gen (r' * (cos th + sin r) , r' * (sin th - cos r))
-  where th = phase g
-        r = radius p
-        r' = 1/(radius p)
+spiral _ g@(GVec gen _) = GVec gen (r' * (cos th + sin r) , r' * (sin th - cos r))
+  where th = antiPhase g
+        r = magnitude g
+        r' = 1/(magnitude g)

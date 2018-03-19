@@ -45,6 +45,9 @@ antiPhase (GVec _ (x,y)) = atan2 x y
 magnitude :: GVec->Double
 magnitude (GVec _ (x,y)) = sqrt (x*x +y*y)
 
+radiusSqr :: GVec -> Double
+radiusSqr (GVec _ (x,y)) = x*x + y*y
+
 instance Num GVec where
   (+) (GVec g (x1,y1)) (GVec _ (x2,y2)) = GVec g ( x1+x2, y1+y2) 
   (*) (GVec g (x1,y1)) (GVec _ (x2,y2)) = GVec g ( x1*x2-y1*y2, x1*y2+x2*y1)
