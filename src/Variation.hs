@@ -10,12 +10,10 @@ import Prelude
 import System.Random
 import Graphics.Gloss
 import Types
+import GVector
 
--- | произведение КОРТЕЖА из генератора и вектора на скаляр
-(|*|)::Double->(StdGen,Vec) -> (StdGen,Vec)
-(|*|) scl (gen, (x,y)) = (gen, (scl*x , scl*y))
 -- | применение вариации
-calcVariation :: Variation -> (StdGen,Vec)-> (StdGen,Vec)
+calcVariation :: Variation -> GVec-> GVec
 calcVariation (Var s p f) a = s |*| (f p a)
 
 radius :: Project
@@ -27,11 +25,11 @@ potent p = 1 / (radius p) ^ (2::Int)
 -- ======== примеры преобразований
 -- | сферическое преобразование
 spherical :: VariationFunc
-spherical _ (gen ,p@(x,y))  = (gen, (coef *x, coef *y))
+spherical _ (GVec gen p@(x,y))  = GVec gen (coef *x, coef *y)
   where coef = potent p
 -- | отображение в стиле множества Жюлиа
-juliaN :: VariationFunc
-juliaN (List (power:dist:_)) (next gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t) , r**(dist/power)*(sin t)))
+juliaN :: VariationFunc --nexGen isn't the most efficient way, you d better take next gen from that (random gen) :: Double from k
+juliaN (List (power:dist:_)) (GVec gen p@(x,y)) = nextGen (GVec gen (r**(dist/power)*(cos t) , r**(dist/power)*(sin t))) 
   where r = radius p
         k = fst $ (random gen) :: Double 
         p3 = fromInteger . truncate $ k*power
@@ -39,7 +37,7 @@ juliaN (List (power:dist:_)) (next gen,p@(x,y)) = (gen, (r**(dist/power)*(cos t)
 juliaN _ a = a
 -- | афинное преобразование
 affineTransform :: VariationFunc 
-affineTransform (Matrix m) (gen,(x,y)) = (gen, (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m))
+affineTransform (Matrix m) (GVec gen (x,y)) = GVec gen (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m)
 affineTransform _ a = a
 
 {--

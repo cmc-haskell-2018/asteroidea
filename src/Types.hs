@@ -21,7 +21,7 @@ data World =
         }
 
 -- | Вариация как она есть, с параметрами, перевод CastGen -> CastGen
-type VariationFunc =  Params -> (StdGen,Vec) -> (StdGen,Vec) --вместо Maybe Vec возможно стоит использовать Nan'ы 
+type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возможно стоит использовать Nan'ы 
 -- | Любое отображение из R2 -> R
 type Project = Vec ->  Double
 -- | Вектор Double
@@ -35,7 +35,11 @@ type Cast = (Vec, Double)
 -- | Бросок с привязанным генератором
 type CastGen = ((Vec, Double),StdGen)
 
---42
+-- | Вектор с привязанным к нему генератором
+data GVec = GVec {
+  vgGen :: StdGen,
+  vgVec :: Vec
+}
 
 {--
 -- Категория значительно затуманивает устройство обёртки,

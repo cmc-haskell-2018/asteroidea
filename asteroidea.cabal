@@ -21,6 +21,8 @@ library
                      , Types
                      , Const
                      , Variation
+                     , GVector
+                     , Gradient
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster
@@ -49,6 +51,8 @@ test-suite asteroidea-test
                      , Types
                      , Const
                      , Variation
+                     , GVector
+                     , Gradient
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , random
