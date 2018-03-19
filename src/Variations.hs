@@ -89,3 +89,52 @@ square _ (GVec gen _) = GVec (snd n2) (psi1 - 0.5 , psi2 - 0.5)
         n2 = random (snd n1) 
         psi2 = fst n2 
 
+-- | eyefish
+eyefish :: VariationFunc
+eyefish _ g@(GVec gen (x,y)) = GVec gen ( (2/(r+1)) * x , (2/(r+1)) * y)
+  where r = magnitude g
+
+-- | bubble
+bubble :: VariationFunc
+bubble _ g@(GVec gen (x,y)) = GVec gen ((4/(r2+4)) * x , (4/(r2+4)) * y)
+  where r2 = radiusSqr g
+
+-- | cylinder
+cylinder :: VariationFunc
+cylinder _ (GVec gen (x,y)) = GVec gen (sin x , y)
+
+-- | noise
+noise :: VariationFunc
+noise _ (GVec gen (x,y)) = GVec (snd n2) (psi1 * x * (cos (2*pi*psi2)) , psi1 * y * (sin (2*pi*psi2)))
+  where n1 = random gen 
+        psi1 = fst n1 
+        n2 = random (snd n1) 
+        psi2 = fst n2 
+
+-- | blur
+blur :: VariationFunc
+blur _ (GVec gen _) = GVec (snd n2) (psi1 * (cos (2*pi*psi2)) , psi1 * (sin (2*pi*psi2)))
+  where n1 = random gen 
+        psi1 = fst n1 
+        n2 = random (snd n1) 
+        psi2 = fst n2 
+
+-- | gaussian
+gaussian :: VariationFunc
+gaussian _ (GVec gen _) = GVec (snd n5) (s * (cos (2*pi*psi5)) ,s * (sin (2*pi*psi5)))
+  where n1 = random gen 
+        psi1 = fst n1 
+        n2 = random (snd n1) 
+        psi2 = fst n2 
+        n3 = random (snd n2) 
+        psi3 = fst n3 
+        n4 = random (snd n3) 
+        psi4 = fst n4 
+        n5 = random (snd n4) 
+        psi5 = fst n5 
+        s = psi1 + psi2 + psi3 + psi4 - 2
+
+-- | exponential
+exponential :: VariationFunc
+exponential (List (dx:dy:_)) (GVec gen (x,y)) = GVec gen ((exp (x - 1 + dx)) * (cos (pi*(y+dy))) , (exp (x - 1 + dx)) * (sin (pi*(y+dy))))
+exponential _ a = a
