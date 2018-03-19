@@ -43,10 +43,10 @@ getWorldPoint bnw (i,j)
   | flag = getElem trrI trrJ (mugenga bnw)
   | otherwise = backGrCol
   where
-    trrI = round ((x+1)*(half sizeX) ) + 1
-    trrJ = round ((y+1)*(half sizeY) ) + 1
     x = j*sinTheta + i*cosTheta
     y = j*cosTheta - i*sinTheta
+    trrI = round (x*halfX - shiftX)
+    trrJ = round (y*halfY - shiftY)
     flag = not (cond sizeX trrI|| cond sizeY trrJ)
     cond size a = a < 1 || a > size
 

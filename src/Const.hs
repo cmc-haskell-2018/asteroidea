@@ -17,6 +17,12 @@ sizeX = width  mainModel
 -- | y size of field, model, window, etc
 sizeY :: Int
 sizeY = height mainModel
+-- | смещение центра фрактала по оси абсцисс 
+shiftX :: Float
+shiftX = -1 - halfX
+-- | смещение центра фрактала по оси ординат
+shiftY :: Float
+shiftY = -1 - halfY
 -- | rotation in radian
 rotRad :: Double
 rotRad = (pi/360*) $ rotation mainModel
@@ -26,9 +32,13 @@ sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
 -- | cos rotation
 cosTheta :: Float
 cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
--- | Zoom Factor, scaling
+-- | Scale Factor
 scaleFactor :: Double
-scaleFactor = exp ((mScale $ mainModel)-50)
+scaleFactor = (mScale mainModel) / 50
+{- Zoom Factor, scaling
+zoomFactor :: Double
+zoomFactor = exp
+-}
 -- | Цвет заднего фона
 backGrCol :: Color
 backGrCol = makeColor 0 0 0 1
@@ -45,8 +55,11 @@ lowThreshold = 20
 winX :: Int
 winX = 640
 -- | половина поля, выраженная в вещественных значениях
-half :: (Fractional a) => Int -> a
-half size = (fromIntegral size)/2
+halfX :: (Fractional a) => a
+halfX = (fromIntegral sizeX)/2
+-- | половина поля, выраженная в вещественных значениях
+halfY :: (Fractional a) => a
+halfY = (fromIntegral sizeY)/2
 -- | стартовый размер окна 
 -- 1080
 winY :: Int
@@ -57,9 +70,7 @@ startPosX = 0
 -- | честно, ни малейшего понятия, будут ли здесь не нули
 startPosY :: Int
 startPosY = 0
--- | Фактор zoom.
-zoom :: Float
-zoom = 0.5*1000
+
 fpsMax :: Int
 -- ^ максимальная частота кадров.
 -- единица это минимум

@@ -93,13 +93,13 @@ plot ((ordX, ordY), colC) field
     trr size = truncate . (+ ((fromIntegral size)/2))
 -- | проверка границ
 control :: (Double,Double) -> Bool
-control (a,b) = not (cond sizeX a || cond sizeY b)
+control (a,b) = not (cond halfX a || cond halfY b)
   where
     cond size x =
       isNaN x ||
       isInfinite x ||
-      x < - half size ||
-      x >   half size
+      x < - size ||
+      x >   size
 -- | TODO alpha blending colours
 merge :: Double -> Color -> Color
 merge _ _ = red
