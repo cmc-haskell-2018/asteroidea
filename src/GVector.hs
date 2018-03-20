@@ -28,6 +28,7 @@ gvY (GVec _ (_ ,y)) = y
 (|*|)::Double -> GVec -> GVec
 (|*|) scl (GVec gen (x,y)) = GVec gen (scl*x , scl*y)
 
+-- | делает GVec'у следующий генератор
 nextGen :: GVec -> GVec
 nextGen (GVec gen v) = GVec (snd $ next gen) v
 

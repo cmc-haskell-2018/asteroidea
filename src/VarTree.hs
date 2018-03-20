@@ -17,12 +17,19 @@ inRange l i
 
 type Operation = GVec->GVec->GVec
 type Path = [Int]
+
+-- | Дерево выражения над вариациями
+-- | Позволяет задать произвольное выражение из вариаций,
+-- | и при этом иметь доступ к любым их параметрам и структуре выражения
+-- | что необходимо для работы скриптов и изменения модели через гуи
 data VTree = Node Operation [VTree] | Leaf Variation
+
 
 insertAt :: Int->a->[a]->[a]
 insertAt z y xs = as ++ (y:bs)
                   where (as,bs) = splitAt z xs
 
+-- | получить поддерево по заданной последовательности переходов по вершинам
 getSubTree :: VTree -> Path -> Maybe VTree
 getSubTree vt [] = Just vt
 getSubTree (Node _ l) (x:xs) | inRange l x =  getSubTree (l !! x) xs
@@ -33,6 +40,9 @@ isValidTree :: VTree -> Bool
 isValidTree (Node _ []) = False
 isValidTree  (Leaf _) = True
 isValidTree (Node _ list) = and (map isValidTree list) 
+
+--removeSubTree :: VTree -> Path -> VTree -- откуда \ по какому адресу удалять
+--replaceSubTree :: VTree->Path->VTree->VTree -- откуда \ по какому адресу \ чем заменить 
 
 {-
 insertSubTree :: Path->VTree->VTree->VTree

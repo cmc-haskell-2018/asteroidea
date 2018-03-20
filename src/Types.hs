@@ -36,11 +36,12 @@ instance Category Var where
 -- >>> calcVariation (dbgAffine . dbgSpherical) (defGen , (1,1))
 --}
 
--- | параметры для вариации
+-- | параметры для вариаций
 data Params = None | List [Double] | Matrix AffineMatrix
--- | Вариация
+
+-- | Обертка над VariationFunc - хранит ее параметры и скалярный множитель
 data Variation = Var {
-  vScale :: Double, -- ^ ?
+  vScale :: Double, -- ^ скалярный множитель
   params :: Params, -- ^ параметры
   function :: VariationFunc -- ^ применяемое отображение
 }
@@ -55,16 +56,18 @@ data AffineMatrix = AffineMatrix {
   oy :: Double
 } deriving(Show)
 
--- | тождественное преобразование
+-- | тождественная матрица
 idMatrix :: AffineMatrix
 idMatrix = AffineMatrix 1 0 0 1 0 0
 
 -- | Преобразование точки, цвета и всего такого
+-- | По сути - Transform олицетворяет отображение из старой точки и цвета в новые точку и цвет
+-- | Обычно это отображение точек - это сложное выражение из функций-вариаций
 data Transform = Transform {
 -- | Name ?
 transformName :: String,
 -- | возможны линейные комбинации, композиция, параметры =>
--- variation :: [ [(Double, Variation)] ] ??
+-- variation :: VTree
 variation :: Variation,  
 weight :: Double,
 -- ^ вес в вероятностном распределении
@@ -75,7 +78,10 @@ opacity :: Double,
 xaos :: [Double]
 }
 
--- | Глобальный фрактал
+-- | Глобальный фрактал. Упрощенный принцип работы алгоритма:
+-- | Берем случайные точки из [-1,1]^2 и случайный цвет
+-- | Применяем к ним трансформы в случайном порядке
+-- | После каждого применения отрисовываем итоговую точку на нашем поле
 data Model = Model {
   modelName :: String,
   -- | череда трансформ
