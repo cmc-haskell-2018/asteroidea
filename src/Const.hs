@@ -58,6 +58,9 @@ halfY = (fromIntegral sizeY)/2
 startPosX, startPosY :: Int
 startPosX = 0
 startPosY = 0
+-- | Число итераций внешнего цикла для статической картины
+mainIter :: Float
+mainIter = 1
 -- | максимальная частота кадров.
 -- единица это минимум
 fpsMax :: Int

@@ -18,6 +18,8 @@ import ClassField
 -- | Поехали!
 -- Генератор случайных чисел, начальная инициализация
 -- Запуск симуляции
+{--
+-- | Запуск симуляции gloss-raster playField, динамика
 run :: IO ()
 run = do 
   genRand <- newStdGen
@@ -27,6 +29,16 @@ run = do
     getter = getWorldPoint
     window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
     update = updateWorld
+--}
+-- | Запуск симуляции gloss display через gloss-raster, статика
+run :: IO()
+run = do
+  genRand <- newStdGen
+  display window backGrCol (picture genRand)
+  where
+    getter g = getWorldPoint $ updateWorld mainIter $ initWorld g
+    window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
+    picture g = makePicture winX winY 1 1 (getter g)
 
 -- | Act of Creation
 -- создание мира
