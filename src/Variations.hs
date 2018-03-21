@@ -121,20 +121,18 @@ blur _ (GVec gen _) = GVec (snd n2) (psi1 * (cos (2*pi*psi2)) , psi1 * (sin (2*p
 
 -- | gaussian
 gaussian :: VariationFunc
-gaussian _ (GVec gen _) = GVec (snd n5) (s * (cos (2*pi*psi5)) ,s * (sin (2*pi*psi5)))
-  where n1 = random gen 
-        psi1 = fst n1 
-        n2 = random (snd n1) 
-        psi2 = fst n2 
-        n3 = random (snd n2) 
-        psi3 = fst n3 
-        n4 = random (snd n3) 
-        psi4 = fst n4 
-        n5 = random (snd n4) 
-        psi5 = fst n5 
-        s = psi1 + psi2 + psi3 + psi4 - 2
-
--- | exponential
+gaussian _ gv =
+  let
+    n0 = vgGen gv
+    (psi1, n1) = random n0
+    (psi2, n2) = random n1
+    (psi3, n3) = random n2
+    (psi4, n4) = random n3
+    (psi5, n5) = random n4
+    s = (*) $ psi1 + psi2 + psi3 + psi4 - 2
+    arg = 2*pi*psi5
+  in GVec n5 (s . cos $ arg ,s . sin $ arg)
+-- | exponential 
 exponential :: VariationFunc
 exponential (List (dx:dy:_)) (GVec gen (x,y)) = GVec gen ((exp (x - 1 + dx)) * (cos (pi*(y+dy))) , (exp (x - 1 + dx)) * (sin (pi*(y+dy))))
 exponential _ a = a

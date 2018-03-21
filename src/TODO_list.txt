@@ -1,0 +1,8 @@
+gloss static display
+gloss dynamic game
+gloss raster
+juicy pixels
+cairo
+
+settors to GVector
+Captain Obvious
