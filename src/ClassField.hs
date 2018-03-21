@@ -24,40 +24,46 @@ type Cast = (Vec, Double)
 -- | Бросок с привязанным генератором
 type CastGen = (GVec,Double)
 -- | Поле есть матрица цветов
-type Field = Matrix Color
+type Field = Matrix UnsafeColour
+-- | Цвета без нормализации и проверки на нормировку
+type UnsafeColour = (Float,Float,Float,Float)
 -- | Создание изначального поля
+-- размером икс на игрек
 createField :: Int -> Int -> Field
 createField x y = matrix x y (initFunction x y)
 -- | Начальное заполнение фона
-initFunction :: Int -> Int -> ((Int,Int)->Color)
+-- -> function from field point to unsafe colour
+initFunction
+  :: Int -- ^ width
+  -> Int -- ^ heigth
+  -> ((Int,Int)->UnsafeColour)
 initFunction _ _ =
-  (\(a,b) ->
-     makeColorI
-     (a `div` 10 + 1)
-     (140 - a `div` 106 - b `div` 60)
-     (34 + b `div` 10)
-     255
-  )
+  ( \_ -> (0.13,0.54,0.13,1.0))
 {-| ^ веселья ради можно поставить что-то ещё,
  но цвет лесной зелени приятен глазу, как ветви молодых деревьев в летнем саду.
- >>> ( \_ -> makeColor 0.13 0.54 0.13 1.0)
 -}
 
 -- | обновление поля - добавление в него серий бросков, числом от дельты времени
-updateWorld :: Float -> World -> World
+updateWorld
+  :: Float -- ^ delta time
+  -> World -- ^ Old World
+  -> World -- ^ New World
 updateWorld dt bnw = 
   generator
   bnw
   (floor (dt*numCast))
-  (0::Int)
--- ^ просто для того, чтобы нумерация была удобной
 
 -- | генератор нового поля
-generator :: World -> Int -> Int -> World
-generator bnw m n | n<m  = rty (iter (mugenga bnw, busPoint bnw) 0) m (n+1)
+-- генерируется новая серия бросков одной точки из bus
+-- в каждой итерации, по счётчику с декрементом
+generator
+  :: World -- ^ BNW
+  -> Int   -- ^ iterator for loop
+  -> World
+generator bnw n | n>0 = rty (iter (mugenga bnw, busPoint bnw) 0) (n-1)
   where
     rty (f,(gvec,_)) = generator . World f (vgGen gvec) $ tail . busList $ bnw
-generator a _ _  = a
+generator a _  = a
 
 -- | BiUnitSquarePoint  from [-1,1)^2
 -- with colour 0.5
@@ -67,7 +73,14 @@ busPoint bnw = (GVec (getSGen bnw) (head $ busList bnw), 0.5)
 -- | Iterator for loop inner_iter
 -- new Field, new PRNG
 -- броски одной точки
-iter :: (Field, CastGen) -> Int -> (Field, CastGen)
+-- итерации по счётчику с инкрементом
+-- начало отрисовки с нижнего порога
+-- конец отрисовки на верхнем пороге
+-- pack - упаковка результата с отисовкой в поле
+iter
+  :: (Field, CastGen) -- ^ old field
+  -> Int              -- ^ counter
+  -> (Field, CastGen) -- ^ new field
 iter (f, cgen) n
   | n<lowThreshold = iter (f,(newCast cgen)) (n+1)
   | n<innerIter = iter (pack (newCast cgen)) (n+1)
@@ -81,7 +94,10 @@ newCast :: CastGen -> CastGen
 newCast a = a
 
 -- | Размещение точки в поле
-plot :: Cast -> Field -> Field
+plot
+  :: Cast  -- ^ cast: (point, gradient)
+  -> Field -- ^ old field
+  -> Field -- ^ new field
 plot ((ordX, ordY), colC) field
   | flag = setElem colour coord field
   | otherwise = field
@@ -91,7 +107,7 @@ plot ((ordX, ordY), colC) field
     flag = control (ordX, ordY)
     coord = ((trr sizeX) ordX, (trr sizeY) ordY)
     trr size = truncate . (+ ((fromIntegral size)/2))
--- | проверка границ
+-- | проверка границ поля
 control :: (Double,Double) -> Bool
 control (a,b) = not (cond halfX a || cond halfY b)
   where
@@ -101,5 +117,7 @@ control (a,b) = not (cond halfX a || cond halfY b)
       x < - size ||
       x >   size
 -- | TODO alpha blending colours
-merge :: Double -> Color -> Color
-merge _ _ = red
+merge :: Double -> UnsafeColour -> UnsafeColour
+merge _ col = mix (1,1,1) col -- asking gradient
+  where
+    mix (r,g,b) (t,h,n,s) = (r+t,g+h,b+n,s+1)

@@ -11,26 +11,20 @@ import Types (Model,width,height,mScale,rotation)
 -- | export example model
 mainModel :: Model
 mainModel = exampleModel
--- | x size of field, model, window, etc
-sizeX :: Int
+-- | x, y size of field, model, window, etc
+sizeX,sizeY :: Int
 sizeX = width  mainModel
--- | y size of field, model, window, etc
-sizeY :: Int
 sizeY = height mainModel
--- | смещение центра фрактала по оси абсцисс 
-shiftX :: Float
+-- | смещение центра фрактала по оси абсцисс / ординат
+shiftX, shiftY :: Float
 shiftX = -1 - halfX
--- | смещение центра фрактала по оси ординат
-shiftY :: Float
 shiftY = -1 - halfY
 -- | rotation in radian
 rotRad :: Double
 rotRad = (pi/360*) $ rotation mainModel
--- | sin rotation
-sinTheta :: Float
+-- | sin / cos rotation
+sinTheta, cosTheta :: Float
 sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
--- | cos rotation
-cosTheta :: Float
 cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
 -- | Scale Factor
 scaleFactor :: Double
@@ -51,35 +45,25 @@ lowThreshold :: Int
 lowThreshold = 20
 -- | стартовый размер окна
 -- не хочу рисковать лагами
--- 1920
-winX :: Int
+-- 1920 x 1080
+winX, winY :: Int
 winX = 640
--- | половина поля, выраженная в вещественных значениях
-halfX :: (Fractional a) => a
-halfX = (fromIntegral sizeX)/2
--- | половина поля, выраженная в вещественных значениях
-halfY :: (Fractional a) => a
-halfY = (fromIntegral sizeY)/2
--- | стартовый размер окна 
--- 1080
-winY :: Int
 winY = 360
+-- | половина поля, выраженная в вещественных значениях
+halfX, halfY :: (Fractional a) => a
+halfX = (fromIntegral sizeX)/2
+halfY = (fromIntegral sizeY)/2
 -- | стартовая позиция окна
-startPosX :: Int
+-- честно, ни малейшего понятия, будут ли здесь не нули
+startPosX, startPosY :: Int
 startPosX = 0
--- | честно, ни малейшего понятия, будут ли здесь не нули
-startPosY :: Int
 startPosY = 0
-
-fpsMax :: Int
--- ^ максимальная частота кадров.
+-- | максимальная частота кадров.
 -- единица это минимум
+fpsMax :: Int
 fpsMax = 1
--- | число бросков из BiUnitSquare за единицу времени
+-- | число бросков из BiUnitSquare за шаг отрисовки
 -- gloss-raster, похоже, даёт время в секундах, но в этом не уверен
 -- 100000
 numCast :: Float
 numCast = 10
--- | В целях отладки - число моделей Transform в фрактале Model
-modelCount :: Double
-modelCount = 3
