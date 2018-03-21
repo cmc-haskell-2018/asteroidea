@@ -38,7 +38,7 @@ backGrCol :: Color
 backGrCol = makeColor 0 0 0 1
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
-innerIter = 30
+innerIter = 25
 --1000
 -- | нижний порог числа бросков точки, после которого начинается отрисовка
 lowThreshold :: Int
@@ -69,4 +69,4 @@ fpsMax = 1
 -- gloss-raster, похоже, даёт время в секундах, но в этом не уверен
 -- 100000
 numCast :: Float
-numCast = 10
+numCast = 1

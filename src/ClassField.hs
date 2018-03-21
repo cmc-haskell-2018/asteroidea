@@ -49,7 +49,7 @@ updateWorld
   :: Float -- ^ delta time
   -> World -- ^ Old World
   -> World -- ^ New World
-updateWorld dt bnw = 
+updateWorld dt bnw =
   generator
   bnw
   (floor (dt*numCast))
@@ -59,7 +59,7 @@ updateWorld dt bnw =
 -- в каждой итерации, по счётчику с декрементом
 generator
   :: World -- ^ BNW
-  -> Int   -- ^ iterator for loop
+  -> Int   -- ^ counter for loop
   -> World
 generator bnw n | n>0 = rty (iter (mugenga bnw, busPoint bnw) 0) (n-1)
   where
@@ -77,7 +77,7 @@ busPoint bnw = (GVec (getSGen bnw) (head $ busList bnw), 0.5)
 -- итерации по счётчику с инкрементом
 -- начало отрисовки с нижнего порога
 -- конец отрисовки на верхнем пороге
--- pack - упаковка результата с отисовкой в поле
+-- pack - упаковка результата с отрисовкой в поле
 iter
   :: (Field, CastGen) -- ^ old field
   -> Int              -- ^ counter
@@ -90,7 +90,6 @@ iter (f, cgen) n
     pack newC@(gvec, colour) = ((plot (vgVec gvec, colour) f), newC)
 
 -- | TODO Генерация новой точки
--- Дайте мне трансформы, и я сверну мир
 newCast :: (GVec, Double) -> (GVec, Double)
 newCast (gvector, colour) =
   let
@@ -103,7 +102,7 @@ plot
   :: Cast  -- ^ cast: (point, gradient)
   -> Field -- ^ old field
   -> Field -- ^ new field
-plot ((ordX, ordY), colC) field
+plot ((ordX, ordY), colC) field -- = error "Plot"
   | flag = setElem colour coord field
   | otherwise = field
   where
@@ -112,6 +111,7 @@ plot ((ordX, ordY), colC) field
     flag = control (ordX, ordY)
     coord = ((trr sizeX) ordX, (trr sizeY) ordY)
     trr size = truncate . (+ ((fromIntegral size)/2))
+
 -- | проверка границ поля
 control :: (Double,Double) -> Bool
 control (a,b) = not (cond halfX a || cond halfY b)
@@ -123,6 +123,6 @@ control (a,b) = not (cond halfX a || cond halfY b)
       x >   size
 -- | TODO alpha blending colours
 merge :: Double -> UnsafeColour -> UnsafeColour
-merge _ col = mix (1,1,1) col -- asking gradient
+merge _ col = mix (0,0,0) col -- asking gradient
   where
-    mix (r,g,b) (t,h,n,s) = (r+t,g+h,b+n,s+1)
+    mix (r,g,b) (t,h,n,s) = (1,0,0,1) --(r+t,g+h,b+n,s+1)
