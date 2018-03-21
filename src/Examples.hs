@@ -54,6 +54,6 @@ t4 :: Transform
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 -- | exampleModel 42
 exampleModel :: Model 
-exampleModel = Model "42" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
+exampleModel = Model "42" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0 4
   where
    grad = [blue]

@@ -51,7 +51,7 @@ cap :: a -> World -> World
 cap _ = id
 
 -- | Вывод поля на экран playField
-getWorldPoint
+getWorldPoint, getWorldPoint'
   :: World -- ^ World
   -> Point -- ^ Point from [-1,1]^2 conformal mapping to Field
   -> Color -- ^ safe Color from Field
@@ -68,6 +68,10 @@ getWorldPoint bnw (x,y)
     flag :: Bool -- ^ Control bounds of field, flag
     flag = not (cond sizeX i || cond sizeY j)
     cond size a = a < 1 || a > size
+getWorldPoint' bnw (x,y) = mkCol $ getElem i j (mugenga bnw)
+  where
+    i = round (x * halfX - shiftX)
+    j = round (y * halfY - shiftY)
 mkCol :: UnsafeColour -> Color
 -- ^ convertation with log scale and checking
 mkCol (r,g,b,a) = rgb' (cf r) (cf g) (cf b)

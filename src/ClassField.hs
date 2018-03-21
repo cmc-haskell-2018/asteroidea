@@ -12,6 +12,7 @@ import Data.Matrix
 import Types
 import Const
 import GVector()
+import Transform
 -- | Обёртка над Field, играющая роль мира. Без грязного IO.
 data World =
   World  {
@@ -90,8 +91,12 @@ iter (f, cgen) n
 
 -- | TODO Генерация новой точки
 -- Дайте мне трансформы, и я сверну мир
-newCast :: CastGen -> CastGen
-newCast a = a
+newCast :: (GVec, Double) -> (GVec, Double)
+newCast (gvector, colour) =
+  let
+    (choice,generator) = random $ vgGen gvector
+    transform = askTransform mainModel choice
+  in applyTransform transform colour (GVec generator (vgVec gvector))
 
 -- | Размещение точки в поле
 plot
