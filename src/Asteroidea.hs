@@ -10,35 +10,65 @@ import System.Random
 import Graphics.Gloss
 import Graphics.Gloss.Raster.Field
 import Data.Matrix
-
-import Const
+import Data.List
+import Codec.Picture
 import Types
 import ClassField
-
+import Data.Vector.Storable (unsafeToForeignPtr)
+import Const
+import Variations
 -- | Поехали!
 run :: IO ()
 run = do 
--- Генератор случайных чисел, начальная инициализация
+  -- Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
--- Запуск симуляции
-  playField window (1,1) fps (initWorld genRand) getter cap update
-  where
-    fps = fpsMax
-    getter = getWorldPoint
+  let world = calcFlame $! initWorld genRand
+  let img = generateImage (worldCellToPixel world) (width mainModel) (height mainModel)
+  let pic = fromImageRGBA8 img
+  display window white pic 
+  where   
+    --getter = getWorldPoint
     window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
-    update = updateWorld
+   -- update = updateWorld
 -- window -- FullScreen
-
+fromImageRGBA8 :: Image PixelRGBA8 -> Picture
+fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = id }) =
+  bitmapOfForeignPtr w h
+                     (BitmapFormat TopToBottom PxRGBA)
+                     ptr True
+    where (ptr, _, _) = unsafeToForeignPtr id
 -- | Act of Creation
 -- создание мира
-initWorld :: StdGen -> World
-initWorld sGen = World (createField sizeX sizeY) sGen busPointList
--- | заглушка на месте обработки событий
-cap :: a -> World -> World
-cap _ = id
 
+-- | Calculate whole fractal
+calcFlame :: World -> World
+calcFlame w = foldl' calcPath w pointList
+  where
+    pointList = take outerIter $! busList w
+    outerIter = 10 -- внешний цикл, 
+--(b -> a -> b) -> b -> t a -> b
+
+-- | Calculate and plot Path of one point from [-1,1]^2
+calcPath :: World->Vec->World
+calcPath w v = foldl' plot w path
+  where
+    gen = getSGen w
+    start = (GVec gen v, 0.5) -- CastGen
+    infPath = iterate (calcOne $ wModel w) start
+    path = drop 20 $! take 30 $! infPath
+
+-- | Calculate one point and color
+calcOne :: Model -> CastGen -> CastGen
+calcOne model ( GVec gen v, col) = (newGVec, newCol)
+  where
+    (ptr , newGen) = randomR (0, (length $ tranforms model) -1 ) gen
+    tranform = tranforms model !! ptr    
+    newGVec = calcVariation (variation tranform) (GVec newGen v)
+    newCol = (col + (colorPosition tranform))/2 -- To Do speed
+  {- 
 -- | Вывод поля на экран playField
-getWorldPoint :: World -> Point -> Color
+-- не совсем верно - зум и поворто должны производится до нанесения на поле, если же после, то это приводит к потере части изображения
+getWorldPoint :: World -> Int -> Int -> Cell 
 getWorldPoint bnw (i,j)
   | flag = getElem trrI trrJ (mugenga bnw)
   | otherwise = backGrCol
@@ -49,25 +79,43 @@ getWorldPoint bnw (i,j)
     trrJ = round (y*halfY - shiftY)
     flag = not (cond sizeX trrI|| cond sizeY trrJ)
     cond size a = a < 1 || a > size
+-}
+-- излишне передавать целый мир, нужны только модель и поле
+plot :: World -> CastGen -> World
+plot w (GVec gen v@(x,y), col) | inBounds = newWolrd
+                               | otherwise = w
+  where
+    model = wModel w
+    field = wField w
+    inBounds = control model v
+    setX = 1 + round ( (x+1) * (fromIntegral $ width model)/2  ) 
+    setY = 1 + round ( (y+1) * (fromIntegral $ height model)/2  )
+    coord = (setX, setY)
+    colour = calcColour col (field ! coord)
+    newFiled = setElem colour coord field
+    newWolrd = World newFiled (getSGen w) (busList w) (wModel w) --нужны сеттеры черт возьми
 
--- | соседи одной точки, расположенные в центрах окружающих квадратов
--- порядок обхода - по контуру
--- полиморф только из-за повторного использования в Gloss simulate
--- можно восстановить getNeigbours :: Double -> Vec -> [Vec]
-getNeigbours::Num a =>  a->(a,a)->[(a,a)]
-getNeigbours dl (x,y) = [v11,v12,v22,v21]
+
+control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее
+control m (a,b) = not (cond halfX a || cond halfY b)
   where
-    v11 = (x+dl,y+dl)
-    v12 = (x+dl,y-dl)
-    v21 = (x-dl,y+dl)
-    v22 = (x-dl,y-dl)
--- | список соседей одного порядка
-nthNeigbours :: Int -> [Vec]
-nthNeigbours n | n>0 = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
+    halfX = (fromIntegral $ width m)/2
+    halfY = (fromIntegral $ height m)/2
+    cond size x =
+      isNaN x ||
+      isInfinite x ||
+      x < - 1 ||
+      x >   1
+-- | TODO alpha blending colours
+calcColour :: Double -> Cell -> Cell
+calcColour _ _ = Cell 1 0 0 1 -- заглушка
+
+worldCellToPixel ::  World -> Int -> Int -> PixelRGBA8
+worldCellToPixel w x y = toPixel $ getElem (x+1) (y+1) field 
   where
-    dl = 2 ** (- fromIntegral n)
-nthNeigbours _ = [(0,0)]
--- | Cast Infinite List
--- | бесконечный список соседей
-busPointList :: [Vec]
-busPointList = concat [ nthNeigbours i | i <- [0,1..]]
+    field = wField w
+    toPixel (Cell r g b a )= PixelRGBA8 nr ng nb 255
+     where
+      nr = fromIntegral $ round $ r*255
+      ng = fromIntegral $ round $ g*255
+      nb = fromIntegral $ round $ b*255

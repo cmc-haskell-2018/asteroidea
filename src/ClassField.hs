@@ -7,6 +7,7 @@ Stability   : in progress
 module ClassField where
 
 import Graphics.Gloss
+import Codec.Picture
 import System.Random
 import Data.Matrix
 import Types
@@ -15,91 +16,53 @@ import GVector()
 -- | Обёртка над Field, играющая роль мира. Без грязного IO.
 data World =
   World  {
-    mugenga :: Field,  -- ^ 無限画
+    wField :: Field,  -- ^ your field
     getSGen :: StdGen, -- ^ standart pseudorandom number generator
-    busList :: [Vec]  -- ^ BiUnitSquare coverage list
+    busList :: [Vec],  -- ^ BiUnitSquare coverage list
+    wModel :: Model
         }
 -- | Точка и цвет в карте градиентов [0,1)
 type Cast = (Vec, Double)
 -- | Бросок с привязанным генератором
 type CastGen = (GVec,Double)
 -- | Поле есть матрица цветов
-type Field = Matrix Color
+
+
+initWorld :: StdGen -> World
+initWorld sGen = World (createField sizeX sizeY) sGen busPointList mainModel
+  where
+    sizeX = width mainModel
+    sizeY = height mainModel
 -- | Создание изначального поля
 createField :: Int -> Int -> Field
 createField x y = matrix x y (initFunction x y)
 -- | Начальное заполнение фона
-initFunction :: Int -> Int -> ((Int,Int)->Color)
+initFunction :: Int -> Int -> ((Int,Int)->Cell)
 initFunction _ _ =
   (\(a,b) ->
-     makeColorI
-     (a `div` 10 + 1)
-     (140 - a `div` 106 - b `div` 60)
-     (34 + b `div` 10)
-     255
+     Cell 0 0 0 0     
   )
-{-| ^ веселья ради можно поставить что-то ещё,
- но цвет лесной зелени приятен глазу, как ветви молодых деревьев в летнем саду.
- >>> ( \_ -> makeColor 0.13 0.54 0.13 1.0)
--}
-
--- | обновление поля - добавление в него серий бросков, числом от дельты времени
-updateWorld :: Float -> World -> World
-updateWorld dt bnw = 
-  generator
-  bnw
-  (floor (dt*numCast))
-  (0::Int)
--- ^ просто для того, чтобы нумерация была удобной
-
--- | генератор нового поля
-generator :: World -> Int -> Int -> World
-generator bnw m n | n<m  = rty (iter (mugenga bnw, busPoint bnw) 0) m (n+1)
-  where
-    rty (f,(gvec,_)) = generator . World f (vgGen gvec) $ tail . busList $ bnw
-generator a _ _  = a
-
--- | BiUnitSquarePoint  from [-1,1)^2
--- with colour 0.5
-busPoint :: World -> CastGen
-busPoint bnw = (GVec (getSGen bnw) (head $ busList bnw), 0.5)
-
--- | Iterator for loop inner_iter
--- new Field, new PRNG
--- броски одной точки
-iter :: (Field, CastGen) -> Int -> (Field, CastGen)
-iter (f, cgen) n
-  | n<lowThreshold = iter (f,(newCast cgen)) (n+1)
-  | n<innerIter = iter (pack (newCast cgen)) (n+1)
-  | otherwise = (f, cgen)
-  where
-    pack newC@(gvec, colour) = ((plot (vgVec gvec, colour) f), newC)
 
 -- | TODO Генерация новой точки
 -- Дайте мне трансформы, и я сверну мир
 newCast :: CastGen -> CastGen
 newCast a = a
 
--- | Размещение точки в поле
-plot :: Cast -> Field -> Field
-plot ((ordX, ordY), colC) field
-  | flag = setElem colour coord field
-  | otherwise = field
+
+getNeigbours::Num a =>  a->(a,a)->[(a,a)]
+getNeigbours dl (x,y) = [v11,v12,v22,v21]
   where
-    colour = merge colC $ getPoint coord
-    getPoint (a,b) = getElem a b field
-    flag = control (ordX, ordY)
-    coord = ((trr sizeX) ordX, (trr sizeY) ordY)
-    trr size = truncate . (+ ((fromIntegral size)/2))
--- | проверка границ
-control :: (Double,Double) -> Bool
-control (a,b) = not (cond halfX a || cond halfY b)
+    v11 = (x+dl,y+dl)
+    v12 = (x+dl,y-dl)
+    v21 = (x-dl,y+dl)
+    v22 = (x-dl,y-dl)
+-- | список соседей одного порядка
+nthNeigbours :: Int -> [Vec]
+nthNeigbours n | n>0 = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
   where
-    cond size x =
-      isNaN x ||
-      isInfinite x ||
-      x < - size ||
-      x >   size
--- | TODO alpha blending colours
-merge :: Double -> Color -> Color
-merge _ _ = red
+    dl = 2 ** (- fromIntegral n)
+nthNeigbours _ = [(0,0)]
+-- | Cast Infinite List
+-- | бесконечный список соседей
+busPointList :: [Vec]
+busPointList = concat [ nthNeigbours i | i <- [0,1..]]

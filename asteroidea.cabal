@@ -31,6 +31,8 @@ library
                      , gloss-raster
                      , random
                      , matrix
+                     , JuicyPixels
+                     , vector
   default-language:    Haskell2010
 
 executable asteroidea
@@ -44,6 +46,8 @@ executable asteroidea
                      , gloss-raster
                      , random
                      , matrix
+                     , JuicyPixels
+                     , vector
   default-language:    Haskell2010
 
 test-suite asteroidea-test
@@ -63,6 +67,8 @@ test-suite asteroidea-test
                      , gloss
                      , random
                      , matrix
+                     , vector
+                     , JuicyPixels
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 

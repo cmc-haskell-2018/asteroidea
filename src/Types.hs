@@ -4,15 +4,17 @@ Description : declarating types, implementation of main data, etc
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Types (module Types, module GVector, module System.Random) where -- re-export GVector for Everyone using Types
+module Types (module Types, module GVector) where -- re-export GVector for Everyone using Types
 import Prelude
 --import Control.Category
 import System.Random
 import Data.Matrix
 import Graphics.Gloss
 import GVector
---import Const
 
+
+data Cell = Cell {getR :: Double, getG :: Double, getB :: Double, getA :: Double} -- rgba
+type Field = Matrix Cell
 
 -- | Вариация как она есть, с параметрами, перевод GVec -> GVec
 type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возможно стоит использовать Nan'ы 
@@ -91,8 +93,9 @@ data Model = Model {
   -- | карта градиентов
   -- стоит сделать матрицей
   -- мб Data.Vector?
-  gradient :: [Color],
+  gradient :: [Cell],
   -- | Размер картинки, 
+  --backGrCol :: Cell
   width :: Int,
   height :: Int,
   -- | зум

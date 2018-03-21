@@ -33,6 +33,15 @@ dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 (-0.5))) affineTransfor
 -- | DEBUG affine 4
 dbgAffine4 :: Variation
 dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affineTransform
+
+dbgAffine5 :: Variation
+dbgAffine5= Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0)) affineTransform
+
+dbgAffine6 :: Variation
+dbgAffine6 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0)) affineTransform
+
+dbgAffine7 :: Variation
+dbgAffine7 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0.5)) affineTransform
 -- | DEBUG square
 dbgSquare :: Variation
 dbgSquare = Var (1) None square
@@ -42,18 +51,18 @@ dbgGVec = GVec defGen (1,1)
 
 t1 :: Transform
 -- ^ DEBUG transform 1
-t1 = Transform "t1" dbgAffine1 1 1 0 1 []
+t1 = Transform "t1" dbgAffine5 1 1 0 1 []
 t2 :: Transform
 -- ^ DEBUG transform 2
-t2 = Transform "t2" dbgAffine2 1 0.889 0 1 []
+t2 = Transform "t2" dbgAffine6 1 0.889 0 1 []
 t3 :: Transform
 -- ^ DEBUG transform 3
-t3 = Transform "t3" dbgAffine3 1 1 0 1 []
+t3 = Transform "t3" dbgAffine7 1 1 0 1 []
 t4 :: Transform
 -- ^ DEBUG transform 4
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 -- | exampleModel 42
 exampleModel :: Model 
-exampleModel = Model "42" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
+exampleModel = Model "42" [t1,t2,t3] Nothing grad 512 512 50 0
   where
-   grad = [blue]
+   grad = [Cell 1 0 0 1]

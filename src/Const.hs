@@ -8,21 +8,18 @@ module Const where
 import Examples (exampleModel)
 import Graphics.Gloss.Data.Color (Color,makeColor)
 import Types (Model,width,height,mScale,rotation)
+import Codec.Picture
 -- | export example model
 mainModel :: Model
 mainModel = exampleModel
--- | x size of field, model, window, etc
-sizeX :: Int
-sizeX = width  mainModel
--- | y size of field, model, window, etc
-sizeY :: Int
-sizeY = height mainModel
+{-
 -- | смещение центра фрактала по оси абсцисс 
 shiftX :: Float
 shiftX = -1 - halfX
 -- | смещение центра фрактала по оси ординат
 shiftY :: Float
 shiftY = -1 - halfY
+-}
 -- | rotation in radian
 rotRad :: Double
 rotRad = (pi/360*) $ rotation mainModel
@@ -40,8 +37,7 @@ zoomFactor :: Double
 zoomFactor = exp
 -}
 -- | Цвет заднего фона
-backGrCol :: Color
-backGrCol = makeColor 0 0 0 1
+
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
 innerIter = 30
@@ -53,17 +49,11 @@ lowThreshold = 20
 -- не хочу рисковать лагами
 -- 1920
 winX :: Int
-winX = 640
--- | половина поля, выраженная в вещественных значениях
-halfX :: (Fractional a) => a
-halfX = (fromIntegral sizeX)/2
--- | половина поля, выраженная в вещественных значениях
-halfY :: (Fractional a) => a
-halfY = (fromIntegral sizeY)/2
+winX = 1024
 -- | стартовый размер окна 
 -- 1080
 winY :: Int
-winY = 360
+winY = 576
 -- | стартовая позиция окна
 startPosX :: Int
 startPosX = 0
