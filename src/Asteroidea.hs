@@ -44,8 +44,8 @@ fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = id }) =
 calcFlame :: World -> World
 calcFlame w = foldl' calcPath w pointList
   where
-    pointList = take outerIter $! busList w
-    outerIter = 10 -- внешний цикл, 
+    pointList = take outerIter $! busList w -- лист с точками что будем обсчитывать
+    outerIter = 21 -- внешний цикл, 
 --(b -> a -> b) -> b -> t a -> b
 
 -- | Calculate and plot Path of one point from [-1,1]^2
@@ -54,8 +54,8 @@ calcPath w v = foldl' plot w path
   where
     gen = getSGen w
     start = (GVec gen v, 0.5) -- CastGen
-    infPath = iterate (calcOne $ wModel w) start
-    path = drop 20 $! take 30 $! infPath
+    infPath = iterate (calcOne $ wModel w) start -- весь путь точки
+    path = take 30 $! infPath -- 30 - внутренний цикл
 
 -- | Calculate one point and color
 calcOne :: Model -> CastGen -> CastGen
