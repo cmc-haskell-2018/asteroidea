@@ -76,7 +76,7 @@ getNeigbours dl (x,y) = [v11,v12,v21,v22]
     v22 = (x-dl,y+dl)
 -- | Список соседей одного порядка.
 -- геометрическая прогрессия: 1, 4, 16, 64 ..
--- Подумайте, χνξ λφ`ν 'νφ αευρςβζ/.
+
 nthNeigbours :: Int -> [Vec]
 nthNeigbours n | n>0 = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
   where
