@@ -14,7 +14,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  ghc-options:         -Wall -fno-warn-type-defaults -O2 
+  ghc-options:         -Wall -fno-warn-type-defaults -O2 -XBangPatterns
 ---XBangPatterns
   exposed-modules:     Asteroidea
   other-modules:       ClassField

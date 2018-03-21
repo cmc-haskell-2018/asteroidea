@@ -24,7 +24,7 @@ run = do
   let world = calcFlame $! initWorld genRand
   let img = generateImage (worldCellToPixel world) (width mainModel) (height mainModel)
   let pic = fromImageRGBA8 img
-  display window white pic 
+  display window white $! pic 
   where   
     --getter = getWorldPoint
     window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
@@ -44,7 +44,7 @@ calcFlame :: World -> World
 calcFlame w = foldl' calcPath w pointList
   where
     pointList = take outerIter $! busList w -- лист с точками что будем обсчитывать
-    outerIter = 21 -- внешний цикл, 
+    outerIter = 21845 -- внешний цикл, 
 --(b -> a -> b) -> b -> t a -> b
 
 -- | Calculate and plot Path of one point from [-1,1]^2
@@ -54,7 +54,7 @@ calcPath w v = foldl' plot w path
     gen = getSGen w
     start = (GVec gen v, 0.5) -- CastGen
     infPath = iterate (calcOne $ wModel w) start -- весь путь точки
-    path = take 30 $! infPath -- 30 - внутренний цикл
+    path = drop 20 $! take 200 $! infPath -- 30 - внутренний цикл
 
 -- | Calculate one point and color
 calcOne :: Model -> CastGen -> CastGen
@@ -81,7 +81,7 @@ getWorldPoint bnw (i,j)
 -}
 -- излишне передавать целый мир, нужны только модель и поле
 plot :: World -> CastGen -> World
-plot w (GVec gen v@(x,y), col) | inBounds = newWolrd
+plot w !(GVec gen v@(x,y), col) | inBounds = newWolrd
                                | otherwise = w
   where
     model = wModel w

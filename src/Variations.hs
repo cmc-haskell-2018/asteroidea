@@ -58,7 +58,7 @@ horseshoe _ g@(GVec gen (x,y)) = GVec gen (r' * (x - y) * (x + y) , r'*2*x*y)
 
 -- | polar
 polar :: VariationFunc
-polar _ g@(GVec gen _) = GVec gen (th/pi, r - 1)
+polar _ g = g {vgVec = (th/pi, r - 1)} 
   where th = antiPhase g
         r = magnitude g
 
