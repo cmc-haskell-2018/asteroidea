@@ -8,7 +8,6 @@ module Asteroidea where
 
 import System.Random
 import Graphics.Gloss
-import Graphics.Gloss.Raster.Field
 import Data.Matrix
 import Data.List
 import Codec.Picture
@@ -89,11 +88,11 @@ plot w (GVec gen v@(x,y), col) | inBounds = newWolrd
     field = wField w
     inBounds = control model v
     setX = 1 + round ( (x+1) * (fromIntegral $ width model)/2  ) 
-    setY = 1 + round ( (y+1) * (fromIntegral $ height model)/2  )
+    setY = 1 + round ( (-y+1) * (fromIntegral $ height model)/2  )
     coord = (setX, setY)
     colour = calcColour col (field ! coord)
     newFiled = setElem colour coord field
-    newWolrd = World newFiled (getSGen w) (busList w) (wModel w) --нужны сеттеры черт возьми
+    newWolrd = w { wField = newFiled} 
 
 
 control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее

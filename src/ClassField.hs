@@ -43,12 +43,6 @@ initFunction _ _ =
      Cell 0 0 0 0     
   )
 
--- | TODO Генерация новой точки
--- Дайте мне трансформы, и я сверну мир
-newCast :: CastGen -> CastGen
-newCast a = a
-
-
 getNeigbours::Num a =>  a->(a,a)->[(a,a)]
 getNeigbours dl (x,y) = [v11,v12,v22,v21]
   where
