@@ -14,8 +14,8 @@ import System.Random
 type Vec = (Double, Double)  
 -- | Вектор с привязанным к нему генератором
 data GVec = GVec {
-  vgGen :: StdGen,
-  vgVec :: Vec
+  gvGen :: StdGen,
+  gvVec :: Vec
 }deriving(Show)
 
 gvX :: GVec -> Double
@@ -33,7 +33,7 @@ nextGen :: GVec -> GVec
 nextGen (GVec gen v) = GVec (snd $ next gen) v
 
 instance Eq GVec where
-  (==) gv1 gv2 = vgVec gv1 == vgVec gv2
+  (==) gv1 gv2 = gvVec gv1 == gvVec gv2
 
 phase :: GVec->Double
 phase (GVec _ (0,0)) = 0

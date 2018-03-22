@@ -62,7 +62,7 @@ generator
   -> World
 generator bnw n | n>0 = rty (iter (mugenga bnw, busPoint bnw) 0) (n-1)
   where
-    rty (f,(gvec,_)) = generator . World f (vgGen gvec) $ tail . busList $ bnw
+    rty (f,(gvec,_)) = generator . World f (gvGen gvec) $ tail . busList $ bnw
 generator a _  = a
 
 -- | BiUnitSquarePoint  from [-1,1)^2
@@ -86,7 +86,7 @@ iter (f, cgen) n
   | n<innerIter = iter (pack (newCast cgen)) (n+1)
   | otherwise = (f, cgen)
   where
-    pack newC@(gvec, colour) = ((plot (vgVec gvec, colour) f), newC)
+    pack newC@(gvec, colour) = ((plot (gvVec gvec, colour) f), newC)
 
 -- | TODO Генерация новой точки
 -- Дайте мне трансформы, и я сверну мир

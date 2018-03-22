@@ -22,7 +22,7 @@ calcVariation (Var s p f) a = s |*| (f p a)
 -- ======== преобразования
 -- | сферическое преобразование
 spherical :: VariationFunc
-spherical _ g@(GVec gen (x,y))  = GVec gen (coef *x, coef *y)
+spherical _ g@(GVec _ (x,y))  = g{gvVec = (coef *x, coef *y)}
   where coef = 1 / (radiusSqr g)
 
 -- | отображение в стиле множества Жюлиа
@@ -36,94 +36,89 @@ juliaN _ a = a
 
 -- | афинное преобразование
 affineTransform :: VariationFunc 
-affineTransform (Matrix m) (GVec gen (x,y)) = GVec gen (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m)
+affineTransform (Matrix m) g@(GVec _ (x,y)) = g {gvVec = (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m)}
 affineTransform _ a = a
 
 -- | линейное преобразование
 linear :: VariationFunc
-linear _ vec = vec
+linear _ g = g
 
 -- | синусоидальное преобразование
 sinusoidal :: VariationFunc
-sinusoidal _ (GVec gen (x,y)) = GVec gen ((sin x), (sin y))
+sinusoidal _ g@(GVec _ (x,y)) = g { gvVec = ((sin x), (sin y))}
 
 -- | swirl
 swirl :: VariationFunc
-swirl _ g@(GVec gen (x,y)) = GVec gen ((x * (sin r2) - y * (cos r2)) , (x * (cos r2) + y * (sin r2)))
+swirl _ g@(GVec _ (x,y)) = g {gvVec = ((x * (sin r2) - y * (cos r2)) , (x * (cos r2) + y * (sin r2)))}
   where r2 = (radiusSqr g)
 -- | horseshoe
 horseshoe :: VariationFunc
-horseshoe _ g@(GVec gen (x,y)) = GVec gen (r' * (x - y) * (x + y) , r'*2*x*y)
+horseshoe _ g@(GVec _ (x,y)) = g {gvVec = (r' * (x - y) * (x + y) , r'*2*x*y)}
   where r' = 1/(magnitude g)
 
 -- | polar
 polar :: VariationFunc
-polar _ g@(GVec gen _) = GVec gen (th/pi, r - 1)
+polar _ g = g {gvVec = (th/pi, r-1)}
   where th = antiPhase g
         r = magnitude g
 
+
 -- | disc
 disc :: VariationFunc
-disc  _ g@(GVec gen _) = GVec gen (th'*(sin (pi * r)) ,th' * (cos (pi * r)))
+disc  _ g = g { gvVec = (th'*(sin (pi * r)) ,th' * (cos (pi * r)))}
   where th' = (antiPhase g)/pi
         r = magnitude g
 
 -- | spiral
 spiral :: VariationFunc
-spiral _ g@(GVec gen _) = GVec gen (r' * (cos th + sin r) , r' * (sin th - cos r))
+spiral _ g = g {gvVec = (r' * (cos th + sin r) , r' * (sin th - cos r))}
   where th = antiPhase g
         r = magnitude g
         r' = 1/(magnitude g)
 
 -- | hyperbolic
 hyperbolic :: VariationFunc
-hyperbolic _ g@(GVec gen _) = GVec gen ( (sin th)/r, r*(cos th) )
+hyperbolic _ g = g {gvVec = ((sin th)/r, r*(cos th))}
   where th = antiPhase g
         r = magnitude g
 
 -- | square
 square :: VariationFunc
-square _ (GVec gen _) = GVec (snd n2) (psi1 - 0.5 , psi2 - 0.5)
-  where n1 = random gen 
-        psi1 = fst n1 
-        n2 = random (snd n1) 
-        psi2 = fst n2 
+square _ (GVec gen _) = GVec n2 (psi1 - 0.5 , psi2 - 0.5)
+  where (psi1, n1) = random gen
+        (psi2, n2) = random n1
 
 -- | eyefish
 eyefish :: VariationFunc
-eyefish _ g@(GVec gen (x,y)) = GVec gen ( (2/(r+1)) * x , (2/(r+1)) * y)
+eyefish _ g@(GVec _ (x,y)) = g {gvVec = ( (2/(r+1)) * x , (2/(r+1)) * y)}
   where r = magnitude g
 
 -- | bubble
 bubble :: VariationFunc
-bubble _ g@(GVec gen (x,y)) = GVec gen ((4/(r2+4)) * x , (4/(r2+4)) * y)
+bubble _ g@(GVec _ (x,y)) = g {gvVec =  ((4/(r2+4)) * x , (4/(r2+4)) * y)}
   where r2 = radiusSqr g
 
 -- | cylinder
 cylinder :: VariationFunc
-cylinder _ (GVec gen (x,y)) = GVec gen (sin x , y)
+cylinder _ g@(GVec _ (x,y)) = g{gvVec = (sin x , y)}
 
 -- | noise
 noise :: VariationFunc
-noise _ (GVec gen (x,y)) = GVec (snd n2) (psi1 * x * (cos (2*pi*psi2)) , psi1 * y * (sin (2*pi*psi2)))
-  where n1 = random gen 
-        psi1 = fst n1 
-        n2 = random (snd n1) 
-        psi2 = fst n2 
+noise _ (GVec gen (x,y)) = GVec n2 (psi1 * x * (cos (2*pi*psi2)) , psi1 * y * (sin (2*pi*psi2)))
+  where (psi1, n1) = random gen
+        (psi2, n2) = random n1 
 
 -- | blur
 blur :: VariationFunc
-blur _ (GVec gen _) = GVec (snd n2) (psi1 * (cos (2*pi*psi2)) , psi1 * (sin (2*pi*psi2)))
-  where n1 = random gen 
-        psi1 = fst n1 
-        n2 = random (snd n1) 
-        psi2 = fst n2 
+blur _ (GVec gen _) = GVec n2 (psi1 * (cos (2*pi*psi2)) , psi1 * (sin (2*pi*psi2)))
+  where (psi1, n1) = random gen
+        (psi2, n2) = random n1
 
 -- | gaussian
 gaussian :: VariationFunc
 gaussian _ gv =
   let
-    n0 = vgGen gv
+    n0 = gvGen gv
     (psi1, n1) = random n0
     (psi2, n2) = random n1
     (psi3, n3) = random n2
@@ -134,5 +129,5 @@ gaussian _ gv =
   in GVec n5 (s . cos $ arg ,s . sin $ arg)
 -- | exponential 
 exponential :: VariationFunc
-exponential (List (dx:dy:_)) (GVec gen (x,y)) = GVec gen ((exp (x - 1 + dx)) * (cos (pi*(y+dy))) , (exp (x - 1 + dx)) * (sin (pi*(y+dy))))
+exponential (List (dx:dy:_)) g@(GVec _ (x,y)) = g{gvVec = ((exp (x - 1 + dx)) * (cos (pi*(y+dy))) , (exp (x - 1 + dx)) * (sin (pi*(y+dy))))}
 exponential _ a = a
