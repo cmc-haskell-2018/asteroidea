@@ -85,7 +85,7 @@ xaos :: [Double]
 data Model = Model {
   modelName :: String,
   -- | череда трансформ
-  tranforms :: [Transform],
+  transforms :: [Transform],
   -- viewPoint, условно
   camera :: Maybe Transform,
   -- | карта градиентов
@@ -98,5 +98,6 @@ data Model = Model {
   -- | зум
   mScale :: Double,
   -- | и поворот.
-  rotation :: Double
+  rotation :: Double,
+  sumweight :: Double
 }
