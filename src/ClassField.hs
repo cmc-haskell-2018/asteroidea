@@ -51,7 +51,7 @@ updateWorld
 updateWorld dt bnw = 
   generator
   bnw
-  (floor (dt*numCast))
+  numCast --(floor (dt*numCast))
 
 -- | генератор нового поля
 -- генерируется новая серия бросков одной точки из bus
@@ -62,7 +62,7 @@ generator
   -> World
 generator bnw n | n>0 = rty (iter (mugenga bnw, busPoint bnw) 0) (n-1)
   where
-    rty (f,(gvec,_)) = generator . World f (gvGen gvec) $ tail . busList $ bnw
+    rty (f,(gvec,_)) = generator $!(World f (gvGen gvec) $ tail . busList $ bnw)
 generator a _  = a
 
 -- | BiUnitSquarePoint  from [-1,1)^2
@@ -90,35 +90,34 @@ iter (f, cgen) n
 
 -- | TODO Генерация новой точки
 newCast :: CastGen -> CastGen
-newCast = id
-{-
-newCast (gvector, colour) = id
+newCast (gvector, colour) =
   let
     (choice,generator) = random $ gvGen gvector
     transform = askTransform mainModel choice
   in applyTransform transform colour (GVec generator (gvVec gvector))
--}
 
 -- | Размещение точки в поле
 plot
   :: Cast  -- ^ cast: (point, gradient)
   -> Field -- ^ old field
   -> Field -- ^ new field
-plot ((x, y), colC) field
+plot (ccc@(x, y), colC) field
   | flag = setElem colour coord field
-  | otherwise = field
+  | otherwise =
+    error ("Field"++(show coord)++(show ccc)++(show(halfX,halfY)))
+    -- field
   where
     colour = merge colC $ getPoint coord
     getPoint (a,b) = getElem a b field
-    flag = control (ordX, ordY)
+    flag = control (x', y')
 -- Orthogonal transformation (x,y)
-    x' = (y*sinTheta + x*cosTheta)
-    y' = (y*cosTheta - x*sinTheta)
+    x' = ((y*sinTheta + x*cosTheta) - shiftX)
+    y' = ((y*cosTheta - x*sinTheta) - shiftY)
 -- Translation on shift vector in discrete field and scaling
-    ordX = scaleFactor* (x'- shiftX)
-    ordY = scaleFactor* (y'- shiftY)
-    coord = ((trr sizeX) ordX, (trr sizeY) ordY)
-    trr size = truncate . (+ ((fromIntegral size)/2))
+    ordX = x' + halfX + 1
+    ordY = y' + halfY + 1
+    coord = (trr ordX, trr ordY)
+    trr = truncate
 -- | проверка границ поля
 control :: (Double,Double) -> Bool
 control (a,b) = not (cond halfX a || cond halfY b)

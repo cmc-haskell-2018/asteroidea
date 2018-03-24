@@ -28,7 +28,7 @@ sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
 cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
 -- | Scale Factor
 scaleFactor :: Double
-scaleFactor = (mScale mainModel)
+scaleFactor = 1 --(mScale mainModel)/50
 {- Zoom Factor, scaling
 zoomFactor :: Double
 zoomFactor = exp
@@ -47,8 +47,8 @@ lowThreshold = 20
 -- не хочу рисковать лагами
 -- 1920 x 1080
 winX, winY :: Int
-winX = 640
-winY = 360
+winX = 1024
+winY = 1024
 -- | половина поля, выраженная в вещественных значениях
 halfX, halfY :: (Fractional a) => a
 halfX = (fromIntegral sizeX)/2
@@ -61,9 +61,9 @@ startPosY = 0
 -- | максимальная частота кадров.
 -- единица это минимум
 fpsMax :: Int
-fpsMax = 1
+fpsMax = 20
 -- | число бросков из BiUnitSquare за шаг отрисовки
 -- gloss-raster, похоже, даёт время в секундах, но в этом не уверен
 -- 100000
-numCast :: Float
-numCast = 10
+numCast :: Int
+numCast = 1

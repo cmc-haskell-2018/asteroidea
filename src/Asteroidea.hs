@@ -51,8 +51,8 @@ getWorldPoint bnw (x,y)
     --x' = y*sinTheta + x*cosTheta
     --y' = y*cosTheta - x*sinTheta
     i, j :: Int -- ^ Translation on shift vector in discrete field
-    i = round ((x+1) * halfX)
-    j = round ((y+1) * halfY)
+    i = round ((x+1) * halfX) +1
+    j = round ((y+1) * halfY) +1
     flag :: Bool -- ^ Control bounds of field, flag
     flag = not (cond sizeX i || cond sizeY j)
     cond size a = a < 1 || a > size
