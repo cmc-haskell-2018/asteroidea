@@ -6,7 +6,7 @@ Stability   : in progress
 -}
 module Const where
 import Examples
-import Graphics.Gloss.Data.Color (Color,makeColor)
+import Graphics.Gloss.Data.Color (Color,makeColor,makeColorI)
 import Types (Model,width,height,mScale,rotation,weight,transforms,gradient,modelName)
 -- | export example model
 mainModel :: Model
@@ -44,7 +44,9 @@ zoomFactor = exp
 -}
 -- | Цвет заднего фона
 backGrCol :: Color
-backGrCol = makeColor 0 0 0 1
+backGrCol = makeColorI 34 139 34 255
+-- makeColor 1 1 1 1
+-- makeColor 0.13 0.54 0.13 1.0
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
 innerIter = 128+64

@@ -13,7 +13,8 @@ import Graphics.Gloss
 import GVector
 --import Const
 
-
+-- | Цвета без нормализации и проверки на нормировку
+type UnsafeColour = (Float,Float,Float,Float)
 -- | Вариация как она есть, с параметрами, перевод GVec -> GVec
 type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возможно стоит использовать Nan'ы 
 -- | Любое отображение из R2 -> R
@@ -91,7 +92,7 @@ data Model = Model {
   -- | карта градиентов
   -- стоит сделать матрицей
   -- мб Data.Vector?
-  gradient :: [(Float,Float,Float,Float)],
+  gradient :: [UnsafeColour],
   -- | Размер картинки, 
   width :: Int,
   height :: Int,
@@ -100,3 +101,12 @@ data Model = Model {
   -- | и поворот.
   rotation :: Double
 }
+
+stdGrad :: Int -> [UnsafeColour]
+stdGrad len = [(lr+(cfi lt),st,lb-(cfi lt), 1.0) | lt <- [1,2..len]]
+  where
+    st = 128/255
+    lr = 0.0
+    lb = 1.0
+    lc = 1/(fromIntegral len)
+    cfi = (lc *) . fromIntegral

@@ -26,8 +26,7 @@ type Cast = (Vec, Double)
 type CastGen = (GVec,Double)
 -- | Поле есть матрица цветов
 type Field = Matrix UnsafeColour
--- | Цвета без нормализации и проверки на нормировку
-type UnsafeColour = (Float,Float,Float,Float)
+
 -- | Создание изначального поля
 -- размером икс на игрек
 createField :: Int -> Int -> Field
@@ -39,7 +38,8 @@ initFunction
   -> ((Int,Int)->UnsafeColour)
   -- ^ function from field point to unsafe colour
 initFunction _ _ =
-  ( \_ -> (0.13,0.54,0.13,1.0))
+  \_ -> (0,0,0,1)
+  --( \_ -> (0.13,0.54,0.13,1.0))
 {-| ^ веселья ради можно поставить что-то ещё,
  но цвет лесной зелени приятен глазу, как ветви молодых деревьев в летнем саду.
   (\(a,b) ->
@@ -149,12 +149,14 @@ controlBounds (a,b) = not (cond halfX a || cond halfY b)
 -- привнесение в данную точку некоторого цвета
 merge
   :: Double       -- ^ цвет в карте градиентов, нормирован по [0,1)
+-- А на самом деле выдаёт [0,1]. Баги кружатся и плодятся.
   -> UnsafeColour -- ^ текущее состояние точки (R,G,B,A)
   -- не нормированно, в поле (A)lpha находится счётчик попаданий в точку
   -> UnsafeColour
-merge grad = mix
+merge grad
+  | grad == 1 = mix $ last $ gradient mainModel
+  | otherwise = mix $ (gradient mainModel)!!(floor $ sumGrad*grad)
   where
     -- asking gradient
-    (r,g,b,_) = (gradient mainModel)!!(floor $ sumGrad*grad)
     -- mixing and increment counter in alpha field
-    mix = (\(t,h,n,s) -> (r+t,g+h,b+n,s+1))
+    mix (r,g,b,a) = \(t,h,n,s) -> (r+t,g+h,b+n,s+1)
