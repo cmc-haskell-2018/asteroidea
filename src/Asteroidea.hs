@@ -21,8 +21,8 @@ run :: IO ()
 run = do 
   -- Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
-  let world = calcFlame $! initWorld genRand
-  let img = generateImage (worldCellToPixel $! world) (width mainModel) (height mainModel)
+  let field = calcFlame genRand mainModel
+  let img = generateImage (fieldCellToPixel $! field) (width mainModel) (height mainModel)
   let pic = fromImageRGBA8 $! img
   savePngImage "./pic.png" $! (ImageRGBA8  img) 
   display window white $! pic
@@ -41,23 +41,27 @@ fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = id }) =
 -- | Act of Creation
 -- создание мира
 
-
+-- TODO StdGen Handling
+-- в текущий момент тут нет никакого рандома
 
 -- | Calculate whole fractal
-calcFlame :: World -> World
-calcFlame !w = foldl' calcPath w pointList
+calcFlame :: StdGen ->  Model -> Field
+calcFlame gen model = foldl' (calcPath gen model) startField pointList
   where
-    pointList = take outerIter $ busList w -- лист с точками что будем обсчитывать
+    sizeX = width model
+    sizeY = height model
+    startField = matrix sizeX sizeY initFunction
+    initFunction = \(a,b) -> Cell 0 0 0 0  -- По хорошему цвет фона должен быть в модели
+    pointList = take outerIter busPointList -- лист с точками что будем обсчитывать
     outerIter = 21845 -- внешний цикл, 
 --(b -> a -> b) -> b -> t a -> b
 
 -- | Calculate and plot Path of one point from [-1,1]^2
-calcPath :: World->Vec->World
-calcPath !w !v = foldl' plot w path
+calcPath :: StdGen -> Model->Field->Vec->Field
+calcPath gen model field !vec = foldl' (plot model) field path
   where
-    gen = getSGen w
-    start = (GVec gen v, 0.5) -- CastGen
-    infPath = iterate (calcOne $! wModel w) start -- весь путь точки
+    start = (GVec gen vec, 0.5) -- CastGen
+    infPath = iterate (calcOne model) start -- весь путь точки
     path = drop 20 $! take 21 $! infPath -- 30 - внутренний цикл
 
 -- | Calculate one point and color
@@ -84,20 +88,17 @@ getWorldPoint bnw (i,j)
     flag = not (cond sizeX trrI|| cond sizeY trrJ)
     cond size a = a < 1 || a > size
 -}
--- излишне передавать целый мир, нужны только модель и поле
-plot :: World -> CastGen -> World
-plot !w !(GVec gen v@(x,y), col) | inBounds = newWolrd
-                               | otherwise = w
+-- отрисовка точки на поле
+plot ::Model -> Field -> CastGen -> Field
+plot model !field !(GVec gen v@(x,y), col) | inBounds = newField
+                               | otherwise = field
   where
-    model = wModel w
-    field = wField w
     inBounds = control model v
     setX = 1 + round ( (x+1) * (fromIntegral $ width model)/2  ) 
     setY = 1 + round ( (-y+1) * (fromIntegral $ height model)/2  )
     coord = (setX, setY)
     colour = calcColour col (field ! coord)
-    newFiled = setElem colour coord field
-    newWolrd = w { wField = newFiled} 
+    newField = setElem colour coord field
 
 
 control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее
@@ -114,10 +115,9 @@ control m !(a,b) = not (cond halfX a || cond halfY b)
 calcColour :: Double -> Cell -> Cell
 calcColour _ _ = Cell 1 0 0 1 -- заглушка
 
-worldCellToPixel ::  World -> Int -> Int -> PixelRGBA8
-worldCellToPixel w x y = toPixel $ getElem (x+1) (y+1) field 
+fieldCellToPixel ::  Field -> Int -> Int -> PixelRGBA8
+fieldCellToPixel field x y = toPixel $ getElem (x+1) (y+1) field 
   where
-    field = wField w
     toPixel (Cell r g b a )= PixelRGBA8 nr ng nb 255
      where
       nr = fromIntegral $ round $ r*255

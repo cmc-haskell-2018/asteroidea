@@ -12,7 +12,7 @@ import Types
 
 -- | применение вариации
 calcVariation :: Variation -> GVec-> GVec
-calcVariation (Var s p f) a = s |*| (f p $! a)
+calcVariation (Var s p f) !a = s |*| (f p $! a)
 
 -- | отображение в коэффициент потенциала в точке
 --potent :: Project
