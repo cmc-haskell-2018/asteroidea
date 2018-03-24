@@ -24,7 +24,8 @@ run = do
   let world = calcFlame $! initWorld genRand
   let img = generateImage (worldCellToPixel world) (width mainModel) (height mainModel)
   let pic = fromImageRGBA8 img
-  display window white $! pic 
+  --display window white $! pic
+  savePngImage "./pic.png" $! (ImageRGBA8  img) 
   where   
     --getter = getWorldPoint
     window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
@@ -54,10 +55,11 @@ calcPath w v = foldl' plot w path
     gen = getSGen w
     start = (GVec gen v, 0.5) -- CastGen
     infPath = iterate (calcOne $ wModel w) start -- весь путь точки
-    path = drop 20 $! take 200 $! infPath -- 30 - внутренний цикл
+    path = drop 20 $! take 21 $! infPath -- 30 - внутренний цикл
 
 -- | Calculate one point and color
 calcOne :: Model -> CastGen -> CastGen
+calcOne _ c = c
 calcOne model ( GVec gen v, col) = (newGVec, newCol)
   where
     (ptr , newGen) = randomR (0, (length $ tranforms model) -1 ) gen
