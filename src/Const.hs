@@ -26,8 +26,8 @@ sumGrad :: Double
 sumGrad = fromIntegral $ length (gradient mainModel)
 -- | смещение центра фрактала по оси абсцисс / ординат
 shiftX, shiftY :: Double
-shiftX = 0
-shiftY = 0
+shiftX = 50
+shiftY = 50
 -- | rotation in radian
 rotRad :: Double
 rotRad = (pi/360*) $ rotation mainModel

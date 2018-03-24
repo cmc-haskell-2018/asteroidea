@@ -77,6 +77,6 @@ t7 :: Transform
 -- ^ DEBUG transform 3
 t7 = Transform "t3" dbgAffine7 1 1 0 1 []
 exampleModel2 :: Model 
-exampleModel2 = Model "Seprinsky" [t6,t5,t7] Nothing grad 512 512 200 0
+exampleModel2 = Model "Seprinsky" [t6,t5,t7] Nothing grad 512 512 100 0
   where
    grad = [(1,0,0,1)]
