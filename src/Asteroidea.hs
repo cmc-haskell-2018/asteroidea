@@ -17,8 +17,8 @@ import ClassField
 
 -- | Поехали!
 -- Генератор случайных чисел, начальная инициализация
--- Запуск симуляции
-
+-- Запуск симуляции Gloss - ради получения стартового интерфейса:
+-- масштабирование и передвижение
 run :: IO ()
 run = do 
   genRand <- newStdGen
@@ -28,11 +28,14 @@ run = do
     -- FullScreen
     colour = backGrCol
     fps = fpsMax
+    -- too slow, too slow!
     imageScan :: World -> Picture
     imageScan bnw = makePicture sizeX sizeY 1 1 (getWorldPoint bnw)
     update = \_ -> updateWorld
 
 {--
+-- Запуск параллельной версии play библиотекой gloss-raster
+-- Возможно, GUI будем писать именно здесь
 run :: IO ()
 run = do 
   genRand <- newStdGen
@@ -42,6 +45,9 @@ run = do
     getter = getWorldPoint
     window = InWindow "Just Nothing" (winX, winY) (startPosX, startPosY)
     update = updateWorld
+-- | заглушка на месте обработки событий
+cap :: a -> World -> World
+cap _ = id
 --}
 
 -- | Act of Creation
@@ -50,9 +56,7 @@ initWorld
   :: StdGen -- ^ Глобальный ГПСЧ мира, получен со старта.
   -> World
 initWorld sGen = World (createField sizeX sizeY) sGen busPointList
--- | заглушка на месте обработки событий
-cap :: a -> World -> World
-cap _ = id
+
 
 -- | Вывод поля на экран playField
 getWorldPoint
@@ -67,8 +71,15 @@ getWorldPoint !bnw (x,y)
     j = round ((y+1) * halfY) +1
 mkCol :: UnsafeColour -> Color
 -- ^ convertation with log scale and checking
-mkCol (r,g,b,a) = rgb' (cf r) (cf g) (cf b)
-  where cf = (*) . (/a) $ log $ 1+a
+mkCol (r,g,b,a) = rgb' (control r) (control g) (control b)
+  where
+    -- better choice is log1p, but it is not accessible
+    logscale = (*) . (/a) $ log $ 1+a
+    control x = normal $ logscale x
+    -- normalization to [0,1)
+    normal sample
+      | sample > 1.0 = 1.0
+      | otherwise = sample
 
 {- | соседи одной точки, расположенные в центрах окружающих квадратов
 порядок обхода - по контуру
