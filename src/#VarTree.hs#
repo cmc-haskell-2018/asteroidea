@@ -67,7 +67,7 @@ foldTree (Node op list) gvec = foldr f (head listGVec) (tail listGVec)
 -- | Свёртка дерева в функцию из G-вектора в G-вектор
 foldTree :: VTree -> GVec -> GVec
 foldTree (Leaf var) gvec = (vScale var) |*| ((function var) (params var) gvec)
-foldTree (Node operation list) gvec = foldr f (head listGVec) (tail listGVec)
+foldTree (Node operation list) gvec = foldTree f (head listGVec) (tail listGVec)
   where
     -- type Operation = GVec->(GVec->GVec)->(GVec->GVec)->(GVec->GVec)
     op = operation gvec 
