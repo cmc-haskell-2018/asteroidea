@@ -131,3 +131,14 @@ gaussian _ gv = GVec n5 (s . cos $ arg , s . sin $ arg)
 exponential :: VariationFunc
 exponential (List (dx:dy:_)) g@(GVec _ (x,y)) = g{gvVec = ((exp (x - 1 + dx)) * (cos (pi*(y+dy))) , (exp (x - 1 + dx)) * (sin (pi*(y+dy))))}
 exponential _ a = a
+
+-- | both coords squared
+eachSquare :: VariationFunc
+eachSquare _ g@(GVec _ (x,y)) = g {gvVec =  (x * x , y * y)}
+
+-- | different hyperb
+hyperb :: VariationFunc
+hyperb _ g@(GVec _ (x,y)) = g {gvVec =  (x / y , y / x)}
+
+sumMultAxis :: VariationFunc
+sumMultAxis _ g@(GVec _ (x,y)) = g {gvVec =  ((x+y) * x , (x+y) * y )}
