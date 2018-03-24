@@ -7,7 +7,7 @@ Stability   : in progress
 module Const where
 import Examples (exampleModel)
 import Graphics.Gloss.Data.Color (Color,makeColor)
-import Types (Model,width,height,mScale,rotation,weight,transforms,gradient)
+import Types (Model,width,height,mScale,rotation)
 -- | export example model
 mainModel :: Model
 mainModel = exampleModel
@@ -17,10 +17,10 @@ sizeX = width  mainModel
 sizeY = height mainModel
 -- | Суммарный вес всех трансформ в вероятностном распределении
 sumWeight::Double
-sumWeight = foldr (+) 0 (map weight (transforms mainModel))
+sumWeight = foldr' (+) 0 (map weight (transforms mainModel))
 -- | общее число цветов в карте градиентов
-sumGrad :: Double
-sumGrad = fromIntegral $ length (gradient mainModel)
+sumGrad :: Int
+sumGrad = length (gradient mainModel)
 -- | смещение центра фрактала по оси абсцисс / ординат
 shiftX, shiftY :: Double
 shiftX = 0
@@ -67,9 +67,9 @@ startPosY = 0
 -- | максимальная частота кадров.
 -- единица это минимум
 fpsMax :: Int
-fpsMax = 60
+fpsMax = 10
 -- | число бросков из BiUnitSquare за шаг отрисовки
 -- gloss-raster, похоже, даёт время в секундах, но в этом не уверен
 -- 100000
 numCast :: Int
-numCast = 32
+numCast = 1

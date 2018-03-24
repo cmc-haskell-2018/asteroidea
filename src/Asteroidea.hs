@@ -18,6 +18,7 @@ import ClassField
 -- | Поехали!
 -- Генератор случайных чисел, начальная инициализация
 -- Запуск симуляции
+
 run :: IO ()
 run = do 
   genRand <- newStdGen
@@ -43,23 +44,16 @@ getWorldPoint
   :: World -- ^ World
   -> Point -- ^ Point from [-1,1]^2 conformal mapping to Field
   -> Color -- ^ safe Color from Field
-getWorldPoint bnw (x,y)
-  | flag = mkCol $ getElem i j (mugenga bnw)
-  | otherwise = backGrCol
+getWorldPoint !bnw (x,y)
+  = mkCol $! getElem i j (mugenga bnw)
   where
-    --x',y' :: Float -- ^ Orthogonal transformation (x,y)
-    --x' = y*sinTheta + x*cosTheta
-    --y' = y*cosTheta - x*sinTheta
     i, j :: Int -- ^ Translation on shift vector in discrete field
     i = round ((x+1) * halfX) +1
     j = round ((y+1) * halfY) +1
-    flag :: Bool -- ^ Control bounds of field, flag
-    flag = not (cond sizeX i || cond sizeY j)
-    cond size a = a < 1 || a > size
 mkCol :: UnsafeColour -> Color
 -- ^ convertation with log scale and checking
 mkCol (r,g,b,a) = rgb' (cf r) (cf g) (cf b)
-  where cf = id -- (*) . (/a) $ log $ 1+a
+  where cf = (*) . (/a) $ log $ 1+a
 
 {- | соседи одной точки, расположенные в центрах окружающих квадратов
 порядок обхода - по контуру

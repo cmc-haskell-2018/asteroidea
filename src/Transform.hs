@@ -10,26 +10,32 @@ import Types
 import Const
 import GVector
 
+-- | Выбор трансформы из списка
+-- нашей модели
 askTransform
-  :: Model
-  -> Double
+  :: Model -- ^ модель
+  -> Double-- ^ случайная величина [0,1)
   -> Transform
 askTransform model choice =
   let
-    thres = choice * (sumweight model)
-    list@(x:xs) = (transforms model)
-  in findTrans (thres - (weight x)) list
-
-findTrans :: Double -> [Transform] -> Transform
+    thres = choice * sumWeight
+    list = transforms model
+  in findTrans (thres - (weight $ head list)) list
+-- | перебор по списку до первого не превосходящего порог
+findTrans
+  :: Double -- ^ порог
+  -> [Transform] -- ^ список
+  -> Transform -- ^ результат
 findTrans thres (x:y:xs)
   | (thres <= 0) = x
   | otherwise = findTrans (thres - (weight y)) (y:xs)
-findTrans _ (x:xs) = x
-
+findTrans _ x = head x
+-- | Применение трансформы
+-- к цвету и вектору
 applyTransform
   :: Transform
-  -> Double
-  -> GVec
+  -> Double   -- ^ цвет в карте градиентов
+  -> GVec     -- ^ вектор
   -> (GVec, Double)
 applyTransform transform colour gvec =
   let
