@@ -22,10 +22,11 @@ run = do
   -- Генератор случайных чисел, начальная инициализация
   genRand <- newStdGen
   let world = calcFlame $! initWorld genRand
-  let img = generateImage (worldCellToPixel world) (width mainModel) (height mainModel)
-  let pic = fromImageRGBA8 img
-  --display window white $! pic
+  let img = generateImage (worldCellToPixel $! world) (width mainModel) (height mainModel)
+  let pic = fromImageRGBA8 $! img
   savePngImage "./pic.png" $! (ImageRGBA8  img) 
+  display window white $! pic
+  
   where   
     --getter = getWorldPoint
     window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
@@ -40,26 +41,28 @@ fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = id }) =
 -- | Act of Creation
 -- создание мира
 
+
+
 -- | Calculate whole fractal
 calcFlame :: World -> World
-calcFlame w = foldl' calcPath w pointList
+calcFlame !w = foldl' calcPath w pointList
   where
-    pointList = take outerIter $! busList w -- лист с точками что будем обсчитывать
+    pointList = take outerIter $ busList w -- лист с точками что будем обсчитывать
     outerIter = 21845 -- внешний цикл, 
 --(b -> a -> b) -> b -> t a -> b
 
 -- | Calculate and plot Path of one point from [-1,1]^2
 calcPath :: World->Vec->World
-calcPath w v = foldl' plot w path
+calcPath !w !v = foldl' plot w path
   where
     gen = getSGen w
     start = (GVec gen v, 0.5) -- CastGen
-    infPath = iterate (calcOne $ wModel w) start -- весь путь точки
+    infPath = iterate (calcOne $! wModel w) start -- весь путь точки
     path = drop 20 $! take 21 $! infPath -- 30 - внутренний цикл
 
 -- | Calculate one point and color
 calcOne :: Model -> CastGen -> CastGen
-calcOne _ c = c
+calcOne _ !c = c
 calcOne model ( GVec gen v, col) = (newGVec, newCol)
   where
     (ptr , newGen) = randomR (0, (length $ tranforms model) -1 ) gen
@@ -83,7 +86,7 @@ getWorldPoint bnw (i,j)
 -}
 -- излишне передавать целый мир, нужны только модель и поле
 plot :: World -> CastGen -> World
-plot w !(GVec gen v@(x,y), col) | inBounds = newWolrd
+plot !w !(GVec gen v@(x,y), col) | inBounds = newWolrd
                                | otherwise = w
   where
     model = wModel w
@@ -98,7 +101,7 @@ plot w !(GVec gen v@(x,y), col) | inBounds = newWolrd
 
 
 control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее
-control m (a,b) = not (cond halfX a || cond halfY b)
+control m !(a,b) = not (cond halfX a || cond halfY b)
   where
     halfX = (fromIntegral $ width m)/2
     halfY = (fromIntegral $ height m)/2
