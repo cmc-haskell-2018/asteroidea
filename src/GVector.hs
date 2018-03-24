@@ -31,9 +31,13 @@ gvY (GVec _ (_ ,y)) = y
 nextGen :: GVec -> GVec
 nextGen (GVec gen v) = GVec (snd $ next gen) v
 
+-- | Разделение генераторов в два GVec
+splitGen (GVec gen0 vec) = ( (GVec gen1 vec),(GVec gen2 vec) )
+  where (gen1,gen2) = split gen0
+
 instance Eq GVec where
   (==) gv1 gv2 = gvVec gv1 == gvVec gv2
---
+
 phase :: GVec->Double
 phase (GVec _ (0,0)) = 0
 phase (GVec _ (x,y)) = atan2 y x

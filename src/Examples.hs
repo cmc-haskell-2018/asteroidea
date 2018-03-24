@@ -57,3 +57,26 @@ exampleModel :: Model
 exampleModel = Model "42" [t1,t2,t3,t4] Nothing grad 512 512 50 0
   where
    grad = [(1,0,0,1)]
+
+dbgAffine5 :: Variation
+dbgAffine5= Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0)) affineTransform
+
+dbgAffine6 :: Variation
+dbgAffine6 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0)) affineTransform
+
+dbgAffine7 :: Variation
+dbgAffine7 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0.5)) affineTransform
+
+t5 :: Transform
+-- ^ DEBUG transform 1
+t5 = Transform "t1" dbgAffine5 1 1 0 1 []
+t6 :: Transform
+-- ^ DEBUG transform 2
+t6 = Transform "t2" dbgAffine6 1 0.889 0 1 []
+t7 :: Transform
+-- ^ DEBUG transform 3
+t7 = Transform "t3" dbgAffine7 1 1 0 1 []
+exampleModel2 :: Model 
+exampleModel2 = Model "Seprinsky" [t6,t5,t7] Nothing grad 512 512 200 0
+  where
+   grad = [(1,0,0,1)]

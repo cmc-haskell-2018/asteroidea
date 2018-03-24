@@ -24,7 +24,7 @@ run = do
   genRand <- newStdGen
   simulate displayW colour fps (initWorld genRand) imageScan update
   where
-    displayW = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
+    displayW = InWindow mainName (sizeX, sizeY) (startPosX, startPosY)
     -- FullScreen
     colour = backGrCol
     fps = fpsMax
@@ -43,7 +43,7 @@ run = do
   where
     fps = fpsMax
     getter = getWorldPoint
-    window = InWindow "Just Nothing" (winX, winY) (startPosX, startPosY)
+    window = InWindow mainName (winX, winY) (startPosX, startPosY)
     update = updateWorld
 -- | заглушка на месте обработки событий
 cap :: a -> World -> World

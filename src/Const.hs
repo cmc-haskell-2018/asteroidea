@@ -5,12 +5,15 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 module Const where
-import Examples (exampleModel)
+import Examples
 import Graphics.Gloss.Data.Color (Color,makeColor)
-import Types (Model,width,height,mScale,rotation,weight,transforms,gradient)
+import Types (Model,width,height,mScale,rotation,weight,transforms,gradient,modelName)
 -- | export example model
 mainModel :: Model
-mainModel = exampleModel
+mainModel = exampleModel2
+-- | name of main model
+mainName :: String
+mainName = modelName mainModel
 -- | x, y size of field, model, window, etc
 sizeX,sizeY :: Int
 sizeX = width  mainModel

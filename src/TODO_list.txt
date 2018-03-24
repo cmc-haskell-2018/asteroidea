@@ -6,3 +6,6 @@ cairo
 
 settors to GVector	FIND
 Captain Obvious
+
+карта градиентов
+запись точки в окрестности назначения
