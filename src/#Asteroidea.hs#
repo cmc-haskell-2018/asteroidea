@@ -47,10 +47,9 @@ getWorldPoint bnw (x,y)
   | flag = mkCol $ getElem i j (mugenga bnw)
   | otherwise = backGrCol
   where
-    --x',y' :: Float -- ^ Orthogonal transformation (x,y)
-    --x' = y*sinTheta + x*cosTheta
-    --y' = y*cosTheta - x*sinTheta
-    i, j :: Int -- ^ Translation on shift vector in discrete field
+    --x',y' :: Float -- ^
+    --
+    i, j :: Int 
     i = round ((x+1) * halfX)
     j = round ((y+1) * halfY)
     flag :: Bool -- ^ Control bounds of field, flag

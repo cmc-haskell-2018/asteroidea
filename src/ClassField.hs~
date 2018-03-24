@@ -90,14 +90,14 @@ iter (f, cgen) n
 
 -- | TODO Генерация новой точки
 newCast :: CastGen -> CastGen
-newCast = id
-{-
-newCast (gvector, colour) = id
+-- newCast = id
+
+newCast (gvector, colour) =
   let
     (choice,generator) = random $ gvGen gvector
     transform = askTransform mainModel choice
   in applyTransform transform colour (GVec generator (gvVec gvector))
--}
+
 
 -- | Размещение точки в поле
 plot

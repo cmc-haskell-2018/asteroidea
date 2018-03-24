@@ -16,19 +16,19 @@ sizeX,sizeY :: Int
 sizeX = width  mainModel
 sizeY = height mainModel
 -- | смещение центра фрактала по оси абсцисс / ординат
-shiftX, shiftY :: Double
-shiftX = 0
-shiftY = 0
+shiftX, shiftY :: Float
+shiftX = -1 - halfX
+shiftY = -1 - halfY
 -- | rotation in radian
 rotRad :: Double
 rotRad = (pi/360*) $ rotation mainModel
 -- | sin / cos rotation
-sinTheta, cosTheta :: Double
+sinTheta, cosTheta :: Float
 sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
 cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
 -- | Scale Factor
 scaleFactor :: Double
-scaleFactor = (mScale mainModel)
+scaleFactor = (mScale mainModel) / 50
 {- Zoom Factor, scaling
 zoomFactor :: Double
 zoomFactor = exp
