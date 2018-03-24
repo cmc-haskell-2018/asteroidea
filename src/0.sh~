@@ -1,3 +1,0 @@
-cd ..
-stack build
-stacl exec asteroidea

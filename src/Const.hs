@@ -28,7 +28,7 @@ sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
 cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
 -- | Scale Factor
 scaleFactor :: Double
-scaleFactor = 1 --(mScale mainModel)/50
+scaleFactor = 100 --(mScale mainModel)/50
 {- Zoom Factor, scaling
 zoomFactor :: Double
 zoomFactor = exp

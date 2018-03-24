@@ -111,8 +111,8 @@ plot (ccc@(x, y), colC) field
     getPoint (a,b) = getElem a b field
     flag = control (x', y')
 -- Orthogonal transformation (x,y)
-    x' = ((y*sinTheta + x*cosTheta) - shiftX)
-    y' = ((y*cosTheta - x*sinTheta) - shiftY)
+    x' = ((y*sinTheta + x*cosTheta) - shiftX) *scaleFactor
+    y' = ((y*cosTheta - x*sinTheta) - shiftY) *scaleFactor
 -- Translation on shift vector in discrete field and scaling
     ordX = x' + halfX + 1
     ordY = y' + halfY + 1
