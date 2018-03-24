@@ -17,7 +17,25 @@ import ClassField
 
 -- | Поехали!
 -- Генератор случайных чисел, начальная инициализация
--- Запуск симуляции
+-- Запуск симуляции Gloss - ради получения стартового интерфейса:
+-- масштабирование и передвижение
+run :: IO ()
+run = do 
+  genRand <- newStdGen
+  simulate displayW colour fps (initWorld genRand) imageScan update
+  where
+    displayW = InWindow mainName (sizeX, sizeY) (startPosX, startPosY)
+    -- FullScreen
+    colour = backGrCol
+    fps = fpsMax
+    -- too slow, too slow!
+    imageScan :: World -> Picture
+    imageScan bnw = makePicture sizeX sizeY 1 1 (getWorldPoint bnw)
+    update = \_ -> updateWorld
+
+{--
+-- Запуск параллельной версии play библиотекой gloss-raster
+-- Возможно, GUI будем писать именно здесь
 run :: IO ()
 run = do 
   genRand <- newStdGen
@@ -25,8 +43,12 @@ run = do
   where
     fps = fpsMax
     getter = getWorldPoint
-    window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
+    window = InWindow mainName (winX, winY) (startPosX, startPosY)
     update = updateWorld
+-- | заглушка на месте обработки событий
+cap :: a -> World -> World
+cap _ = id
+--}
 
 -- | Act of Creation
 -- создание мира
@@ -34,32 +56,30 @@ initWorld
   :: StdGen -- ^ Глобальный ГПСЧ мира, получен со старта.
   -> World
 initWorld sGen = World (createField sizeX sizeY) sGen busPointList
--- | заглушка на месте обработки событий
-cap :: a -> World -> World
-cap _ = id
+
 
 -- | Вывод поля на экран playField
 getWorldPoint
   :: World -- ^ World
   -> Point -- ^ Point from [-1,1]^2 conformal mapping to Field
   -> Color -- ^ safe Color from Field
-getWorldPoint bnw (x,y)
-  | flag = mkCol $ getElem i j (mugenga bnw)
-  | otherwise = backGrCol
+getWorldPoint !bnw (x,y)
+  = mkCol $! getElem i j (mugenga bnw)
   where
-    x',y' :: Float -- ^ Orthogonal transformation (x,y)
-    x' = y*sinTheta + x*cosTheta
-    y' = y*cosTheta - x*sinTheta
     i, j :: Int -- ^ Translation on shift vector in discrete field
-    i = round (x' * halfX - shiftX)
-    j = round (y' * halfY - shiftY)
-    flag :: Bool -- ^ Control bounds of field, flag
-    flag = not (cond sizeX i || cond sizeY j)
-    cond size a = a < 1 || a > size
+    i = round ((x+1) * halfX) +1
+    j = round ((y+1) * halfY) +1
 mkCol :: UnsafeColour -> Color
 -- ^ convertation with log scale and checking
-mkCol (r,g,b,a) = rgb' (cf r) (cf g) (cf b)
-  where cf = (*) . (/a) $ log $ 1+a
+mkCol (r,g,b,a) = rgb' (control r) (control g) (control b)
+  where
+    -- better choice is log1p, but it is not accessible
+    logscale = (*) . (/a) $ log $ 1+a
+    control x = normal $ logscale x
+    -- normalization to [0,1)
+    normal sample
+      | sample > 1.0 = 1.0
+      | otherwise = sample
 
 {- | соседи одной точки, расположенные в центрах окружающих квадратов
 порядок обхода - по контуру

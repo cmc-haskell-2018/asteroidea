@@ -1,8 +1,11 @@
 gloss static display
-gloss dynamic game
-gloss raster
+gloss dynamic simulate	DONE
+gloss raster		DONE
 juicy pixels
 cairo
 
-settors to GVector
+settors to GVector	FIND
 Captain Obvious
+
+карта градиентов
+запись точки в окрестности назначения

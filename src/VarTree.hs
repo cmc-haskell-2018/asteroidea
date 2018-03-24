@@ -15,7 +15,7 @@ inRange l i
          | i >=length l = False
          | otherwise = True
 
-type Operation = GVec->GVec->GVec
+type Operation = GVec->(GVec->GVec)->(GVec->GVec)->(GVec->GVec)
 type Path = [Int]
 
 -- | Дерево выражения над вариациями
@@ -43,13 +43,15 @@ isValidTree (Node _ list) = and (map isValidTree list)
 
 --removeSubTree :: VTree -> Path -> VTree -- откуда \ по какому адресу удалять
 --replaceSubTree :: VTree->Path->VTree->VTree -- откуда \ по какому адресу \ чем заменить 
+
+{-
 -- | Свёртка дерева в функцию из G-вектора в G-вектор
 foldTree :: VTree -> GVec -> GVec
 foldTree (Leaf var) gvec = (vScale var) |*| ((function var) (params var) gvec)
-foldTree (Node op list) gvec = foldr f' (head listGVec) (tail listGVec)
+foldTree (Node op list) gvec = foldr f (head listGVec) (tail listGVec)
   where
 -- aka foldr'
-    f' x z = id $! (op z x) 
+    f x z = let temp=(op z x) in temp `seq` temp
 -- listGVec = zipWith (VTree -> GVec -> GVec) [VTree] [GVec] -> [GVec]
 -- right-lazy zipWith f [] _|_ = []
     listGVec = zipWith (\tree vec -> (foldTree tree) vec) list (listSplit gvec)
@@ -57,8 +59,21 @@ foldTree (Node op list) gvec = foldr f' (head listGVec) (tail listGVec)
     listSplit (GVec sgen vec)
       = [(GVec newgen vec) | newgen <- listgen sgen]
 -- PRNG list
-    listgen gen0 = gen1 : listgen gen2
+    listgen gen0
+      = gen1 : listgen gen2
       where (gen1,gen2) = split gen0
+-}
+
+-- | Свёртка дерева в функцию из G-вектора в G-вектор
+foldTree :: VTree -> GVec -> GVec
+foldTree (Leaf var) gvec = (vScale var) |*| ((function var) (params var) gvec)
+foldTree (Node op list) gvec =
+  -- foldr :: (a -> b -> b) -> b -> t a -> b
+  foldr f id (tail list) gvec
+  where
+    -- type Operation = GVec->(GVec->GVec)->(GVec->GVec)->(GVec->GVec)
+    -- aka foldr'
+    f x acc = let temp=(op gvec acc (foldTree x)) in acc `seq` temp
 
 {-
 insertSubTree :: Path->VTree->VTree->VTree

@@ -14,14 +14,13 @@ import System.Random
 type Vec = (Double, Double)  
 -- | Вектор с привязанным к нему генератором
 data GVec = GVec {
-  gvGen :: StdGen,
-  gvVec :: Vec
-}deriving(Show)
+  gvGen :: StdGen, -- ^ Генератор
+  gvVec :: Vec     -- ^ Вектор
+} deriving(Show)
 
-gvX :: GVec -> Double
+-- | Вычленение x,y координат из GVec
+gvX, gvY :: GVec -> Double
 gvX (GVec _ (x ,_)) = x 
-
-gvY :: GVec -> Double
 gvY (GVec _ (_ ,y)) = y 
 
 -- | произведение GVec на скаляр
@@ -31,6 +30,10 @@ gvY (GVec _ (_ ,y)) = y
 -- | делает GVec'у следующий генератор
 nextGen :: GVec -> GVec
 nextGen (GVec gen v) = GVec (snd $ next gen) v
+
+-- | Разделение генераторов в два GVec
+splitGen (GVec gen0 vec) = ( (GVec gen1 vec),(GVec gen2 vec) )
+  where (gen1,gen2) = split gen0
 
 instance Eq GVec where
   (==) gv1 gv2 = gvVec gv1 == gvVec gv2

@@ -14,8 +14,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  ghc-options:         -Wall -fno-warn-type-defaults -O2 
----XBangPatterns
+  ghc-options:         -Wall -fno-warn-type-defaults -O2 -XBangPatterns
   exposed-modules:     Asteroidea
   other-modules:       ClassField
                      , Types
@@ -26,6 +25,7 @@ library
                      , Examples
                      , PostColoring
                      , VarTree
+                     , Transform
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster
@@ -36,8 +36,7 @@ library
 executable asteroidea
   hs-source-dirs:      app
   main-is:             Main.hs
-  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N -O2 
----XBangPatterns
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N -O2 -XBangPatterns
   build-depends:       base
                      , asteroidea
                      , gloss
@@ -59,6 +58,7 @@ test-suite asteroidea-test
                      , Examples
                      , PostColoring
                      , VarTree
+                     , Transform
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , random

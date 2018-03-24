@@ -91,13 +91,12 @@ data Model = Model {
   -- | карта градиентов
   -- стоит сделать матрицей
   -- мб Data.Vector?
-  gradient :: [Color],
+  gradient :: [(Float,Float,Float,Float)],
   -- | Размер картинки, 
   width :: Int,
   height :: Int,
   -- | зум
   mScale :: Double,
   -- | и поворот.
-  rotation :: Double,
-  sumweight :: Double
+  rotation :: Double
 }
