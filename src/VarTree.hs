@@ -46,16 +46,18 @@ isValidTree (Node _ list) = and (map isValidTree list)
 -- | Свёртка дерева в функцию из G-вектора в G-вектор
 foldTree :: VTree -> GVec -> GVec
 foldTree (Leaf var) gvec = (vScale var) |*| ((function var) (params var) gvec)
-foldTree (Node op list) gvec = foldr f' (head listGVec) (tail listGVec)
+foldTree (Node op list) gvec = foldr f (head listGVec) (tail listGVec)
   where
--- ^ aka foldr'
-    f' x z = id $! (op z x) 
+-- aka foldr'
+    f x z = let temp=(op z x) in temp `seq` temp
 -- listGVec = zipWith (VTree -> GVec -> GVec) [VTree] [GVec] -> [GVec]
 -- right-lazy zipWith f [] _|_ = []
     listGVec = zipWith (\tree vec -> (foldTree tree) vec) list (listSplit gvec)
-    listSplit (GVec sgen vec) -- ^ GVec list
+-- GVec list
+    listSplit (GVec sgen vec)
       = [(GVec newgen vec) | newgen <- listgen sgen]
-    listgen gen0 -- ^ PRNG list
+-- PRNG list
+    listgen gen0
       = gen1 : listgen gen2
       where (gen1,gen2) = split gen0
 

@@ -22,11 +22,11 @@ import ClassField
 run :: IO ()
 run = do 
   genRand <- newStdGen
-  simulate display color fps (initWorld genRand) imageScan update
+  simulate displayW colour fps (initWorld genRand) imageScan update
   where
-    display = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
+    displayW = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
     -- FullScreen
-    color = backGrCol
+    colour = backGrCol
     fps = fpsMax
     imageScan :: World -> Picture
     imageScan bnw = makePicture sizeX sizeY 1 1 (getWorldPoint bnw)

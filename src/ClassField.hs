@@ -49,10 +49,11 @@ updateWorld
   :: Float -- ^ delta time
   -> World -- ^ Old World
   -> World -- ^ New World
-updateWorld dt !bnw =
+updateWorld dt bnw =
+  bnw `seq`
   generator
   bnw
-  numCast --(floor (dt*numCast))
+  $ floor (numCast) --(dt*NumCast)
 
 -- | генератор нового поля
 -- генерируется новая серия бросков одной точки из bus
@@ -61,7 +62,7 @@ generator
   :: World -- ^ BNW
   -> Int   -- ^ iterator for loop
   -> World
-generator !bnw n | n>0 = rty (iter (mugenga bnw, busPoint bnw) 0) (n-1)
+generator bnw n | n>0 = bnw `seq` rty (iter (mugenga bnw, busPoint $! bnw) 0) (n-1)
   where
     rty (f,(gvec,_)) = generator (World f (gvGen gvec) $ tail . busList $ bnw)
 generator a _  = a
@@ -69,7 +70,7 @@ generator a _  = a
 -- | BiUnitSquarePoint  from [-1,1)^2
 -- with colour 0.5
 busPoint :: World -> CastGen
-busPoint !bnw = (GVec (getSGen bnw) (head $ busList bnw), 0.5)
+busPoint bnw = bnw `seq` (GVec (getSGen bnw) (head $ busList bnw), 0.5)
 
 -- | Iterator for loop inner_iter
 -- new Field, new PRNG
@@ -82,9 +83,9 @@ iter
   :: (Field, CastGen) -- ^ old field
   -> Int              -- ^ counter
   -> (Field, CastGen) -- ^ new field
-iter !(f, cgen) !n
-  | n<lowThreshold = iter (f,(newCast cgen)) (n+1)
-  | n<innerIter = iter (pack (newCast cgen)) (n+1)
+iter (f, cgen) n
+  | n<lowThreshold = cgen `seq` iter (f,(newCast cgen)) (n+1)
+  | n<innerIter = f `seq` iter (pack (newCast cgen)) (n+1)
   | otherwise = (f, cgen)
   where
     pack newC@(gvec, colour) = ((plot (gvVec gvec, colour) f), newC)
@@ -102,24 +103,24 @@ plot
   :: Cast  -- ^ cast: (point, gradient)
   -> Field -- ^ old field
   -> Field -- ^ new field
-plot (ccc@(x, y), colC) field
-  | flag =
+plot ((x, y), colC) field
+  | flag = -- размещение
     setElem colour coord field
-  | otherwise =
+  | otherwise = -- выход за границы
     field
-    -- error ("otherwise"++(show coord)++(show ccc)++(show(halfX,halfY)))
   where
-    colour = merge colC $ getPoint coord
-    getPoint (a,b) = getElem a b field
-    flag = control (x', y')
+    colour = merge colC $ getPoint coord -- слияние с точкой на месте
+    getPoint (a,b) = getElem a b field -- получение текущего состояния
+    flag = control (x', y') -- флаг выхода за границы
 -- Orthogonal transformation (x,y)
     x' = ((y*sinTheta + x*cosTheta) - shiftX)
     y' = ((y*cosTheta - x*sinTheta) - shiftY)
 -- Translation on shift vector in discrete field and scaling
     ordX = x' + halfX + 1
     ordY = y' + halfY + 1
+-- Integer coordinates x y
     coord = (trr ordX, trr ordY)
-    trr = truncate
+    trr = floor
 -- | проверка границ поля
 control :: (Double,Double) -> Bool
 control (a,b) = not (cond halfX a || cond halfY b)
@@ -133,4 +134,4 @@ control (a,b) = not (cond halfX a || cond halfY b)
 merge :: Double -> UnsafeColour -> UnsafeColour
 merge grad col = mix ((gradient mainModel)!!(floor(sumGrad*grad))) col -- asking gradient
   where
-    mix (r,g,b,a) (t,h,n,s) = (r+t,g+h,b+n,s+1)
+    mix (r,g,b,_) (t,h,n,s) = (r+t,g+h,b+n,s+1)

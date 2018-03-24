@@ -62,14 +62,14 @@ halfY = (fromIntegral sizeY)/2
 -- | стартовая позиция окна
 -- честно, ни малейшего понятия, будут ли здесь не нули
 startPosX, startPosY :: Int
-startPosX = 0
-startPosY = 0
+startPosX = 256
+startPosY = 256
 -- | максимальная частота кадров.
 -- единица это минимум
+-- DO NOT TOUCH THIS!
 fpsMax :: Int
 fpsMax = 1
 -- | число бросков из BiUnitSquare за шаг отрисовки
--- gloss-raster, похоже, даёт время в секундах, но в этом не уверен
--- 100000
-numCast :: Int
+-- DO NOT TOUCH THIS!
+numCast :: Float
 numCast = 1
