@@ -34,7 +34,7 @@ sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
 cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
 -- | Scale Factor
 scaleFactor :: Double
-scaleFactor = 1/1000 --(mScale mainModel)/50
+scaleFactor = 1/(mScale mainModel)
 {- Zoom Factor, scaling
 zoomFactor :: Double
 zoomFactor = exp
@@ -44,11 +44,11 @@ backGrCol :: Color
 backGrCol = makeColor 0 0 0 1
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
-innerIter = 30
+innerIter = 128+64
 --1000
 -- | нижний порог числа бросков точки, после которого начинается отрисовка
 lowThreshold :: Int
-lowThreshold = 20
+lowThreshold = 24
 -- | стартовый размер окна
 -- не хочу рисковать лагами
 -- 1920 x 1080
@@ -67,9 +67,9 @@ startPosY = 0
 -- | максимальная частота кадров.
 -- единица это минимум
 fpsMax :: Int
-fpsMax = 60
+fpsMax = 1
 -- | число бросков из BiUnitSquare за шаг отрисовки
 -- gloss-raster, похоже, даёт время в секундах, но в этом не уверен
 -- 100000
 numCast :: Int
-numCast = 32
+numCast = 1

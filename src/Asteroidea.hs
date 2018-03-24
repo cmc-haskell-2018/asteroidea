@@ -18,7 +18,19 @@ import ClassField
 -- | Поехали!
 -- Генератор случайных чисел, начальная инициализация
 -- Запуск симуляции
-
+run :: IO ()
+run = do 
+  genRand <- newStdGen
+  simulate display color fps (initWorld genRand) imageScan update
+  where
+    display = InWindow "Just Nothing" (sizeX, sizeY) (startPosX, startPosY)
+    -- FullScreen
+    color = backGrCol
+    fps = fpsMax
+    imageScan :: World -> Picture
+    imageScan bnw = makePicture sizeX sizeY 1 1 (getWorldPoint bnw)
+    update = \_ -> updateWorld
+{-
 run :: IO ()
 run = do 
   genRand <- newStdGen
@@ -26,8 +38,9 @@ run = do
   where
     fps = fpsMax
     getter = getWorldPoint
-    window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
+    window = InWindow "Just Nothing" (winX, winY) (startPosX, startPosY)
     update = updateWorld
+-}
 
 -- | Act of Creation
 -- создание мира
