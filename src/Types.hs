@@ -98,5 +98,6 @@ data Model = Model {
   -- | зум
   mScale :: Double,
   -- | и поворот.
-  rotation :: Double
+  rotation :: Double,
+  sumweight :: Double
 }

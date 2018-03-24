@@ -48,7 +48,8 @@ foldTree :: VTree -> GVec -> GVec
 foldTree (Leaf var) gvec = (vScale var) |*| ((function var) (params var) gvec)
 foldTree (Node op list) gvec = foldr f' (head listGVec) (tail listGVec)
   where
-    f' x z = id $! (op z x) -- ^ aka foldr'
+-- ^ aka foldr'
+    f' x z = id $! (op z x) 
 -- listGVec = zipWith (VTree -> GVec -> GVec) [VTree] [GVec] -> [GVec]
 -- right-lazy zipWith f [] _|_ = []
     listGVec = zipWith (\tree vec -> (foldTree tree) vec) list (listSplit gvec)

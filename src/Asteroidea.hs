@@ -18,6 +18,7 @@ import ClassField
 -- | Поехали!
 -- Генератор случайных чисел, начальная инициализация
 -- Запуск симуляции
+
 run :: IO ()
 run = do 
   genRand <- newStdGen
@@ -30,7 +31,8 @@ run = do
     imageScan :: World -> Picture
     imageScan bnw = makePicture sizeX sizeY 1 1 (getWorldPoint bnw)
     update = \_ -> updateWorld
-{-
+
+{--
 run :: IO ()
 run = do 
   genRand <- newStdGen
@@ -40,7 +42,7 @@ run = do
     getter = getWorldPoint
     window = InWindow "Just Nothing" (winX, winY) (startPosX, startPosY)
     update = updateWorld
--}
+--}
 
 -- | Act of Creation
 -- создание мира
