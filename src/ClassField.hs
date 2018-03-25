@@ -140,6 +140,7 @@ plot ((x, y), colC)
     trr = floor
 -- | проверка выхода за границы поля
 controlBounds :: (Double,Double) -> Bool
+{-# INLINE controlBounds #-}
 controlBounds (a,b) = not (cond halfX a || cond halfY b)
   where
     cond size x =
@@ -154,11 +155,19 @@ merge
   -> UnsafeColour -- ^ текущее состояние точки (R,G,B,A)
   -- не нормированно, в поле (A)lpha находится счётчик попаданий в точку
   -> UnsafeColour
-{-# INLINE merge #-}
+{-# INLINABLE merge #-}
 merge grad
-  | grad == 1 = mix $ last $ gradient mainModel
-  | otherwise = mix $ (gradient mainModel)!!(floor $ sumGrad*grad)
+  | grad == 1 =
+    let
+      point = last $ gradient mainModel
+    in point `seq` (mix point)
+  | otherwise =
+    let
+      point = (gradient mainModel)!!(floor $ sumGrad*grad)
+    in point `seq` (mix point)
   where
     -- asking gradient
     -- mixing and increment counter in alpha field
+    mix :: (Float,Float,Float) -> (UnsafeColour -> UnsafeColour)
+    {-# INLINE mix #-}
     mix (r,g,b) = \(t,h,n,s) -> (r+t,g+h,b+n,s+1)

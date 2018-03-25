@@ -5,7 +5,7 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 module HexPalette(mainPallete) where
-import Data.Char
+import Data.Char(digitToInt)
 -- | главная палитра, передаваемая как основная
 mainPallete :: [(Float,Float,Float)]
 mainPallete = exportPallete `seq` exportPallete -- stdGrad 128
