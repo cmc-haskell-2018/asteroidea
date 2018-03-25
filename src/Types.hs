@@ -92,7 +92,7 @@ data Model = Model {
   -- | карта градиентов
   -- стоит сделать матрицей
   -- мб Data.Vector?
-  gradient :: [UnsafeColour],
+  gradient :: [(Float,Float,Float)],
   -- | Размер картинки, 
   width :: Int,
   height :: Int,
@@ -101,12 +101,3 @@ data Model = Model {
   -- | и поворот.
   rotation :: Double
 }
-
-stdGrad :: Int -> [UnsafeColour]
-stdGrad len = [(lr+(cfi lt),st,lb-(cfi lt), 1.0) | lt <- [1,2..len]]
-  where
-    st = 128/255
-    lr = 0.0
-    lb = 1.0
-    lc = 1/(fromIntegral len)
-    cfi = (lc *) . fromIntegral

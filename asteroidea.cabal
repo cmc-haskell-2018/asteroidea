@@ -18,21 +18,13 @@ library
 ---Werror
   default-extensions:  BangPatterns
   exposed-modules:     Asteroidea
-  other-modules:       ClassField
-                     , Types
-                     , Const
-                     , Variations
-                     , GVector
-                     , Gradient
-                     , Examples
-                     , PostColoring
-                     , VarTree
-                     , Transform
+  other-modules:       ClassField, Types, Const, Variations, GVector, Gradient, Examples, PostColoring, VarTree, Transform, HexPalette
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster
                      , random
                      , matrix
+                     , hex
   default-language:    Haskell2010
 
 executable asteroidea
@@ -53,16 +45,7 @@ test-suite asteroidea-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      src
   main-is:             ../test/Spec.hs
-  other-modules:       ClassField
-                     , Types
-                     , Const
-                     , Variations
-                     , GVector
-                     , Gradient
-                     , Examples
-                     , PostColoring
-                     , VarTree
-                     , Transform
+  other-modules:       ClassField, Types, Const, Variations, GVector, Gradient, Examples, PostColoring, VarTree, Transform, HexPalette
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , random

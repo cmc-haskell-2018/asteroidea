@@ -13,23 +13,21 @@ import GVector
 -- | Выбор трансформы из списка
 -- нашей модели
 askTransform
-  :: Model -- ^ модель
-  -> Double-- ^ случайная величина [0,1)
+  :: Double-- ^ случайная величина [0,1)
   -> Transform
-askTransform model choice =
+askTransform choice =
   let
     thres = choice * sumWeight
-    list = transforms model
+    list = transforms mainModel
   in findTrans (thres - (weight $ head list)) list
 -- | перебор по списку до первого не превосходящего порог
 findTrans
   :: Double -- ^ порог
   -> [Transform] -- ^ список
   -> Transform -- ^ результат
-findTrans thres (x:y:xs)
-  | (thres <= 0) = x
-  | otherwise = findTrans (thres - (weight y)) (y:xs)
-findTrans _ x = head x
+findTrans !thres
+  | (thres <= 0) = head
+  | otherwise    = \(_:lst) -> findTrans (thres - (weight $ head lst)) lst
 -- | Применение трансформы
 -- к цвету и вектору
 applyTransform
@@ -37,11 +35,11 @@ applyTransform
   -> Double   -- ^ цвет в карте градиентов
   -> GVec     -- ^ вектор
   -> (GVec, Double)
-applyTransform transform colour gvec =
+applyTransform !transform !colour =
   let
     colSpeed = colorSpeed    transform
     colPosit = colorPosition transform
     newColour = (colour*abs(1+colSpeed) + colPosit*abs(1-colSpeed))/2
     variatTr = variation transform
     varFuncT = (function variatTr) $ (params variatTr)
-  in (varFuncT gvec,newColour)
+  in \gvec -> (varFuncT gvec, newColour)

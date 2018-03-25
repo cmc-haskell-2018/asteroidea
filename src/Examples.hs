@@ -11,6 +11,7 @@ import Variations
 import System.Random
 import Graphics.Gloss
 import Types
+import HexPalette
 
 -- | random generator for debug purposes
 defGen :: StdGen
@@ -58,7 +59,7 @@ t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 exampleModel :: Model 
 exampleModel = Model "42" [ds] Nothing grad 512 512 4 0
   where
-   grad = stdGrad 128
+   grad = mainPallete
 
 dbgAffine5 :: Variation
 dbgAffine5= Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0)) affineTransform
@@ -79,7 +80,7 @@ t7 :: Transform
 -- ^ DEBUG transform 3
 t7 = Transform "t3" dbgAffine7 1 1 0.25 1 []
 exampleModel2 :: Model 
-exampleModel2 = Model "Seprinsky" [t6,t5,t7] Nothing grad 512 512 250 0
+exampleModel2 = grad `seq` Model "Seprinsky" [t6,t5,t7] Nothing grad 512 512 250 0
   where
-   grad = stdGrad 128
+   grad = mainPallete
 
