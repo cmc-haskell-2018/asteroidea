@@ -72,13 +72,13 @@ dbgAffine7 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0.5)) affineTransform
 
 t5 :: Transform
 -- ^ DEBUG transform 1
-t5 = Transform "t1" dbgAffine5 1 0 0.25 1 []
+t5 = Transform "t1" dbgAffine5 1 0.2 0 1 []
 t6 :: Transform
 -- ^ DEBUG transform 2
-t6 = Transform "t2" dbgAffine6 1 0.5 0.25 1 []
+t6 = Transform "t2" dbgAffine6 1 0.5 0 1 []
 t7 :: Transform
 -- ^ DEBUG transform 3
-t7 = Transform "t3" dbgAffine7 1 1 0.25 1 []
+t7 = Transform "t3" dbgAffine7 1 0.8 0 1 []
 exampleModel2 :: Model 
 exampleModel2 = grad `seq` Model "Seprinsky" [t6,t5,t7] Nothing grad 512 512 250 0
   where

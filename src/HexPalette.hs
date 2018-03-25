@@ -7,14 +7,14 @@ Stability   : in progress
 module HexPalette(mainPallete) where
 import Data.Char
 mainPallete :: [(Float,Float,Float)]
-mainPallete = stdGrad 128
+mainPallete = exportPallete `seq` exportPallete -- stdGrad 128
 exportPallete :: [(Float,Float,Float)]
 exportPallete = zipTo3 list
 zipTo3 :: [Float] -> [(Float,Float,Float)]
 zipTo3 (x:y:z:lst) = (x,y,z) : (zipTo3 lst)
 zipTo3 _ = []
 list :: [Float]
-list = map (fromIntegral . convert) (parser sourcePallete)
+list = map ((/255) . fromIntegral . convert) (parser sourcePallete)
 convert :: [Char] -> Int
 convert (x:y:[]) = (digitToInt x)*16 + (digitToInt y)
 convert _ = error "Convert"

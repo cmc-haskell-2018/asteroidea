@@ -50,7 +50,7 @@ backGrCol = makeColorI 34 139 34 255
 -- makeColor 0.13 0.54 0.13 1.0
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
-innerIter = 256+128+64
+innerIter = 64
 --1000
 -- | нижний порог числа бросков точки, после которого начинается отрисовка
 lowThreshold :: Int
@@ -78,4 +78,4 @@ fpsMax = 1
 -- | число бросков из BiUnitSquare за шаг отрисовки
 -- DO NOT TOUCH THIS!
 numCast :: Float
-numCast = 1
+numCast = 4
