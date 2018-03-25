@@ -25,7 +25,7 @@ findTrans
   :: Double -- ^ порог
   -> [Transform] -- ^ список
   -> Transform -- ^ результат
-findTrans !thres
+findTrans thres
   | (thres <= 0) = head
   | otherwise    = \(_:lst) -> findTrans (thres - (weight $ head lst)) lst
 -- | Применение трансформы
@@ -35,7 +35,8 @@ applyTransform
   -> Double   -- ^ цвет в карте градиентов
   -> GVec     -- ^ вектор
   -> (GVec, Double)
-applyTransform !transform !colour =
+applyTransform transform colour =
+  transform `seq` colour `seq`
   let
     colSpeed = colorSpeed    transform
     colPosit = colorPosition transform

@@ -16,7 +16,7 @@ library
   hs-source-dirs:      src
   ghc-options:         -Wall -fno-warn-type-defaults -O2 -funbox-strict-fields -ddump-simpl -optc-ffast-math -fexcess-precision
 ---Werror
-  default-extensions:  BangPatterns
+--  default-extensions:  BangPatterns
   exposed-modules:     Asteroidea
   other-modules:       ClassField, Types, Const, Variations, GVector, Gradient, Examples, PostColoring, VarTree, Transform, HexPalette
   build-depends:       base >= 4.7 && < 5
@@ -32,7 +32,7 @@ executable asteroidea
   main-is:             Main.hs
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N -O2 -fexcess-precision
 ---Werror
-  default-extensions:  BangPatterns
+--  default-extensions:  BangPatterns
   build-depends:       base
                      , asteroidea
                      , gloss

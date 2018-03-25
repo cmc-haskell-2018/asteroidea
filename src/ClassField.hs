@@ -91,7 +91,7 @@ iter
   :: (Field, CastGen) -- ^ old field
   -> Int              -- ^ counter
   -> (Field, CastGen) -- ^ new field
-iter (f, cgen) !n
+iter (f, cgen) n
   -- если ниже первого порога - бросаем дальше
   | n<lowThreshold = cgen `seq` iter (f,(newCast cgen)) (n+1)
   -- если выше - рисуем на поле и бросаем дальше
