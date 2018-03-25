@@ -11,6 +11,7 @@ import Variations
 import System.Random
 import Graphics.Gloss
 import Types
+import HexPalette
 
 -- | random generator for debug purposes
 defGen :: StdGen
@@ -40,6 +41,8 @@ dbgSquare = Var (1) None square
 dbgGVec :: GVec
 dbgGVec = GVec defGen (1,1)
 
+ds :: Transform
+ds = Transform "DS" dbgSquare 1 1 0.1 1 []
 t1 :: Transform
 -- ^ DEBUG transform 1
 t1 = Transform "t1" dbgAffine1 1 1 0 1 []
@@ -54,9 +57,9 @@ t4 :: Transform
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 -- | exampleModel 42
 exampleModel :: Model 
-exampleModel = Model "42" [t1,t2,t3,t4] Nothing grad 512 512 50 0
+exampleModel = Model "42" [ds] Nothing grad 512 512 4 0
   where
-   grad = [(1,0,0,1)]
+   grad = mainPallete
 
 dbgAffine5 :: Variation
 dbgAffine5= Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0)) affineTransform
@@ -69,14 +72,15 @@ dbgAffine7 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0.5)) affineTransform
 
 t5 :: Transform
 -- ^ DEBUG transform 1
-t5 = Transform "t1" dbgAffine5 1 1 0 1 []
+t5 = Transform "t1" dbgAffine5 1 0.2 0 1 []
 t6 :: Transform
 -- ^ DEBUG transform 2
-t6 = Transform "t2" dbgAffine6 1 0.889 0 1 []
+t6 = Transform "t2" dbgAffine6 1 0.5 0 1 []
 t7 :: Transform
 -- ^ DEBUG transform 3
-t7 = Transform "t3" dbgAffine7 1 1 0 1 []
+t7 = Transform "t3" dbgAffine7 1 0.8 0 1 []
 exampleModel2 :: Model 
-exampleModel2 = Model "Seprinsky" [t6,t5,t7] Nothing grad 512 512 200 0
+exampleModel2 = grad `seq` Model "Seprinsky" [t6,t5,t7] Nothing grad 512 512 250 0
   where
-   grad = [(1,0,0,1)]
+   grad = mainPallete
+

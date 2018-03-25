@@ -1,5 +1,5 @@
 cd ..
 git add --all .
-time_now=$(date  +%Y-%m-%d\ %H:%M:%S)
-git commit -m "$time_now"
+str=":white_flower:"$(date  +%Y-%m-%d\ %H:%M:%S)
+git commit -m "$str"
 git push

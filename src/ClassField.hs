@@ -26,8 +26,7 @@ type Cast = (Vec, Double)
 type CastGen = (GVec,Double)
 -- | Поле есть матрица цветов
 type Field = Matrix UnsafeColour
--- | Цвета без нормализации и проверки на нормировку
-type UnsafeColour = (Float,Float,Float,Float)
+
 -- | Создание изначального поля
 -- размером икс на игрек
 createField :: Int -> Int -> Field
@@ -38,8 +37,9 @@ initFunction
   -> Int -- ^ heigth
   -> ((Int,Int)->UnsafeColour)
   -- ^ function from field point to unsafe colour
-initFunction _ _ =
-  ( \_ -> (0.13,0.54,0.13,1.0))
+initFunction =
+  \_ _ _ -> (0,0,0,1)
+  --( \_ -> (0.13,0.54,0.13,1.0))
 {-| ^ веселья ради можно поставить что-то ещё,
  но цвет лесной зелени приятен глазу, как ветви молодых деревьев в летнем саду.
   (\(a,b) ->
@@ -57,10 +57,8 @@ updateWorld
   :: Float -- ^ delta time
   -> World -- ^ Old World
   -> World -- ^ New World
-updateWorld dt bnw =
-  bnw `seq`
-  generator bnw
-  $ floor (numCast) --(dt*NumCast)
+updateWorld dt = \ bnw ->
+  generator bnw (floor $ dt*numCast)
 
 -- | генератор нового поля
 -- генерируется новая серия бросков одной точки из bus
@@ -70,16 +68,17 @@ generator
   -> Int   -- ^ counter for loop
   -> World
 generator bnw n | n>0 =
-  bnw `seq` rty (iter (mugenga bnw, busPoint $! bnw) 0) (n-1)
+  bnw `seq` repack (iter (mugenga bnw, busPoint bnw) 0) (n-1)
   where
     -- repacking and cutting head of BUS list
-    rty (f,(gvec,_)) = generator (World f (gvGen gvec) $ tail . busList $ bnw)
+    repack = \ (f,(gvec,_)) ->
+      generator (World f (gvGen gvec) $ tail . busList $ bnw)
 generator a _  = a
 
 -- | BiUnitSquarePoint  from [-1,1)^2
 -- with colour 0.5
 busPoint :: World -> CastGen
-busPoint bnw = bnw `seq` (GVec (getSGen bnw) (head $ busList bnw), 0.5)
+busPoint bnw = (GVec (getSGen bnw) (head $ busList bnw), 0.5)
 
 -- | Iterator for loop inner_iter
 -- new Field, new PRNG
@@ -109,23 +108,26 @@ newCast (gvector, colour) =
     -- выборка случайной величины [0,1)
     (choice,generator) = random $ gvGen gvector
     -- выбор соответствующей ей трансформы
-    transform = askTransform mainModel choice
+    transform = askTransform choice
   -- применение трансформы к вектору
-  in applyTransform transform colour (GVec generator (gvVec gvector))
+  in applyTransform transform colour (gvector {gvGen=generator})
 
 -- | Размещение точки в поле
 plot
   :: Cast  -- ^ cast: (point, gradient)
   -> Field -- ^ old field
   -> Field -- ^ new field
-plot ((x, y), colC) field
-  | flag = -- размещение в пределах границ
-    setElem colour coord field
-  | otherwise = -- выход за границы
-    field
+{-# INLINE plot #-}
+plot ((x, y), colC)
+  -- размещение в пределах границ
+  | flag = 
+     ( \ field -> let
+         colour = merge colC $ getPoint coord -- слияние с точкой на месте
+         getPoint (a,b) = getElem a b field -- получение текущего состояния
+       in setElem colour coord field
+     )
+  | otherwise = id -- выход за границы
   where
-    colour = merge colC $ getPoint coord -- слияние с точкой на месте
-    getPoint (a,b) = getElem a b field -- получение текущего состояния
     flag = controlBounds (x', y') -- флаг выхода за границы
     -- Orthogonal transformation (x,y) and scaling @sinTheta@
     x' = ((y*sinTheta + x*cosTheta) - shiftX)
@@ -148,13 +150,15 @@ controlBounds (a,b) = not (cond halfX a || cond halfY b)
 -- | Смешение цветов
 -- привнесение в данную точку некоторого цвета
 merge
-  :: Double       -- ^ цвет в карте градиентов, нормирован по [0,1)
+  :: Double       -- ^ цвет в карте градиентов, нормирован по [0,1]
   -> UnsafeColour -- ^ текущее состояние точки (R,G,B,A)
   -- не нормированно, в поле (A)lpha находится счётчик попаданий в точку
   -> UnsafeColour
-merge grad = mix
+{-# INLINE merge #-}
+merge grad
+  | grad == 1 = mix $ last $ gradient mainModel
+  | otherwise = mix $ (gradient mainModel)!!(floor $ sumGrad*grad)
   where
     -- asking gradient
-    (r,g,b,_) = (gradient mainModel)!!(floor $ sumGrad*grad)
     -- mixing and increment counter in alpha field
-    mix = (\(t,h,n,s) -> (r+t,g+h,b+n,s+1))
+    mix (r,g,b) = \(t,h,n,s) -> (r+t,g+h,b+n,s+1)

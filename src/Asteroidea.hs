@@ -63,12 +63,14 @@ getWorldPoint
   :: World -- ^ World
   -> Point -- ^ Point from [-1,1]^2 conformal mapping to Field
   -> Color -- ^ safe Color from Field
-getWorldPoint !bnw (x,y)
-  = mkCol $! getElem i j (mugenga bnw)
-  where
-    i, j :: Int -- ^ Translation on shift vector in discrete field
-    i = round ((x+1) * halfX) +1
-    j = round ((y+1) * halfY) +1
+getWorldPoint bnw
+  = \(x,y) -> let
+      i, j :: Int -- ^ Translation on shift vector in discrete field
+      i = round ((x+1) * halfX) +1
+      j = round ((y+1) * halfY) +1
+    in mkCol $! getElem i j field
+  where field = mugenga bnw
+      
 mkCol :: UnsafeColour -> Color
 -- ^ convertation with log scale and checking
 mkCol (r,g,b,a) = rgb' (control r) (control g) (control b)

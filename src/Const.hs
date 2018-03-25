@@ -6,8 +6,9 @@ Stability   : in progress
 -}
 module Const where
 import Examples
-import Graphics.Gloss.Data.Color (Color,makeColor)
+import Graphics.Gloss.Data.Color (Color,makeColor,makeColorI)
 import Types (Model,width,height,mScale,rotation,weight,transforms,gradient,modelName)
+
 -- | export example model
 mainModel :: Model
 mainModel = exampleModel2
@@ -26,8 +27,8 @@ sumGrad :: Double
 sumGrad = fromIntegral $ length (gradient mainModel)
 -- | смещение центра фрактала по оси абсцисс / ординат
 shiftX, shiftY :: Double
-shiftX = 0
-shiftY = 0
+shiftX = 50
+shiftY = 50
 -- | rotation in radian
 rotRad :: Double
 rotRad = (pi/360*) $ rotation mainModel
@@ -44,10 +45,12 @@ zoomFactor = exp
 -}
 -- | Цвет заднего фона
 backGrCol :: Color
-backGrCol = makeColor 0 0 0 1
+backGrCol = makeColorI 34 139 34 255
+-- makeColor 1 1 1 1
+-- makeColor 0.13 0.54 0.13 1.0
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
-innerIter = 128+64
+innerIter = 64
 --1000
 -- | нижний порог числа бросков точки, после которого начинается отрисовка
 lowThreshold :: Int
@@ -75,4 +78,4 @@ fpsMax = 1
 -- | число бросков из BiUnitSquare за шаг отрисовки
 -- DO NOT TOUCH THIS!
 numCast :: Float
-numCast = 1
+numCast = 4
