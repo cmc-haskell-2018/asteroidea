@@ -67,6 +67,7 @@ test-suite asteroidea-test
                      , gloss
                      , random
                      , matrix
-  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N -Werror
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N 
+---Werror
   default-language:    Haskell2010
 
