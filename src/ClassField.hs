@@ -58,7 +58,6 @@ updateWorld
   -> World -- ^ Old World
   -> World -- ^ New World
 updateWorld dt bnw =
-  bnw `seq`
   generator bnw
   $ floor (numCast) --(dt*NumCast)
 
@@ -79,7 +78,7 @@ generator a _  = a
 -- | BiUnitSquarePoint  from [-1,1)^2
 -- with colour 0.5
 busPoint :: World -> CastGen
-busPoint bnw = bnw `seq` (GVec (getSGen bnw) (head $ busList bnw), 0.5)
+busPoint bnw = (GVec (getSGen bnw) (head $ busList bnw), 0.5)
 
 -- | Iterator for loop inner_iter
 -- new Field, new PRNG

@@ -14,7 +14,8 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  ghc-options:         -Wall -fno-warn-type-defaults -O2 -Werror
+  ghc-options:         -Wall -fno-warn-type-defaults -O2 -funbox-strict-fields -ddump-simpl -optc-ffast-math -fexcess-precision
+---Werror
   default-extensions:  BangPatterns
   exposed-modules:     Asteroidea
   other-modules:       ClassField
@@ -37,7 +38,8 @@ library
 executable asteroidea
   hs-source-dirs:      app
   main-is:             Main.hs
-  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N -O2 -Werror
+  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N -O2 -fexcess-precision
+---Werror
   default-extensions:  BangPatterns
   build-depends:       base
                      , asteroidea
