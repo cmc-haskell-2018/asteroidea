@@ -32,6 +32,7 @@ nextGen :: GVec -> GVec
 nextGen (GVec gen v) = GVec (snd $ next gen) v
 
 -- | Разделение генераторов в два GVec
+splitGen :: GVec -> (GVec, GVec)
 splitGen (GVec gen0 vec) = ( (GVec gen1 vec),(GVec gen2 vec) )
   where (gen1,gen2) = split gen0
 
@@ -45,9 +46,9 @@ phase (GVec _ (x,y)) = atan2 y x
 antiPhase :: GVec->Double
 antiPhase (GVec _ (0,0)) = 0
 antiPhase (GVec _ (x,y)) = atan2 x y
-
+-- | комплексный модуль
 magnitude :: GVec->Double
-magnitude (GVec _ (x,y)) = sqrt (x*x +y*y)
+magnitude (GVec _ (x,y)) = sqrt (x*x+y*y)
 
 radiusSqr :: GVec -> Double
 radiusSqr (GVec _ (x,y)) = x*x + y*y

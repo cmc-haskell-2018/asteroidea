@@ -89,7 +89,10 @@ v22  -  v11
  |  [0]  |
 v21  -  v12
 -}
-getNeigbours :: Double -> Vec -> [Vec]
+getNeigbours
+  :: Double -- ^ size
+  -> Vec    -- ^ center
+  -> [Vec]
 getNeigbours dl (x,y) = [v11,v12,v21,v22]
   where
     v11 = (x+dl,y+dl)
@@ -98,7 +101,6 @@ getNeigbours dl (x,y) = [v11,v12,v21,v22]
     v22 = (x-dl,y+dl)
 -- | Список соседей одного порядка.
 -- геометрическая прогрессия: 1, 4, 16, 64 ..
-
 nthNeigbours :: Int -> [Vec]
 nthNeigbours n | n>0 = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
   where

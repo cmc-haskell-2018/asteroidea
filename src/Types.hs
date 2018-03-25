@@ -8,8 +8,6 @@ module Types (module Types, module GVector, module System.Random) where -- re-ex
 import Prelude
 --import Control.Category
 import System.Random
-import Data.Matrix
-import Graphics.Gloss
 import GVector
 --import Const
 
@@ -21,20 +19,22 @@ type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возмо
 type Project = Vec ->  Double
 
 {--
--- Категория значительно затуманивает устройство обёртки,
--- и усложняет добавление других данных к обёртке.
--- В ответ мы получаем лишь возможность использовать
--- знакомую точку (.) для композиции.
--- Так стоит ли это того?  
+Категория значительно затуманивает устройство обёртки,
+и усложняет добавление других данных к обёртке.
+В ответ мы получаем лишь возможность
+использовать знакомую точку (.) для композиции.
+Так стоит ли это того?
+@
 newtype Var a b = Var Params (Params->a->b)
 instance Category Var where
   id = Var None (\_ a -> a)
--- @
--- (.) :: (Var p) b c -> (Var p) a b -> (Var p) a c
--- @
-  (.) (Var p2 bc) (Var p1 ab) = Var None (\_ a -> bc p2 (ab p1 a))
--- композиция работает, пример:
--- >>> calcVariation (dbgAffine . dbgSpherical) (defGen , (1,1))
+(.) :: (Var p) b c -> (Var p) a b -> (Var p) a c @
+(.) (Var p2 bc) (Var p1 ab) = Var None (\_ a -> bc p2 (ab p1 a))
+@
+композиция работает, пример:
+@
+>>> calcVariation (dbgAffine . dbgSpherical) (defGen , (1,1))
+@
 --}
 
 -- | параметры для вариаций

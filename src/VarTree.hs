@@ -65,14 +65,16 @@ foldTree (Node op list) gvec = foldr f (head listGVec) (tail listGVec)
 -}
 
 -- | Свёртка дерева в функцию из G-вектора в G-вектор
-foldTree :: VTree -> GVec -> GVec
+-- @op :: GVec->(GVec->GVec)->(GVec->GVec)->(GVec->GVec)
+-- foldr :: (a -> b -> b) -> b -> t a -> b@
+-- aka 'foldr''
+foldTree
+  :: VTree          -- ^ @(Leaf var) | (Node op list)@
+  -> (GVec -> GVec)
 foldTree (Leaf var) gvec = (vScale var) |*| ((function var) (params var) gvec)
 foldTree (Node op list) gvec =
-  -- foldr :: (a -> b -> b) -> b -> t a -> b
   foldr f id (tail list) gvec
   where
-    -- type Operation = GVec->(GVec->GVec)->(GVec->GVec)->(GVec->GVec)
-    -- aka foldr'
     f x acc = let temp=(op gvec acc (foldTree x)) in acc `seq` temp
 
 {-

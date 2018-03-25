@@ -132,13 +132,18 @@ exponential :: VariationFunc
 exponential (List (dx:dy:_)) g@(GVec _ (x,y)) = g{gvVec = ((exp (x - 1 + dx)) * (cos (pi*(y+dy))) , (exp (x - 1 + dx)) * (sin (pi*(y+dy))))}
 exponential _ a = a
 
--- | both coords squared
+-- | покомпонентный квадрат
+-- квадрат, разреженный с краёв. смыкается по осям к (0,0)
 eachSquare :: VariationFunc
 eachSquare _ g@(GVec _ (x,y)) = g {gvVec =  (x * x , y * y)}
 
--- | different hyperb
+-- | гипербола
+-- Действительно, гипербола. Даже две. Но где комплементарная?
 hyperb :: VariationFunc
 hyperb _ g@(GVec _ (x,y)) = g {gvVec =  (x / y , y / x)}
 
+-- | сумма, домноженная на оси
+-- д.б. вдоль осей сильно вытянутой
+-- Фактически, вытянутая парабола, сходящаяся к (0,0)
 sumMultAxis :: VariationFunc
 sumMultAxis _ g@(GVec _ (x,y)) = g {gvVec =  ((x+y) * x , (x+y) * y )}

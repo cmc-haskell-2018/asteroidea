@@ -8,7 +8,6 @@ module Transform where
 
 import Types
 import Const
-import GVector
 
 -- | Выбор трансформы из списка
 -- нашей модели

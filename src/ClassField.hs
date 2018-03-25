@@ -39,7 +39,6 @@ initFunction
   -- ^ function from field point to unsafe colour
 initFunction =
   \_ _ _ -> (0,0,0,1)
-  --( \_ -> (0.13,0.54,0.13,1.0))
 {-| ^ веселья ради можно поставить что-то ещё,
  но цвет лесной зелени приятен глазу, как ветви молодых деревьев в летнем саду.
   (\(a,b) ->
@@ -50,6 +49,7 @@ initFunction =
       1.0
     )
   )
+  ( \_ -> (0.13,0.54,0.13,1.0))
 -}
 
 -- | обновление поля - добавление в него серий бросков, числом от дельты времени
@@ -58,10 +58,10 @@ updateWorld
   -> World -- ^ Old World
   -> World -- ^ New World
 updateWorld dt = \ bnw ->
-  generator bnw (floor $ dt*numCast)
+  bnw `seq` generator bnw (floor $ dt*numCast)
 
 -- | генератор нового поля
--- генерируется новая серия бросков одной точки из bus
+-- генерируется новая серия бросков одной точки из 'busPoint'
 -- в каждой итерации, по счётчику с декрементом
 generator
   :: World -- ^ Brave New World
@@ -106,15 +106,15 @@ newCast :: CastGen -> CastGen
 newCast (gvector, colour) =
   let
     -- выборка случайной величины [0,1)
-    (choice,generator) = random $ gvGen gvector
+    (choice,newgen) = random $ gvGen gvector
     -- выбор соответствующей ей трансформы
     transform = askTransform choice
   -- применение трансформы к вектору
-  in applyTransform transform colour (gvector {gvGen=generator})
+  in applyTransform transform colour (gvector {gvGen=newgen})
 
 -- | Размещение точки в поле
 plot
-  :: Cast  -- ^ cast: (point, gradient)
+  :: Cast  -- ^ 'Cast' : (point, gradient)
   -> Field -- ^ old field
   -> Field -- ^ new field
 {-# INLINE plot #-}
