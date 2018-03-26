@@ -134,6 +134,8 @@ newCast (gvector, colour) =
   in applyTransform transform colour (gvector {gvGen=newgen})
 
 -- | Размещение точки в поле
+-- see below 'controlBounds'
+-- 'unsafeSet' imported from Data.Matrix
 plot
   :: Cast  -- ^ 'Cast' : (point, gradient)
   -> Field -- ^ old field
@@ -143,9 +145,9 @@ plot ((x, y), colC)
   -- размещение в пределах границ
   | flag = 
      ( \ field -> let
+         getPoint (a,b) = unsafeGet a b field -- получение текущего состояния
          colour = merge colC $ getPoint coord -- слияние с точкой на месте
-         getPoint (a,b) = getElem a b field -- получение текущего состояния
-       in setElem colour coord field
+       in unsafeSet colour coord field
      )
   | otherwise = id -- выход за границы
   where
@@ -160,6 +162,7 @@ plot ((x, y), colC)
     coord = (trr ordX, trr ordY)
     trr = floor
 -- | проверка выхода за границы поля
+-- see below 'merge'
 controlBounds :: (Double,Double) -> Bool
 {-# INLINE controlBounds #-}
 controlBounds (a,b) = not (cond halfX a || cond halfY b)
@@ -171,6 +174,7 @@ controlBounds (a,b) = not (cond halfX a || cond halfY b)
       x >   size
 -- | Смешение цветов
 -- привнесение в данную точку некоторого цвета
+-- see below 'mixColour'
 merge
   :: Double       -- ^ цвет в карте градиентов, нормирован по [0,1]
   -> UnsafeColour -- ^ текущее состояние точки (R,G,B,A)

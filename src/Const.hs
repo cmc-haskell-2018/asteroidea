@@ -32,11 +32,12 @@ shiftY = 50
 -- | rotation in radian
 rotRad :: Double
 rotRad = (pi/360*) $ rotation mainModel
--- | sin / cos rotation
+-- | sin / cos rotation multiplied on scaleFactor 
 sinTheta, cosTheta :: Double
 sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
 cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
 -- | Scale Factor
+-- It is ambiguous due to mScale, but it will be so.
 scaleFactor :: Double
 scaleFactor = 1/(mScale mainModel)
 {- Zoom Factor, scaling
@@ -50,7 +51,7 @@ backGrCol = makeColorI 34 139 34 255
 -- makeColor 0.13 0.54 0.13 1.0
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
-innerIter = 128
+innerIter = 256
 --1000
 -- | нижний порог числа бросков точки, после которого начинается отрисовка
 lowThreshold :: Int

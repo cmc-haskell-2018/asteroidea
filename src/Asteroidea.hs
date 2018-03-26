@@ -30,6 +30,7 @@ run = do
     colour = backGrCol -- Цвет фона не поля, но окна.
     fps = fpsMax -- frames per second
     update = \_ -> updateWorld
+
 -- | проход по картинке, возвращающий картинку 'Picture'
 {- uses 'makePicture' from Graphics.Gloss.Raster.Field
    makePicture
@@ -69,6 +70,8 @@ initWorld sGen = World (createField sizeX sizeY) sGen busPointList
 
 
 -- | Вывод поля на экран playField
+-- 'unsafeGet' :: Int-> Int -> Matrix a -> a
+-- без проверки на соответствие границ, import from 'Matrix'
 getWorldPoint
   :: World -- ^ World
   -> Point -- ^ Point from [-1,1]^2 conformal mapping to Field
@@ -78,7 +81,7 @@ getWorldPoint bnw
       i, j :: Int -- ^ Translation on shift vector in discrete field
       i = round ((x+1) * halfX) +1
       j = round ((y+1) * halfY) +1
-    in mkCol $! getElem i j field
+    in mkCol $! unsafeGet i j field
   where field = mugenga bnw
       
 mkCol :: UnsafeColour -> Color
