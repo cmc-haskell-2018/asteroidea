@@ -85,3 +85,47 @@ exampleModel2 = Model "Seprinsky" [t6,t5,t7] Nothing grad 512 512 250 0
   where
    grad = mainPallete
 
+rotate :: AffineMatrix -> Double -> AffineMatrix
+rotate am angle = AffineMatrix xxNew xyNew yxNew yyNew oxNew oyNew
+            where 
+                xxNew = cosA * xx am - sinA * yx am
+                xyNew = cosA * xy am - sinA * yy am
+                yxNew = sinA * xx am + cosA * yx am
+                yyNew = sinA * xy am + cosA * yy am
+                oxNew = ox am
+                oyNew = oy am
+                sinA = sin angle
+                cosA = cos angle
+
+scale :: AffineMatrix -> Double -> AffineMatrix
+scale am coeff = scaleX ( scaleY am coeff ) coeff
+
+scaleX :: AffineMatrix -> Double -> AffineMatrix
+scaleX am coeff = AffineMatrix xxNew xyNew yxNew yyNew oxNew oyNew
+            where 
+                xxNew = coeff * xx am
+                xyNew = xy am
+                yxNew = yx am
+                yyNew = yy am
+                oxNew = ox am
+                oyNew = oy am
+
+scaleY :: AffineMatrix -> Double -> AffineMatrix
+scaleY am coeff = AffineMatrix xxNew xyNew yxNew yyNew oxNew oyNew
+            where 
+                xxNew = xx am
+                xyNew = xy am
+                yxNew = yx am
+                yyNew = coeff * yy am
+                oxNew = ox am
+                oyNew = oy am
+
+translate :: AffineMatrix -> Vec -> AffineMatrix
+translate am (x, y) = AffineMatrix xxNew xyNew yxNew yyNew oxNew oyNew
+            where 
+                xxNew = xx am
+                xyNew = xy am
+                yxNew = yx am
+                yyNew = yy am
+                oxNew = x + ox am
+                oyNew = y + oy am

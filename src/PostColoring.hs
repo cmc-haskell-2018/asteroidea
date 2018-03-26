@@ -13,3 +13,12 @@ module PostColoring where
 
 import Graphics.Gloss
 import ClassField
+
+type PostColorParam = Double -- |...
+--параметр обработки
+type PostColorParams = [PostColorParam]
+--все параметры обработки
+
+postColoring :: PostColorParams -> Field -> Field
+postColoring _ f = f
+--главная функция постобработки
