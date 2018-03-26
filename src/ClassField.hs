@@ -55,8 +55,14 @@ initFunction
   -> Int -- ^ heigth
   -> ((Int,Int)->UnsafeColour)
   -- ^ function from field point to unsafe colour
-initFunction =
-  \_ _ _ -> (0,0,0,1)
+initFunction _ _ = \(a,b) ->
+    (
+      fromIntegral (a `div` 5 + 1) /255,
+      fromIntegral (140 - a `div` 54 - b `div` 32) /255,
+      fromIntegral (34 + b `div` 5) /255,
+      (exp 1)
+    )
+  -- \_ _ _ -> (0,0,0,1)
 {-| ^ веселья ради можно поставить что-то ещё,
  но цвет лесной зелени приятен глазу, как ветви молодых деревьев в летнем саду.
   Заливка градиентом (не по карте градиента, а функцией-генератором):

@@ -14,7 +14,8 @@ module PostColoring where
 import Graphics.Gloss
 import ClassField
 
-type PostColorParam = Double -- |...
+type PostColorParam = Double
+-- |...
 --параметр обработки
 type PostColorParams = [PostColorParam]
 --все параметры обработки
