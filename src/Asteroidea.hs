@@ -24,8 +24,8 @@ run = do
   let field = calcFlame genRand mainModel
   let img = generateImage (fieldCellToPixel $! field) (width mainModel) (height mainModel)
   let pic = fromImageRGBA8 $! img
-  savePngImage "./pic.png" $! (ImageRGBA8  img) 
-  display window white $! pic
+  savePngImage "./pic.png" (ImageRGBA8  img) 
+  display window white pic
   
   where   
     --getter = getWorldPoint
@@ -93,12 +93,12 @@ plot ::Model -> Field -> CastGen -> Field
 plot model !field !(GVec gen v@(x,y), col) | inBounds = newField
                                | otherwise = field
   where
-    inBounds = control model v
+    inBounds = control model $! v
     setX = 1 + round ( (x+1) * (fromIntegral $ width model)/2  ) 
     setY = 1 + round ( (-y+1) * (fromIntegral $ height model)/2  )
     coord = (setX, setY)
-    colour = calcColour col (field ! coord)
-    newField = setElem colour coord field
+    colour = calcColour col  (field ! coord) -- установка $! здесь приводит к неогранченному росту потребления памяти
+    newField = setElem colour coord $! field
 
 
 control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее
@@ -116,7 +116,7 @@ calcColour :: Double -> Cell -> Cell
 calcColour _ _ = Cell 1 0 0 1 -- заглушка
 
 fieldCellToPixel ::  Field -> Int -> Int -> PixelRGBA8
-fieldCellToPixel field x y = toPixel $ getElem (x+1) (y+1) field 
+fieldCellToPixel field x y = toPixel $! getElem (x+1) (y+1) field 
   where
     toPixel (Cell r g b a )= PixelRGBA8 nr ng nb 255
      where
