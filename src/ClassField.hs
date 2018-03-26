@@ -14,17 +14,34 @@ import Const
 import GVector()
 import Transform
 -- | Обёртка над Field, играющая роль мира. Без грязного IO.
+-- типичное использование - bnw (Brave New World)
 data World =
   World {
-    mugenga :: !Field,  -- ^ 無限画 Main Field, main model parameterized
-    getSGen :: !StdGen, -- ^ standart pseudorandom number generator
-    busList :: [Vec]    -- ^ BiUnitSquare coverage infinite list
+    -- |  無限画 Main Field, main model parameterized
+    -- поле, использован термин Mugen-ga`
+    -- для отличия от типа Field и
+    -- типичного использования field (экземпляра Field)
+    mugenga :: !Field,
+    -- | standart pseudorandom number generator
+    -- предполагаемое использование ограниченно свойствами getter
+    -- что отражено в названии поля
+    getSGen :: !StdGen, -- ^ 
+    -- | BiUnitSquare coverage infinite list
+    -- полное покрытие биквадрата [-1,1]^2
+    -- точками (векторами) рекурсивно, см. 'busPointList'
+    -- типичное использование одной точки из списка - busPoint
+    busList :: [Vec]
         }
 -- | Точка и цвет в карте градиентов [0,1)
 type Cast = (Vec, Double)
 -- | Бросок с привязанным генератором
 type CastGen = (GVec,Double)
 -- | Поле есть матрица цветов
+-- 'UnsafeColour', в отличие от Gloss 'Color',
+-- не требует нормирования по [0,1]
+-- и оформлен как type
+-- но между ними нет прямой совместимости
+-- используйте 'mkCol' из 'Asteroidea' для явного преобразования
 type Field = Matrix UnsafeColour
 
 -- | Создание изначального поля
@@ -32,6 +49,7 @@ type Field = Matrix UnsafeColour
 createField :: Int -> Int -> Field
 createField x y = matrix x y (initFunction x y)
 -- | Начальное заполнение фона
+-- Фона поля, но не окна.
 initFunction
   :: Int -- ^ width
   -> Int -- ^ heigth
@@ -41,6 +59,7 @@ initFunction =
   \_ _ _ -> (0,0,0,1)
 {-| ^ веселья ради можно поставить что-то ещё,
  но цвет лесной зелени приятен глазу, как ветви молодых деревьев в летнем саду.
+  Заливка градиентом (не по карте градиента, а функцией-генератором):
   (\(a,b) ->
     (
       fromIntegral (a `div` 5 + 1) /255,
@@ -53,12 +72,19 @@ initFunction =
 -}
 
 -- | обновление поля - добавление в него серий бросков, числом от дельты времени
+-- пожалуй, первое использование 'seq'
+-- (для производительности)
 updateWorld
   :: Float -- ^ delta time
   -> World -- ^ Old World
   -> World -- ^ New World
 updateWorld dt = \ bnw ->
   bnw `seq` generator bnw (floor $ dt*numCast)
+
+-- | BiUnitSquarePoint  from [-1,1)^2
+-- with colour 0.5
+busPoint :: World -> CastGen
+busPoint bnw = (GVec (getSGen bnw) (head $ busList bnw), 0.5)
 
 -- | генератор нового поля
 -- генерируется новая серия бросков одной точки из 'busPoint'
@@ -74,11 +100,6 @@ generator bnw n | n>0 =
     repack = \ (f,(gvec,_)) ->
       generator (World f (gvGen gvec) $ tail . busList $ bnw)
 generator a _  = a
-
--- | BiUnitSquarePoint  from [-1,1)^2
--- with colour 0.5
-busPoint :: World -> CastGen
-busPoint bnw = (GVec (getSGen bnw) (head $ busList bnw), 0.5)
 
 -- | Iterator for loop inner_iter
 -- new Field, new PRNG
@@ -160,14 +181,13 @@ merge grad
   | grad == 1 =
     let
       point = last $ gradient mainModel
-    in point `seq` (mix point)
+    in point `seq` (mixColour point)
   | otherwise =
     let
       point = (gradient mainModel)!!(floor $ sumGrad*grad)
-    in point `seq` (mix point)
-  where
-    -- asking gradient
-    -- mixing and increment counter in alpha field
-    mix :: (Float,Float,Float) -> (UnsafeColour -> UnsafeColour)
-    {-# INLINE mix #-}
-    mix (r,g,b) = \(t,h,n,s) -> (r+t,g+h,b+n,s+1)
+    in point `seq` (mixColour point)
+-- | mixing and increment counter in alpha field
+-- asking gradient
+mixColour :: (Float,Float,Float) -> (UnsafeColour -> UnsafeColour)
+{-# INLINE mixColour #-}
+mixColour (r,g,b) = \(t,h,n,s) -> (r+t,g+h,b+n,s+1)

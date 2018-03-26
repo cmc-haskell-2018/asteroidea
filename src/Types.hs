@@ -48,6 +48,11 @@ data Variation = Var {
 }
 
 -- | Матрицы афинных преобразований
+-- вида
+-- [ xx xy ox ]
+-- [ yx yy oy ]
+-- x' = xx*x + xy*y + ox
+-- y' = yx*x + yy*y + oy
 data AffineMatrix = AffineMatrix {
   xx :: !Double,
   xy :: !Double, 
@@ -73,11 +78,29 @@ transformName :: String,
 variation     :: Variation,  
 weight        :: !Double,
 -- ^ вес в вероятностном распределении
-colorPosition :: !Double,
-colorSpeed    :: !Double,
--- ^ калибровка коэффициентов при смешении
+colorPosition, colorSpeed :: !Double,
+{- ^ калибровка коэффициентов при смешении
+Пусть сегмент [0,1] представлен в виде линии
+-----|------------------|-------------------
+colorPosition        oldColor
+Тогда цвет в карте градиентов смещается с oldColor
+к позиции colorPosition со скоростью colorSpeed.
+Это представлено формулой (см. 'applyTransform')
+newColour =
+   (
+   oldColor      *abs  (1 + colorSpeed)
+   +
+   colorPosition *abs  (1 - colorSpeed)
+   )   /2
+-}
 opacity       :: !Double,
+-- ^ TODO Прозрачность как прозрачность в смысле
+-- изменения преобразований цвета при слиянии с текущей точкой
+-- с (r+t,g+h,b+n,s+1) на (r+αt,g+αh,b+αn,s+α)
 xaos          :: [Double]
+-- ^ TODO Изменение вероятностного распределения
+-- выбора следующей трансформы
+-- после применения текущей
 }
 
 -- | Глобальный фрактал. Упрощенный принцип работы алгоритма:

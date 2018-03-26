@@ -78,4 +78,4 @@ fpsMax = 1
 -- | число бросков из BiUnitSquare за шаг отрисовки
 -- DO NOT TOUCH THIS!
 numCast :: Float
-numCast = 2
+numCast = 1

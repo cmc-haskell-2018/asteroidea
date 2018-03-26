@@ -18,20 +18,20 @@ askTransform choice =
   let
     thres = choice * sumWeight
     list = transforms mainModel
-  in findTrans (thres - (weight $ head list)) list
+  in findTransform (thres - (weight $ head list)) list
 -- | перебор по списку до первого не превосходящего порог
-findTrans
+findTransform
   :: Double -- ^ порог
   -> [Transform] -- ^ список
   -> Transform -- ^ результат
-findTrans thres
+findTransform thres
   | (thres <= 0) = head
-  | otherwise    = \(_:lst) -> findTrans (thres - (weight $ head lst)) lst
+  | otherwise    = \(_:lst) -> findTransform (thres - (weight $ head lst)) lst
 -- | Применение трансформы
 -- к цвету и вектору
 applyTransform
   :: Transform
-  -> Double   -- ^ цвет в карте градиентов
+  -> Double   -- ^ цвет в карте градиента
   -> GVec     -- ^ вектор
   -> (GVec, Double)
 applyTransform transform colour =
