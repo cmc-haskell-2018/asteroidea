@@ -19,19 +19,30 @@ import ClassField
 -- Генератор случайных чисел, начальная инициализация
 -- Запуск симуляции Gloss - ради получения стартового интерфейса:
 -- масштабирование и передвижение
+-- см. 'World' в ClassField
 run :: IO ()
 run = do 
   genRand <- newStdGen
   simulate displayW colour fps (initWorld genRand) imageScan update
   where
     displayW = InWindow mainName (sizeX, sizeY) (startPosX, startPosY)
-    -- FullScreen
-    colour = backGrCol
-    fps = fpsMax
-    -- too slow, too slow!
-    imageScan :: World -> Picture
-    imageScan bnw = makePicture sizeX sizeY 1 1 (getWorldPoint bnw)
+    -- FullScreen NOT ADVISABLE
+    colour = backGrCol -- Цвет фона не поля, но окна.
+    fps = fpsMax -- frames per second
     update = \_ -> updateWorld
+
+-- | проход по картинке, возвращающий картинку 'Picture'
+{- uses 'makePicture' from Graphics.Gloss.Raster.Field
+   makePicture
+        :: Int                  -- Window Size X
+        -> Int                  -- Window Size Y
+        -> Int                  -- Pixels X, coefficient
+        -> Int                  -- Pixels Y, coefficient
+        -> (Point -> Color)     -- 'getWorldPoint' :: World -> Point -> Color
+        -> Picture
+-}
+imageScan :: World -> Picture
+imageScan bnw = makePicture sizeX sizeY 1 1 (getWorldPoint bnw)
 
 {--
 -- Запуск параллельной версии play библиотекой gloss-raster
@@ -59,6 +70,8 @@ initWorld sGen = World (createField sizeX sizeY) sGen busPointList
 
 
 -- | Вывод поля на экран playField
+-- 'unsafeGet' :: Int-> Int -> Matrix a -> a
+-- без проверки на соответствие границ, import from 'Matrix'
 getWorldPoint
   :: World -- ^ World
   -> Point -- ^ Point from [-1,1]^2 conformal mapping to Field
@@ -68,7 +81,7 @@ getWorldPoint bnw
       i, j :: Int -- ^ Translation on shift vector in discrete field
       i = round ((x+1) * halfX) +1
       j = round ((y+1) * halfY) +1
-    in mkCol $! getElem i j field
+    in mkCol $! unsafeGet i j field
   where field = mugenga bnw
       
 mkCol :: UnsafeColour -> Color
@@ -76,9 +89,9 @@ mkCol :: UnsafeColour -> Color
 mkCol (r,g,b,a) = rgb' (control r) (control g) (control b)
   where
     -- better choice is log1p, but it is not accessible
-    logscale = (*) . (/a) $ log $ 1+a
+    logscale = (*) . (/a) $ log a
     control x = normal $ logscale x
-    -- normalization to [0,1)
+    -- normalization to [0,1]
     normal sample
       | sample > 1.0 = 1.0
       | otherwise = sample
@@ -101,12 +114,14 @@ getNeigbours dl (x,y) = [v11,v12,v21,v22]
     v22 = (x-dl,y+dl)
 -- | Список соседей одного порядка.
 -- геометрическая прогрессия: 1, 4, 16, 64 ..
+-- использует 'getNeigbours' и рекурсивное обращение к себе
 nthNeigbours :: Int -> [Vec]
 nthNeigbours n | n>0 = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
   where
     dl = 2 ** (- fromIntegral n)
 nthNeigbours _ = [(0,0)]
 -- | Cast Infinite List
--- | бесконечный список соседей
+-- бесконечный список соседей
+-- использует 'nthNeigbours'
 busPointList :: [Vec]
 busPointList = concat [ nthNeigbours i | i <- [0,1..]]

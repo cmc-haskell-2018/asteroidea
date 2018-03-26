@@ -42,19 +42,24 @@ data Params = None | List [Double] | Matrix AffineMatrix
 
 -- | Обертка над VariationFunc - хранит ее параметры и скалярный множитель
 data Variation = Var {
-  vScale :: Double, -- ^ скалярный множитель
+  vScale :: !Double, -- ^ скалярный множитель
   params :: Params, -- ^ параметры
-  function :: VariationFunc -- ^ применяемое отображение
+  function :: !VariationFunc -- ^ применяемое отображение
 }
 
 -- | Матрицы афинных преобразований
+-- вида
+-- [ xx xy ox ]
+-- [ yx yy oy ]
+-- x' = xx*x + xy*y + ox
+-- y' = yx*x + yy*y + oy
 data AffineMatrix = AffineMatrix {
-  xx :: Double,
-  xy :: Double, 
-  yx :: Double, 
-  yy :: Double, 
-  ox :: Double, 
-  oy :: Double
+  xx :: !Double,
+  xy :: !Double, 
+  yx :: !Double, 
+  yy :: !Double, 
+  ox :: !Double, 
+  oy :: !Double
 } deriving(Show)
 
 -- | тождественная матрица
@@ -62,21 +67,40 @@ idMatrix :: AffineMatrix
 idMatrix = AffineMatrix 1 0 0 1 0 0
 
 -- | Преобразование точки, цвета и всего такого
--- | По сути - Transform олицетворяет отображение из старой точки и цвета в новые точку и цвет
--- | Обычно это отображение точек - это сложное выражение из функций-вариаций
+-- | По сути - Transform олицетворяет отображение
+-- | из старой точки и цвета в новые точку и цвет
+-- | Обычно это отображение точек есть сложное выражение из функций-вариаций
 data Transform = Transform {
 -- | Name ?
 transformName :: String,
 -- | возможны линейные комбинации, композиция, параметры =>
--- variation :: VTree
-variation :: Variation,  
-weight :: Double,
+-- variation  :: VTree
+variation     :: Variation,  
+weight        :: !Double,
 -- ^ вес в вероятностном распределении
-colorPosition :: Double,
-colorSpeed :: Double,
--- ^ калибровка коэффициентов при смешении
-opacity :: Double,
-xaos :: [Double]
+colorPosition, colorSpeed :: !Double,
+{- ^ калибровка коэффициентов при смешении
+Пусть сегмент [0,1] представлен в виде линии
+-----|------------------|-------------------
+colorPosition        oldColor
+Тогда цвет в карте градиентов смещается с oldColor
+к позиции colorPosition со скоростью colorSpeed.
+Это представлено формулой (см. 'applyTransform')
+newColour =
+   (
+   oldColor      *abs  (1 + colorSpeed)
+   +
+   colorPosition *abs  (1 - colorSpeed)
+   )   /2
+-}
+opacity       :: !Double,
+-- ^ TODO Прозрачность как прозрачность в смысле
+-- изменения преобразований цвета при слиянии с текущей точкой
+-- с (r+t,g+h,b+n,s+1) на (r+αt,g+αh,b+αn,s+α)
+xaos          :: [Double]
+-- ^ TODO Изменение вероятностного распределения
+-- выбора следующей трансформы
+-- после применения текущей
 }
 
 -- | Глобальный фрактал. Упрощенный принцип работы алгоритма:
@@ -84,20 +108,20 @@ xaos :: [Double]
 -- | Применяем к ним трансформы в случайном порядке
 -- | После каждого применения отрисовываем итоговую точку на нашем поле
 data Model = Model {
-  modelName :: String,
-  -- | череда трансформ
-  transforms :: [Transform],
-  -- viewPoint, условно
-  camera :: Maybe Transform,
+  -- | название
+  modelName     :: String,
+  -- | череда 'Transform'
+  transforms    :: [Transform],
+  -- 'viewPoint', условно
+  camera        :: Maybe Transform,
   -- | карта градиентов
   -- стоит сделать матрицей
   -- мб Data.Vector?
-  gradient :: [(Float,Float,Float)],
+  gradient      :: [(Float,Float,Float)],
   -- | Размер картинки, 
-  width :: Int,
-  height :: Int,
+  width, height :: !Int,
   -- | зум
-  mScale :: Double,
+  mScale        :: !Double,
   -- | и поворот.
-  rotation :: Double
+  rotation      :: !Double
 }

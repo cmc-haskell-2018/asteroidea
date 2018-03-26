@@ -1,6 +1,7 @@
 dist
 dist-*
 cabal-dev
+src/*.sh
 *.o
 *.hi
 *.chi
