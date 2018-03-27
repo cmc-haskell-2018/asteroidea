@@ -4,11 +4,13 @@ Description : Main module, starting simulation
 Copyright   : Just Nothing
 Stability   : in progress
 -}
+
+--{-# OPTIONS_GHC -XStrict #-}
 module Asteroidea where
 
 import System.Random
 import Graphics.Gloss
-import Data.Matrix
+import Data.Matrix hiding(trace)
 import Data.List
 import Codec.Picture
 import Types
@@ -16,15 +18,19 @@ import ClassField
 import Data.Vector.Storable (unsafeToForeignPtr)
 import Const
 import Variations
+--import Debug.Trace
 -- | Поехали!
 run :: IO ()
 run = do 
   -- Генератор случайных чисел, начальная инициализация
-  genRand <- newStdGen
+  genRand <-  newStdGen
+  
   let field = calcFlame genRand mainModel
-  let img = generateImage (fieldCellToPixel $! field) (width mainModel) (height mainModel)
-  let pic = fromImageRGBA8 $! img
-  savePngImage "./pic.png" $! (ImageRGBA8  img) 
+ 
+  let img = generateImage (fieldCellToPixel $! field)  (width mainModel) (height mainModel)
+  let pic = fromImageRGBA8 img
+  
+  savePngImage  "./pic.png" $! (ImageRGBA8  img) 
   display window white $! pic
   
   where   
@@ -46,27 +52,29 @@ fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = id }) =
 
 -- | Calculate whole fractal
 calcFlame :: StdGen ->  Model -> Field
-calcFlame gen model = foldl' (calcPath gen model) startField pointList
+--calcFlame gen model | trace ("we are in the calcFlame\n") False = undefined
+calcFlame gen model = fst $ foldl' (calcPath model) startField pointList
   where
     sizeX = width model
     sizeY = height model
-    startField = matrix sizeX sizeY initFunction
+    startField = (matrix sizeX sizeY initFunction, gen)
     initFunction = \(a,b) -> Cell 0 0 0 0  -- По хорошему цвет фона должен быть в модели
     pointList = take outerIter busPointList -- лист с точками что будем обсчитывать
     outerIter = 21845 -- внешний цикл, 
 --(b -> a -> b) -> b -> t a -> b
 
 -- | Calculate and plot Path of one point from [-1,1]^2
-calcPath :: StdGen -> Model->Field->Vec->Field
-calcPath gen model field !vec = foldl' (plot model) field path
+calcPath ::  Model->(Field,StdGen)->Vec->(Field,StdGen)
+--calcPath gen model field !vec | trace ("we are in the calcPath with vec:" ++ show vec) False = undefined
+calcPath  model (field,gen) !vec = (foldl' (plot model) field path, lastGen)
   where
     start = (GVec gen vec, 0.5) -- CastGen
     infPath = iterate (calcOne model) start -- весь путь точки
-    path = drop 20 $! take 21 $! infPath -- 30 - внутренний цикл
+    path = drop 20 $! take 25 $! infPath -- 30 - внутренний цикл
+    lastGen = vgGen $ fst $ last path
 
 -- | Calculate one point and color
 calcOne :: Model -> CastGen -> CastGen
-calcOne _ !c = c
 calcOne model ( GVec gen v, col) = (newGVec, newCol)
   where
     (ptr , newGen) = randomR (0, (length $ tranforms model) -1 ) gen
@@ -94,8 +102,8 @@ plot model !field !(GVec gen v@(x,y), col) | inBounds = newField
                                | otherwise = field
   where
     inBounds = control model v
-    setX = 1 + round ( (x+1) * (fromIntegral $ width model)/2  ) 
-    setY = 1 + round ( (-y+1) * (fromIntegral $ height model)/2  )
+    setX = 1 + truncate ( (x+1) * (fromIntegral $ width model)/2  ) 
+    setY = 1 + truncate ( (-y+1) * (fromIntegral $ height model)/2  )
     coord = (setX, setY)
     colour = calcColour col (field ! coord)
     newField = setElem colour coord field
@@ -109,8 +117,8 @@ control m !(a,b) = not (cond halfX a || cond halfY b)
     cond size x =
       isNaN x ||
       isInfinite x ||
-      x < - 1 ||
-      x >   1
+      x <= - 1 ||
+      x >=  1
 -- | TODO alpha blending colours
 calcColour :: Double -> Cell -> Cell
 calcColour _ _ = Cell 1 0 0 1 -- заглушка
