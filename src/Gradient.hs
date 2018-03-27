@@ -10,5 +10,5 @@ Stability   : OLEG
 --}
 module Gradient where
 
-import Graphics.Gloss
+--import Graphics.Gloss
 --type Gradient = 

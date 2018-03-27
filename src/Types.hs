@@ -7,9 +7,9 @@ Stability   : in progress
 module Types (module Types, module GVector) where -- re-export GVector for Everyone using Types
 import Prelude
 --import Control.Category
-import System.Random
+--import System.Random
 import Data.Matrix
-import Graphics.Gloss
+--import Graphics.Gloss
 import GVector
 
 -- | Точка и цвет в карте градиентов [0,1)
