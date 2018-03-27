@@ -89,8 +89,8 @@ mkCol :: UnsafeColour -> Color
 mkCol (r,g,b,a) = rgb' (control r) (control g) (control b)
   where
     -- better choice is log1p, but it is not accessible
-    logscale = (*) . (/a) $ log a
-    control x = normal $ logscale x
+    logscale = (log a)/a
+    control x = normal $ logscale * x
     -- normalization to [0,1]
     normal sample
       | sample > 1.0 = 1.0
