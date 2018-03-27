@@ -17,8 +17,7 @@ library
   ghc-options:         -Wall -fno-warn-type-defaults -O2 -XBangPatterns
 ---XBangPatterns
   exposed-modules:     Asteroidea
-  other-modules:       ClassField
-                     , Types
+  other-modules:       Types
                      , Const
                      , Variations
                      , GVector
@@ -54,8 +53,7 @@ test-suite asteroidea-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      src
   main-is:             ../test/Spec.hs
-  other-modules:       ClassField
-                     , Types
+  other-modules:       Types
                      , Const
                      , Variations
                      , GVector

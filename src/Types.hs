@@ -12,6 +12,11 @@ import Data.Matrix
 import Graphics.Gloss
 import GVector
 
+-- | Точка и цвет в карте градиентов [0,1)
+type Cast = (Vec, Double)
+-- | Бросок с привязанным генератором
+type CastGen = (GVec,Double)
+-- | Поле есть матрица цветов
 
 data Cell = Cell {getR :: Double, getG :: Double, getB :: Double, getA :: Double} 
   deriving (Show)

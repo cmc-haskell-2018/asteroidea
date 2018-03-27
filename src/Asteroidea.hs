@@ -14,7 +14,6 @@ import Data.Matrix hiding(trace)
 import Data.List
 import Codec.Picture
 import Types
-import ClassField
 import Data.Vector.Storable (unsafeToForeignPtr)
 import Const
 import Variations
@@ -39,11 +38,11 @@ run = do
    -- update = updateWorld
 -- window -- FullScreen
 fromImageRGBA8 :: Image PixelRGBA8 -> Picture
-fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = id }) =
+fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = idat }) =
   bitmapOfForeignPtr w h
                      (BitmapFormat TopToBottom PxRGBA)
                      ptr True
-    where (ptr, _, _) = unsafeToForeignPtr id
+    where (ptr, _, _) = unsafeToForeignPtr idat
 -- | Act of Creation
 -- создание мира
 
@@ -57,7 +56,7 @@ calcFlame gen model = fst $ foldl' (calcPath model) startField pointList
     sizeX = width model
     sizeY = height model
     startField = (matrix sizeX sizeY initFunction, gen)
-    initFunction = \(a,b) -> Cell 0 0 0 0  -- По хорошему цвет фона должен быть в модели
+    initFunction = \_ -> Cell 0 0 0 0  -- По хорошему цвет фона должен быть в модели
     pointList = take outerIter busPointList -- лист с точками что будем обсчитывать
     outerIter = 21845 -- внешний цикл, 
 --(b -> a -> b) -> b -> t a -> b
@@ -96,12 +95,12 @@ getWorldPoint bnw (i,j)
 -}
 -- отрисовка точки на поле
 plot ::Model -> Field -> CastGen -> Field
-plot model !field !(GVec gen v@(x,y), col) | inBounds = newField
+plot model !field !(GVec _ v@(x,y), col) | inBounds = newField
                                | otherwise = field
   where
     inBounds = control model v
     setX = 1 + truncate ( (x+1) * (fromIntegral $ width model)/2  ) 
-    setY = 1 + truncate ( (-y+1) * (fromIntegral $ height model)/2  )
+    setY = 1 + truncate ( (-y+1) * (fromIntegral $ height model)/2  ) -- | -y because y-axis direction is opposite of row number
     coord = (setX, setY)
     colour = calcColour col  (field ! coord) -- установка $! здесь приводит к неогранченному росту потребления памяти
     newField = setElem colour coord $! field
@@ -112,7 +111,7 @@ control m !(a,b) = not (cond halfX a || cond halfY b)
   where
     halfX = (fromIntegral $ width m)/2
     halfY = (fromIntegral $ height m)/2
-    cond size x =
+    cond _ x = -- here was size
       isNaN x ||
       isInfinite x ||
       x <= - 1 ||
@@ -126,6 +125,6 @@ fieldCellToPixel field x y = toPixel $ getElem (x+1) (y+1) field
   where
     toPixel (Cell r g b a )= PixelRGBA8 nr ng nb 255
      where
-      nr = fromIntegral $ round $ r*255
-      ng = fromIntegral $ round $ g*255
-      nb = fromIntegral $ round $ b*255
+      nr = fromIntegral $ round $ (r/a)*255
+      ng = fromIntegral $ round $ (g/a)*255
+      nb = fromIntegral $ round $ (b/a)*255

@@ -12,4 +12,3 @@ Data для хранения всех параметров постобрабо�
 module PostColoring where
 
 import Graphics.Gloss
-import ClassField
