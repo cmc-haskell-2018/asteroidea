@@ -25,13 +25,13 @@ run = do
   -- Генератор случайных чисел, начальная инициализация
   genRand <-  newStdGen
   
-  let field = calcFlame genRand mainModel
- 
+  let field = calcFlame genRand mainModel 
   let img = generateImage (fieldCellToPixel $! field)  (width mainModel) (height mainModel)
   let pic = fromImageRGBA8 img
   
   savePngImage  "./pic.png" $! (ImageRGBA8  img) 
   display window white $! pic
+
   
   where   
     --getter = getWorldPoint
@@ -52,7 +52,6 @@ fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = id }) =
 
 -- | Calculate whole fractal
 calcFlame :: StdGen ->  Model -> Field
---calcFlame gen model | trace ("we are in the calcFlame\n") False = undefined
 calcFlame gen model = fst $ foldl' (calcPath model) startField pointList
   where
     sizeX = width model
@@ -65,7 +64,6 @@ calcFlame gen model = fst $ foldl' (calcPath model) startField pointList
 
 -- | Calculate and plot Path of one point from [-1,1]^2
 calcPath ::  Model->(Field,StdGen)->Vec->(Field,StdGen)
---calcPath gen model field !vec | trace ("we are in the calcPath with vec:" ++ show vec) False = undefined
 calcPath  model (field,gen) !vec = (foldl' (plot model) field path, lastGen)
   where
     start = (GVec gen vec, 0.5) -- CastGen
@@ -105,8 +103,8 @@ plot model !field !(GVec gen v@(x,y), col) | inBounds = newField
     setX = 1 + truncate ( (x+1) * (fromIntegral $ width model)/2  ) 
     setY = 1 + truncate ( (-y+1) * (fromIntegral $ height model)/2  )
     coord = (setX, setY)
-    colour = calcColour col (field ! coord)
-    newField = setElem colour coord field
+    colour = calcColour col  (field ! coord) -- установка $! здесь приводит к неогранченному росту потребления памяти
+    newField = setElem colour coord $! field
 
 
 control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее

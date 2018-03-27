@@ -13,7 +13,8 @@ import Graphics.Gloss
 import GVector
 
 
-data Cell = Cell {getR :: Double, getG :: Double, getB :: Double, getA :: Double} -- rgba
+data Cell = Cell {getR :: Double, getG :: Double, getB :: Double, getA :: Double} 
+  deriving (Show)
 type Field = Matrix Cell
 
 -- | Вариация как она есть, с параметрами, перевод GVec -> GVec

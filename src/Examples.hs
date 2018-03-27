@@ -41,7 +41,7 @@ dbgAffine6 :: Variation
 dbgAffine6 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0)) affineTransform
 
 dbgAffine7 :: Variation
-dbgAffine7 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0.5)) affineTransform
+dbgAffine7 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.25 0.5)) affineTransform
 -- | DEBUG square
 dbgSquare :: Variation
 dbgSquare = Var (1) None square
