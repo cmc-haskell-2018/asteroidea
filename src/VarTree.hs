@@ -9,13 +9,16 @@ import Prelude
 --import System.Random
 import Types
 
+-- | проверка, не выходит ли индекс за границу списка
 inRange :: [a]->Int->Bool
 inRange l i
          | i < 0 = False
          | i >=length l = False
          | otherwise = True
 
+-- | получает два вектора, возвращает вектор
 type Operation = GVec->GVec->GVec
+-- | путь точки
 type Path = [Int]
 
 -- | Дерево выражения над вариациями
@@ -24,7 +27,7 @@ type Path = [Int]
 -- | что необходимо для работы скриптов и изменения модели через гуи
 data VTree = Node Operation [VTree] | Leaf Variation
 
-
+-- | вставка элемента
 insertAt :: Int->a->[a]->[a]
 insertAt z y xs = as ++ (y:bs)
                   where (as,bs) = splitAt z xs
@@ -36,6 +39,7 @@ getSubTree (Node _ l) (x:xs) | inRange l x =  getSubTree (l !! x) xs
                              | otherwise = Nothing
 getSubTree (Leaf _) _ = Nothing
 
+-- | проверка на правильность дерева
 isValidTree :: VTree -> Bool
 isValidTree (Node _ []) = False
 isValidTree  (Leaf _) = True
