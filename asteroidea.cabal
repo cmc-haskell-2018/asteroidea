@@ -15,8 +15,14 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   ghc-options:         -Wall -fno-warn-type-defaults
-  exposed-modules:     Asteroidea
-  build-depends:       base >= 4.7 && < 5
+  exposed-modules:
+    Asteroidea.IFS.Classic
+    Asteroidea.Sierpinski
+    Asteroidea.Simulate.BlackAndWhite
+  build-depends:
+      base >= 4.7 && < 5
+    , random
+    , gloss
   default-language:    Haskell2010
 
 executable asteroidea
