@@ -33,13 +33,13 @@ dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 (-0.5))) affineTransfor
 -- | DEBUG affine 4
 dbgAffine4 :: Variation
 dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affineTransform
-
+-- | DEBUG affine 5
 dbgAffine5 :: Variation
 dbgAffine5= Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0)) affineTransform
-
+-- | DEBUG affine 6
 dbgAffine6 :: Variation
 dbgAffine6 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0)) affineTransform
-
+-- | DEBUG affine 7
 dbgAffine7 :: Variation
 dbgAffine7 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.25 0.5)) affineTransform
 -- | DEBUG square

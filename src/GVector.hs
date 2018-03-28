@@ -18,9 +18,10 @@ data GVec = GVec {
   vgVec :: Vec
 }deriving(Show)
 
+
+-- | Вычленение x,y координат из GVec
 gvX :: GVec -> Double
 gvX (GVec _ (x ,_)) = x 
-
 gvY :: GVec -> Double
 gvY (GVec _ (_ ,y)) = y 
 
@@ -35,17 +36,21 @@ nextGen (GVec gen v) = GVec (snd $ next gen) v
 instance Eq GVec where
   (==) gv1 gv2 = vgVec gv1 == vgVec gv2
 
+-- | arctan x/y
 phase :: GVec->Double
 phase (GVec _ (0,0)) = 0
 phase (GVec _ (x,y)) = atan2 y x
 
+-- | arctan y/x
 antiPhase :: GVec->Double
 antiPhase (GVec _ (0,0)) = 0
 antiPhase (GVec _ (x,y)) = atan2 x y
 
+-- | abs value
 magnitude :: GVec->Double
 magnitude (GVec _ (x,y)) = sqrt (x*x +y*y)
 
+-- | magnitude squared
 radiusSqr :: GVec -> Double
 radiusSqr (GVec _ (x,y)) = x*x + y*y
 

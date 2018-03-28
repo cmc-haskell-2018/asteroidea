@@ -16,10 +16,11 @@ import GVector
 type Cast = (Vec, Double)
 -- | Бросок с привязанным генератором
 type CastGen = (GVec,Double)
--- | Поле есть матрица цветов
 
 data Cell = Cell {getR :: Double, getG :: Double, getB :: Double, getA :: Double} 
   deriving (Show)
+
+-- | Поле есть матрица цветов
 type Field = Matrix Cell
 
 -- | Вариация как она есть, с параметрами, перевод GVec -> GVec
