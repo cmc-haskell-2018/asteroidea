@@ -16,9 +16,10 @@ library
   hs-source-dirs:      src
   ghc-options:         -Wall -fno-warn-type-defaults
   exposed-modules:
+    Asteroidea.Coloring
     Asteroidea.IFS.Classic
     Asteroidea.Sierpinski
-    Asteroidea.Simulate.BlackAndWhite
+    Asteroidea.Simulate.Simple
   build-depends:
       base >= 4.7 && < 5
     , random

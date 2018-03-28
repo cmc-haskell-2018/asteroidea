@@ -1,7 +1,8 @@
 module Main where
 
-import Asteroidea.Simulate.BlackAndWhite
+import Asteroidea.Coloring
+import Asteroidea.Simulate.Simple
 import Asteroidea.Sierpinski
 
 main :: IO ()
-main = simulateIFS sierpinskiGasket
+main = simulateIFS blackAndWhite sierpinskiGasket
