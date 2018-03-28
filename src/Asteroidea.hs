@@ -100,7 +100,7 @@ plot model !field !(GVec _ v@(x,y), col) | inBounds = newField
   where
     inBounds = control model v
     setX = 1 + truncate ( (x+1) * (fromIntegral $ width model)/2  ) 
-    setY = 1 + truncate ( (-y+1) * (fromIntegral $ height model)/2  ) -- | -y because y-axis direction is opposite of row number
+    setY = 1 + truncate ( (-y+1) * (fromIntegral $ height model)/2  ) -- -y because y-axis direction is opposite of row number
     coord = (setX, setY)
     colour = calcColour col  (field ! coord) -- установка $! здесь приводит к неогранченному росту потребления памяти
     newField = setElem colour coord $! field
