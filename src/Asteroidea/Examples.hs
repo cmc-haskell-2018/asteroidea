@@ -4,13 +4,13 @@ Description : for debug purposes
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Examples where
-import Prelude  
---import Control.Category
-import Variations
+module Asteroidea.Examples where
+
 import System.Random
-import Types
-import HexPalette
+
+import Asteroidea.HexPalette
+import Asteroidea.Types
+import Asteroidea.Variations
 
 -- | random generator for debug purposes
 defGen :: StdGen

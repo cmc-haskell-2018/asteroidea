@@ -4,10 +4,10 @@ Description : operations with transform
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Transform where
+module Asteroidea.Transform where
 
-import Types
-import Const
+import Asteroidea.Types
+import Asteroidea.Const
 
 -- | Выбор трансформы из списка
 -- нашей модели

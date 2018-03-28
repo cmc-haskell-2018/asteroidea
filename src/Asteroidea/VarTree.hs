@@ -4,10 +4,9 @@ Description : operations with Expression Tree of Variations
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module VarTree where
-import Prelude  
---import System.Random
-import Types
+module Asteroidea.VarTree where
+
+import Asteroidea.Types
 
 inRange :: [a]->Int->Bool
 inRange l i

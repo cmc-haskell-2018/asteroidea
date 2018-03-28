@@ -9,10 +9,10 @@ Stability   : OLEG
 Data для хранения всех параметров постобработки - гамма\вайбранси и прочие простые параметры, позже ргб кривые
 Собственно функция что принимает эти параметры, поле и выдает картинку/поле :: PostColorParams->Field->Field
 --}
-module PostColoring where
+module Asteroidea.PostColoring where
 
 import Graphics.Gloss
-import ClassField
+import Asteroidea.ClassField
 
 type PostColorParam = Double
 -- |...

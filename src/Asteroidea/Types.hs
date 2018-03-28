@@ -4,12 +4,14 @@ Description : declarating types, implementation of main data, etc
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Types (module Types, module GVector, module System.Random) where -- re-export GVector for Everyone using Types
-import Prelude
---import Control.Category
+module Asteroidea.Types (
+  module Asteroidea.Types,
+  module Asteroidea.GVector,
+  module System.Random,
+) where
+
 import System.Random
-import GVector
---import Const
+import Asteroidea.GVector
 
 -- | Цвета без нормализации и проверки на нормировку
 type UnsafeColour = (Float,Float,Float,Float)

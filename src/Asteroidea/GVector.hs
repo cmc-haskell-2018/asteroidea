@@ -4,8 +4,8 @@ Description : operations with vectors combined with Stdgens (GVec-s)
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module GVector where
-import Prelude 
+module Asteroidea.GVector where
+
 import System.Random 
 
 -- | Вектор Double

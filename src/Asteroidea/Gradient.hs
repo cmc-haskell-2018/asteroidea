@@ -8,12 +8,9 @@ Stability   : OLEG
 Для базы необходимо лишь нормальное представление градиента (вектор или матрица) и доступ к цветам в нем по Double [0,1]
 Далее понадобятся функции для циклического сдвига, изменения hue\saturation\brightness и прочие ништяки
 --}
-module Gradient where
---import HexPalette
+module Asteroidea.Gradient where
+
 import Data.Char
---import Graphics.Gloss
---import GHC.Float
---type Gradient = 
 
 type Color = (Float, Float, Float)
 -- трёхкомпонентный цвет

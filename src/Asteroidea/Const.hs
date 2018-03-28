@@ -4,10 +4,12 @@ Description : Parameters for program and convertation functions
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Const where
-import Examples
+module Asteroidea.Const where
+
 import Graphics.Gloss.Data.Color (Color,makeColor,makeColorI)
-import Types (Model,width,height,mScale,rotation,weight,transforms,gradient,modelName)
+
+import Asteroidea.Examples
+import Asteroidea.Types (Model,width,height,mScale,rotation,weight,transforms,gradient,modelName)
 
 -- | export example model
 mainModel :: Model

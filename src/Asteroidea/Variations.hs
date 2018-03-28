@@ -4,11 +4,10 @@ Description : basically a module with Variation Functions
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Variations where
-import Prelude  
---import Control.Category
+module Asteroidea.Variations where
+
 import System.Random
-import Types
+import Asteroidea.Types
 
 -- | применение вариации
 calcVariation :: Variation -> GVec-> GVec

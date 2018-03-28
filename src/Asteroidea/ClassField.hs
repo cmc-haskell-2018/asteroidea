@@ -4,15 +4,16 @@ Description : operations with field, generating invocation to Model
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module ClassField where
+module Asteroidea.ClassField where
 
 import Graphics.Gloss()
 import System.Random
 import Data.Matrix
-import Types
-import Const
-import GVector()
-import Transform
+import Asteroidea.Types
+import Asteroidea.Const
+import Asteroidea.GVector()
+import Asteroidea.Transform
+
 -- | Обёртка над Field, играющая роль мира. Без грязного IO.
 -- типичное использование - bnw (Brave New World)
 data World =

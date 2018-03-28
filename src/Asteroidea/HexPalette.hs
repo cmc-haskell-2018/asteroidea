@@ -4,7 +4,10 @@ Description : hex palette example
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module HexPalette(mainPallete) where
+module Asteroidea.HexPalette (
+  mainPallete,
+) where
+
 import Data.Char(digitToInt)
 -- | главная палитра, передаваемая как основная
 mainPallete :: [(Float,Float,Float)]

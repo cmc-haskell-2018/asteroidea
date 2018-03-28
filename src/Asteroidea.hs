@@ -11,9 +11,9 @@ import Graphics.Gloss
 import Graphics.Gloss.Raster.Field
 import Data.Matrix
 
-import Const
-import Types
-import ClassField
+import Asteroidea.ClassField
+import Asteroidea.Const
+import Asteroidea.Types
 
 -- | Поехали!
 -- Генератор случайных чисел, начальная инициализация
