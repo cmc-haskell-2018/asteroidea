@@ -9,6 +9,7 @@ import Prelude
 --import Control.Category
 import Variations
 import System.Random
+import Gradient
 --import Graphics.Gloss
 import Types
 
@@ -51,18 +52,18 @@ dbgGVec = GVec defGen (1,1)
 
 t1 :: Transform
 -- ^ DEBUG transform 1
-t1 = Transform "t1" dbgAffine5 1 1 0 1 []
+t1 = Transform "t1" dbgAffine1 1 1 0 1 []
 t2 :: Transform
 -- ^ DEBUG transform 2
-t2 = Transform "t2" dbgAffine6 1 0.889 0 1 []
+t2 = Transform "t2" dbgAffine2 1 0.889 0 1 []
 t3 :: Transform
 -- ^ DEBUG transform 3
-t3 = Transform "t3" dbgAffine7 1 1 0 1 []
+t3 = Transform "t3" dbgAffine3 1 0 0 1 []
 t4 :: Transform
 -- ^ DEBUG transform 4
 t4 = Transform "t4" dbgAffine4 1 1 1 1 []
 -- | exampleModel 42
 exampleModel :: Model 
-exampleModel = Model "42" [t2,t1,t3] Nothing grad 512 512 50 0
+exampleModel = Model "42" [t1,t2,t3,t4] Nothing grad 512 512 50 0
   where
-   grad = [Cell 1 0 0 1]
+   grad = paletteToDouble currentGradient

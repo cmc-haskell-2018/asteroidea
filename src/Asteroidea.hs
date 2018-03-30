@@ -18,6 +18,7 @@ import Codec.Picture
 import Types
 import Data.Vector.Storable (unsafeToForeignPtr)
 import Const
+import Gradient
 import Variations
 --import Debug.Trace
 -- | Поехали!
@@ -80,7 +81,8 @@ calcOne model ( GVec gen v, col) = (newGVec, newCol)
     (ptr , newGen) = randomR (0, (length $ tranforms model) -1 ) gen
     tranform = tranforms model !! ptr    
     newGVec = calcVariation (variation tranform) (GVec newGen v)
-    newCol = (col + (colorPosition tranform))/2 -- To Do speed
+    speed = colorSpeed tranform
+    newCol = ( col *  (1 + speed) + (colorPosition tranform) * (1 - speed) )/2 
   {- 
 -- | Вывод поля на экран playField
 -- не совсем верно - зум и поворто должны производится до нанесения на поле, если же после, то это приводит к потере части изображения
@@ -106,12 +108,14 @@ plot model !field !(GVec _ v@(x,y), col) | inBounds = newField
     setY = truncate ( (-y+1) * (fromIntegral $ height model)/2  ) -- -y because y-axis direction is opposite of row number
     coord = (setX, setY)
     linearCoord = linearFieldIndex (width model) coord
-    colour = calcColour col $ (Vector.!) field linearCoord -- установка $! здесь приводит к неогранченному росту потребления памяти
+    addedCol = Gradient.colorMap (gradient model) col
+    --colour = calcColour addedCol $ (Vector.!) field linearCoord -- установка $! здесь приводит к неогранченному росту потребления памяти
     --newField = field Vector.// [(linearCoord, colour)]
     
     newField = runST $ do -- setElem colour coord $! field
       mutableVector <- Vector.unsafeThaw field
-      Vector.Mutable.write mutableVector linearCoord colour
+      col <- Vector.Mutable.read mutableVector linearCoord
+      Vector.Mutable.write mutableVector linearCoord (calcColour addedCol col)
       updatedField <- Vector.unsafeFreeze mutableVector
       return updatedField
     
@@ -130,8 +134,9 @@ control m !(a,b) = not (cond halfX a || cond halfY b)
       x <= - 1 ||
       x >=  1
 -- | TODO alpha blending colours
-calcColour :: Double -> Cell -> Cell
-calcColour _ _ = Cell 1 0 0 1 -- заглушка
+calcColour :: (Double,Double,Double) -> Cell -> Cell
+calcColour (r1,g1,b1) (Cell r2 g2 b2 a) = Cell (r2+r1) (g2+g1) (b2+b1) (a+1) -- заглушка
+--calcColour _ _ = Cell 1 0 0
 
 fieldCellToPixel :: Int -> NewField  -> Int -> Int -> PixelRGBA8
 fieldCellToPixel width field  x y = toPixel $  field  Vector.! (linearFieldIndex width (x,y))

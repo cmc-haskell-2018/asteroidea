@@ -58,8 +58,10 @@ data Variation = Var {
 -- | Матрицы афинных преобразований
 data AffineMatrix = AffineMatrix {
   xx :: Double,
-  xy :: Double, 
-  yx :: Double, 
+  
+  yx :: Double,
+  xy :: Double, -- | FIXME
+
   yy :: Double, 
   ox :: Double, 
   oy :: Double
@@ -87,10 +89,7 @@ opacity :: Double,
 xaos :: [Double]
 }
 
--- | Глобальный фрактал. Упрощенный принцип работы алгоритма:
--- | Берем случайные точки из [-1,1]^2 и случайный цвет
--- | Применяем к ним трансформы в случайном порядке
--- | После каждого применения отрисовываем итоговую точку на нашем поле
+-- | Набоор параметров, однозначно задающих фрактал
 data Model = Model {
   modelName :: String,
   -- | череда трансформ
@@ -100,7 +99,7 @@ data Model = Model {
   -- | карта градиентов
   -- стоит сделать матрицей
   -- мб Data.Vector?
-  gradient :: [Cell],
+  gradient :: [(Double,Double,Double)],
   -- | Размер картинки, 
   --backGrCol :: Cell
   width :: Int,
