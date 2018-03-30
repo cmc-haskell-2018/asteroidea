@@ -16,14 +16,20 @@ library
   hs-source-dirs:      src
   ghc-options:         -Wall -fno-warn-type-defaults
   exposed-modules:
-    Asteroidea.Coloring
+    Asteroidea.Gloss.Simulate
     Asteroidea.IFS.Classic
+    Asteroidea.Juicy.Coloring
+    Asteroidea.Juicy.Image
     Asteroidea.Sierpinski
-    Asteroidea.Simulate.Simple
   build-depends:
       base >= 4.7 && < 5
     , random
     , gloss
+    , gloss-juicy
+    , gloss-raster
+    , JuicyPixels
+    , matrix
+    , vector
   default-language:    Haskell2010
 
 executable asteroidea
@@ -32,6 +38,9 @@ executable asteroidea
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , asteroidea
+                     , gloss-juicy
+                     , JuicyPixels
+                     , random
   default-language:    Haskell2010
 
 test-suite asteroidea-test
