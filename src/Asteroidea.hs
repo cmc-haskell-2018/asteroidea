@@ -10,7 +10,9 @@ module Asteroidea where
 
 import System.Random
 import Graphics.Gloss
-import Data.Matrix hiding(trace)
+import Control.Monad.ST (runST)
+import qualified Data.Vector as Vector
+import qualified Data.Vector.Mutable as Vector.Mutable
 import Data.List
 import Codec.Picture
 import Types
@@ -19,17 +21,18 @@ import Const
 import Variations
 --import Debug.Trace
 -- | Поехали!
+type NewField = Vector.Vector Cell
 run :: IO ()
 run = do 
   -- Генератор случайных чисел, начальная инициализация
   genRand <-  newStdGen
   
   let field = calcFlame genRand mainModel 
-  let img = generateImage (fieldCellToPixel $! field)  (width mainModel) (height mainModel)
+  let img = generateImage (fieldCellToPixel (width mainModel) field)  (width mainModel) (height mainModel)
   let pic = fromImageRGBA8 img
   
-  savePngImage  "./pic.png" $! (ImageRGBA8  img) 
-  display window white $! pic
+  savePngImage  "./pic.png" (ImageRGBA8  img) 
+  display window white pic
 
   
   where   
@@ -50,24 +53,24 @@ fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = idat }) =
 -- в текущий момент тут нет никакого рандома
 
 -- | Calculate whole fractal
-calcFlame :: StdGen ->  Model -> Field
+calcFlame :: StdGen ->  Model -> NewField
 calcFlame gen model = fst $ foldl' (calcPath model) startField pointList
   where
     sizeX = width model
     sizeY = height model
-    startField = (matrix sizeX sizeY initFunction, gen)
+    startField = (Vector.generate (sizeX*sizeY) initFunction, gen)
     initFunction = \_ -> Cell 0 0 0 0  -- По хорошему цвет фона должен быть в модели
     pointList = take outerIter busPointList -- лист с точками что будем обсчитывать
     outerIter = 21845 -- внешний цикл, 
 --(b -> a -> b) -> b -> t a -> b
 
 -- | Calculate and plot Path of one point from [-1,1]^2
-calcPath ::  Model->(Field,StdGen)->Vec->(Field,StdGen)
+calcPath ::  Model->(NewField,StdGen)->Vec->(NewField,StdGen)
 calcPath  model (field,gen) !vec = (foldl' (plot model) field path, lastGen)
   where
     start = (GVec gen vec, 0.5) -- CastGen
     infPath = iterate (calcOne model) start -- весь путь точки
-    path = drop 20 $! take 25 $! infPath -- 30 - внутренний цикл
+    path = drop 20 $ take 200 $ infPath -- 300 - внутренний цикл
     lastGen = vgGen $ fst $ last path
 
 -- | Calculate one point and color
@@ -94,17 +97,27 @@ getWorldPoint bnw (i,j)
     cond size a = a < 1 || a > size
 -}
 -- отрисовка точки на поле
-plot ::Model -> Field -> CastGen -> Field
+plot ::Model -> NewField -> CastGen -> NewField
 plot model !field !(GVec _ v@(x,y), col) | inBounds = newField
                                | otherwise = field
   where
     inBounds = control model v
-    setX = 1 + truncate ( (x+1) * (fromIntegral $ width model)/2  ) 
-    setY = 1 + truncate ( (-y+1) * (fromIntegral $ height model)/2  ) -- -y because y-axis direction is opposite of row number
+    setX = truncate ( (x+1) * (fromIntegral $ width model)/2  ) 
+    setY = truncate ( (-y+1) * (fromIntegral $ height model)/2  ) -- -y because y-axis direction is opposite of row number
     coord = (setX, setY)
-    colour = calcColour col  (field ! coord) -- установка $! здесь приводит к неогранченному росту потребления памяти
-    newField = setElem colour coord $! field
+    linearCoord = linearFieldIndex (width model) coord
+    colour = calcColour col $ (Vector.!) field linearCoord -- установка $! здесь приводит к неогранченному росту потребления памяти
+    --newField = field Vector.// [(linearCoord, colour)]
+    
+    newField = runST $ do -- setElem colour coord $! field
+      mutableVector <- Vector.unsafeThaw field
+      Vector.Mutable.write mutableVector linearCoord colour
+      updatedField <- Vector.unsafeFreeze mutableVector
+      return updatedField
+    
 
+linearFieldIndex :: Int -> (Int, Int) -> Int
+linearFieldIndex w (i, j) = i + j * w
 
 control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее
 control m !(a,b) = not (cond halfX a || cond halfY b)
@@ -120,8 +133,8 @@ control m !(a,b) = not (cond halfX a || cond halfY b)
 calcColour :: Double -> Cell -> Cell
 calcColour _ _ = Cell 1 0 0 1 -- заглушка
 
-fieldCellToPixel ::  Field -> Int -> Int -> PixelRGBA8
-fieldCellToPixel field x y = toPixel $ getElem (x+1) (y+1) field 
+fieldCellToPixel :: Int -> NewField  -> Int -> Int -> PixelRGBA8
+fieldCellToPixel width field  x y = toPixel $  field  Vector.! (linearFieldIndex width (x,y))
   where
     toPixel (Cell r g b a )= PixelRGBA8 nr ng nb 255
      where
