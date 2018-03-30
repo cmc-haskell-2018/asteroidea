@@ -1,4 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
+-- |
+-- Треугольник Серпинского.
 module Asteroidea.Sierpinski where
 
 import qualified Asteroidea.IFS.Classic as Classic

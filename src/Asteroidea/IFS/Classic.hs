@@ -1,7 +1,10 @@
+-- |
+-- Реализация классических итеративных фрактальных систем.
 module Asteroidea.IFS.Classic where
 
 import System.Random
 
+-- | Точка в двумерном пространстве.
 type Point = (Float, Float)
 
 -- | Афинное преобразование следующего вида:

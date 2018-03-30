@@ -1,4 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
+-- |
+-- Реализация быстрой отрисовки изображений
+-- для итераций фрактальных систем.
 module Asteroidea.Juicy.Image where
 
 import qualified Codec.Picture as Juicy

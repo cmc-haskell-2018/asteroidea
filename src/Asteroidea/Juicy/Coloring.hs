@@ -1,3 +1,5 @@
+-- |
+-- Цветовые схемы для генерации изображений при помощи JuicyPixels.
 module Asteroidea.Juicy.Coloring where
 
 import Data.Monoid

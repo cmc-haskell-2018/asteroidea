@@ -1,3 +1,5 @@
+-- |
+-- Запуск анимированных итеративных фрактальных систем.
 module Asteroidea.Gloss.Simulate where
 
 import Codec.Picture as Juicy
