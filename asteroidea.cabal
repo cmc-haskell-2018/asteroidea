@@ -15,42 +15,58 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   ghc-options:         -Wall -fno-warn-type-defaults -O2 -funbox-strict-fields -ddump-simpl -optc-ffast-math -fexcess-precision
----Werror -dynamic
---  default-extensions:  BangPatterns
   exposed-modules:     Asteroidea
-  other-modules:       ClassField, Types, Const, Variations, GVector, Gradient, Examples, PostColoring, VarTree, Transform, HexPalette
+  other-modules:       Types
+                     , Const
+                     , Variations
+                     , GVector
+                     , Gradient
+                     , Examples
+                     , PostColoring
+                     , VarTree
+                     , PostColoring
+                     , PostColoring
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster
                      , random
-                     , matrix
-                     , hex
+                     , JuicyPixels
+                     , vector
   default-language:    Haskell2010
 
 executable asteroidea
   hs-source-dirs:      app
   main-is:             Main.hs
-  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N -O2 -fexcess-precision
----Werror -dynamic
---  default-extensions:  BangPatterns
+  ghc-options:         -Wall -fno-warn-type-defaults -O2 -funbox-strict-fields -ddump-simpl -optc-ffast-math -fexcess-precision
   build-depends:       base
                      , asteroidea
                      , gloss
                      , gloss-raster
                      , random
                      , matrix
+                     , JuicyPixels
+                     , vector
   default-language:    Haskell2010
 
 test-suite asteroidea-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      src
   main-is:             ../test/Spec.hs
-  other-modules:       ClassField, Types, Const, Variations, GVector, Gradient, Examples, PostColoring, VarTree, Transform, HexPalette
+  other-modules:       Types
+                     , Const
+                     , Variations
+                     , GVector
+                     , Gradient
+                     , Examples
+                     , PostColoring
+                     , VarTree
+                     , PostColoring
+                     , PostColoring
   build-depends:       base >= 4.7 && < 5
                      , gloss
+                     , gloss-raster
                      , random
-                     , matrix
+                     , JuicyPixels
+                     , vector
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N 
----Werror
   default-language:    Haskell2010
-

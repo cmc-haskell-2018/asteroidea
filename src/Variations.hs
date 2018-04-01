@@ -146,4 +146,4 @@ hyperb _ g@(GVec _ (x,y)) = g {gvVec =  (x / y , y / x)}
 -- д.б. вдоль осей сильно вытянутой
 -- Фактически, вытянутая парабола, сходящаяся к (0,0)
 sumMultAxis :: VariationFunc
-sumMultAxis _ g@(GVec _ (x,y)) = g {gvVec =  ((x+y) * x , (x+y) * y )}
+sumMultAxis _ g@(GVec _ (x,y)) = g {gvVec = ((x+y) * x , (x+y) * y )}

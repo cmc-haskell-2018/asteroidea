@@ -5,78 +5,91 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 module Const where
-import Examples
-import Graphics.Gloss.Data.Color (Color,makeColor,makeColorI)
-import Types (Model,width,height,mScale,rotation,weight,transforms,gradient,modelName)
-
+import Examples (exampleModel)
+import Types (Model,mScale,mRotation)
+--import Codec.Picture
 -- | export example model
 mainModel :: Model
-mainModel = exampleModel2
--- | name of main model
-mainName :: String
-mainName = modelName mainModel
--- | x, y size of field, model, window, etc
-sizeX,sizeY :: Int
-sizeX = width  mainModel
-sizeY = height mainModel
--- | Суммарный вес всех трансформ в вероятностном распределении
-sumWeight::Double
-sumWeight = foldr (+) 0 (map weight (transforms mainModel))
--- | общее число цветов в карте градиентов
-sumGrad :: Double
-sumGrad = fromIntegral $ length (gradient mainModel)
--- | смещение центра фрактала по оси абсцисс / ординат
-shiftX, shiftY :: Double
-shiftX = 50
-shiftY = 50
+mainModel = exampleModel
+{-
+-- | смещение центра фрактала по оси абсцисс 
+shiftX :: Float
+shiftX = -1 - halfX
+-- | смещение центра фрактала по оси ординат
+shiftY :: Float
+shiftY = -1 - halfY
+-}
 -- | rotation in radian
 rotRad :: Double
-rotRad = (pi/360*) $ rotation mainModel
--- | sin / cos rotation multiplied on scaleFactor 
-sinTheta, cosTheta :: Double
+rotRad = (pi/360*) $ mRotation mainModel
+-- | sin rotation
+sinTheta :: Float
 sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)
+-- | cos rotation
+cosTheta :: Float
 cosTheta = realToFrac . (/scaleFactor) $ (cos rotRad)
 -- | Scale Factor
--- It is ambiguous due to mScale, but it will be so.
 scaleFactor :: Double
-scaleFactor = 1/(mScale mainModel)
+scaleFactor = (mScale mainModel) / 50
 {- Zoom Factor, scaling
 zoomFactor :: Double
 zoomFactor = exp
 -}
 -- | Цвет заднего фона
-backGrCol :: Color
-backGrCol = makeColorI 34 139 34 255
--- makeColor 1 1 1 1
--- makeColor 0.13 0.54 0.13 1.0
+
 -- | верхний порог числа бросков одной точки
 innerIter :: Int
-innerIter = 128+64
+innerIter = 30
 --1000
 -- | нижний порог числа бросков точки, после которого начинается отрисовка
 lowThreshold :: Int
-lowThreshold = 16
+lowThreshold = 20
 -- | стартовый размер окна
 -- не хочу рисковать лагами
--- 1920 x 1080
-winX, winY :: Int
-winX = sizeX
-winY = sizeY
--- | половина поля, выраженная в вещественных значениях
-halfX, halfY :: (Fractional a) => a
-halfX = (fromIntegral sizeX)/2
-halfY = (fromIntegral sizeY)/2
+-- 1920
+winX :: Int
+winX = 1024
+-- | стартовый размер окна 
+-- 1080
+winY :: Int
+winY = 576
 -- | стартовая позиция окна
--- честно, ни малейшего понятия, будут ли здесь не нули
-startPosX, startPosY :: Int
-startPosX = 256
-startPosY = 256
--- | максимальная частота кадров.
--- единица это минимум
--- DO NOT TOUCH THIS!
+startPosX :: Int
+startPosX = 0
+-- | честно, ни малейшего понятия, будут ли здесь не нули
+startPosY :: Int
+startPosY = 0
+
 fpsMax :: Int
+-- ^ максимальная частота кадров.
+-- единица это минимум
 fpsMax = 1
--- | число бросков из BiUnitSquare за шаг отрисовки
--- DO NOT TOUCH THIS!
+-- | число бросков из BiUnitSquare за единицу времени
+-- gloss-raster, похоже, даёт время в секундах, но в этом не уверен
+-- 100000
 numCast :: Float
-numCast = 1
+numCast = 10
+-- | В целях отладки - число моделей Transform в фрактале Model
+modelCount :: Double
+modelCount = 3
+
+{-
+-- | Функции для и само замощение квадрата [-1,1]^2
+getNeigbours::Num a =>  a->(a,a)->[(a,a)]
+getNeigbours dl (x,y) = [v11,v12,v22,v21]
+  where
+    v11 = (x+dl,y+dl)
+    v12 = (x+dl,y-dl)
+    v21 = (x-dl,y+dl)
+    v22 = (x-dl,y-dl)
+-- | список соседей одного порядка
+nthNeigbours :: Int -> [Vec]
+nthNeigbours n | n>0 = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
+  where
+    dl = 2 ** (- fromIntegral n)
+nthNeigbours _ = [(0,0)]
+-- | Cast Infinite List
+-- | бесконечный список соседей
+busPointList :: [Vec]
+busPointList = concat [ nthNeigbours i | i <- [0,1..]]
+-}

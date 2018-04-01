@@ -1,127 +1,156 @@
 {-|
 Module      : Asteroidea
-Description : Main module, starting simulation Αστερίας
+Description : Main module, starting simulation
 Copyright   : Just Nothing
 Stability   : in progress
 -}
+
+--{-# OPTIONS_GHC -XStrict #-}
 module Asteroidea where
 
 import System.Random
 import Graphics.Gloss
-import Graphics.Gloss.Raster.Field
-import Data.Matrix
-
-import Const
+import Control.Monad.ST (runST)
+import qualified Data.Vector.Unboxed as Vector
+import qualified Data.Vector.Unboxed.Mutable as Vector.Mutable
+import Codec.Picture
 import Types
-import ClassField
-
+import Data.Vector.Storable (unsafeToForeignPtr)
+import Const
+import Gradient
+import Variations
+--import Debug.Trace
 -- | Поехали!
--- Генератор случайных чисел, начальная инициализация
--- Запуск симуляции Gloss - ради получения стартового интерфейса:
--- масштабирование и передвижение
--- см. 'World' в ClassField
+
 run :: IO ()
 run = do 
-  genRand <- newStdGen
-  simulate displayW colour fps (initWorld genRand) imageScan update
-  where
-    displayW = InWindow mainName (sizeX, sizeY) (startPosX, startPosY)
-    -- FullScreen NOT ADVISABLE
-    colour = backGrCol -- Цвет фона не поля, но окна.
-    fps = fpsMax -- frames per second
-    update = \_ -> updateWorld
+  genRand <-  newStdGen
+  
+  let startField =  initField mainModel
+  let field = updateField mainModel startField $ calcFlame genRand mainModel
+  let img = generateImage (fieldCellToPixel (mWidth mainModel) field)  (mWidth mainModel) (mHeight mainModel)
+  let pic = fromImageRGBA8 img
+  
+  savePngImage  "./pic.png" (ImageRGBA8  img) 
+  display window white pic  
+  where       
+    window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
 
--- | проход по картинке, возвращающий картинку 'Picture'
-{- uses 'makePicture' from Graphics.Gloss.Raster.Field
-   makePicture
-        :: Int                  -- Window Size X
-        -> Int                  -- Window Size Y
-        -> Int                  -- Pixels X, coefficient
-        -> Int                  -- Pixels Y, coefficient
-        -> (Point -> Color)     -- 'getWorldPoint' :: World -> Point -> Color
-        -> Picture
+-- TO DO: разобраться с кашей из старых и новых типов
+ 
+fromImageRGBA8 :: Image PixelRGBA8 -> Picture
+fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = idat }) =
+  bitmapOfForeignPtr w h
+                     (BitmapFormat TopToBottom PxRGBA)
+                     ptr True
+    where (ptr, _, _) = unsafeToForeignPtr idat
+
+-- | Add points to the field
+updateField :: Model -> Field -> [(Vec,Double)]->Field
+updateField m oldField xs = foldl (plot m) oldField xs 
+
+-- | Initialize field
+initField :: Model -> Field
+initField m = Vector.generate (sizeX*sizeY) initFunction
+  where
+    sizeX = mWidth m
+    sizeY = mHeight m
+    initFunction = \_ -> (0,0,0,0)  -- По хорошему цвет фона должен быть в модели
+
+
+-- | Calculate whole fractal
+calcFlame :: StdGen ->  Model -> [(Vec,Double)]
+calcFlame gen model = concat $ map (calcPath model) pointList
+  where    
+    pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
+    outerIter = 21845 -- внешний цикл, gо хорошему должен быть в модели
+
+-- | Calculate and plot Path of one point
+calcPath ::  Model->Vec->[(Vec,Double)]
+calcPath  model vec@(x,y) = cleanPath
+  where
+    gen =  mkStdGen $ floor (100000 * (x+y))
+    start = (GVec gen vec, 0.5) -- CastGen
+    infPath = iterate (calcOne model) start -- весь путь точки
+    path = drop 20 $ take 200 $ infPath --  внутренний цикл, по хорошему должен быть в модели
+    cleanPath = map convertCast path
+
+-- | Convert CastGen to (Vec,Double)
+convertCast :: CastGen -> (Vec,Double)
+convertCast (GVec _ v , col) = ( v , col)
+
+
+-- | Calculate one point and color
+calcOne :: Model -> CastGen -> CastGen
+calcOne model ( GVec gen v, col) = (newGVec, newCol)
+  where
+    (ptr , newGen) = randomR (0, (length $ mTransforms model) -1 ) gen
+    transform = mTransforms model !! ptr    
+    newGVec = calcVariation (tVariation transform) (GVec newGen v)
+    speed = tColorSpeed transform
+    newCol = ( col *  (1 + speed) + (tColorPosition transform) * (1 - speed) )/2 
+
+
+-- | отрисовка точки на поле
+plot :: Model -> Field -> (Vec,Double) -> Field
+plot model field (v@(x,y), col)  | inBounds = newField
+                                 | otherwise = field
+  where
+    inBounds = control model v
+    setX = truncate ( (x+1) * (fromIntegral $ mWidth model)/2  ) 
+    setY = truncate ( (-y+1) * (fromIntegral $ mHeight model)/2  ) -- -y because y-axis direction is opposite of row number
+    coord = (setX, setY)
+    linearCoord = linearFieldIndex (mWidth model) coord
+    addedCol = Gradient.colorMap (mGradient model) col
+    newField = runST $ do 
+      mutableVector <- Vector.unsafeThaw field
+      Vector.Mutable.modify  mutableVector (calcColour addedCol) linearCoord 
+      updatedField <- Vector.unsafeFreeze mutableVector
+      return updatedField
+    
+
+linearFieldIndex :: Int -> (Int, Int) -> Int
+linearFieldIndex w (i, j) = i + j * w
+
+-- | проверка что точка входит в поле
+control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее
+control m (a,b) = not (cond halfX a || cond halfY b)
+  where
+    halfX = (fromIntegral $ mWidth m)/2
+    halfY = (fromIntegral $ mHeight m)/2
+    cond _ x = -- here was size
+      isNaN x ||
+      isInfinite x ||
+      x <= - 1 ||
+      x >=  1
+
+-- | TODO alpha blending colours
+calcColour :: (Double,Double,Double) -> Cell -> Cell
+calcColour (r1,g1,b1) (r2, g2, b2, a) = ( (r2+r1), (g2+g1), (b2+b1), (a+1)) 
+
+-- | convert Field element to pixel 
+fieldCellToPixel :: Int -> Field  -> Int -> Int -> PixelRGBA8
+fieldCellToPixel width field  x y = toPixel $  field  Vector.! (linearFieldIndex width (x,y))
+  where
+    toPixel (r, g, b, a)= PixelRGBA8 nr ng nb 255
+     where
+      nr = fromIntegral $ round $ (r/a)*255
+      ng = fromIntegral $ round $ (g/a)*255
+      nb = fromIntegral $ round $ (b/a)*255
+
+-- | Список случайных точек из би-единичного квадрата:
+randBUSlist :: RandomGen g => g -> [Vec]
+randBUSlist gen = zip randXS randYS
+  where
+    (g1,g2) = split gen
+    randXS = randomRs (-1,1) g1
+    randYS = randomRs (-1,1) g2
+
+{-
+-- | Случайная точка из би-единичного квадрата:
+randomBiUnitSquarePoint :: RandomGen g => g -> (Vec, g)
+randomBiUnitSquarePoint g = ((x, y), g'')
+  where
+    (x, g')  = randomR (-1, 1) g
+    (y, g'') = randomR (-1, 1) g'
 -}
-imageScan :: World -> Picture
-imageScan bnw = makePicture sizeX sizeY 1 1 (getWorldPoint bnw)
-
-{--
--- Запуск параллельной версии play библиотекой gloss-raster
--- Возможно, GUI будем писать именно здесь
-run :: IO ()
-run = do 
-  genRand <- newStdGen
-  playField window (1,1) fps (initWorld genRand) getter cap update
-  where
-    fps = fpsMax
-    getter = getWorldPoint
-    window = InWindow mainName (winX, winY) (startPosX, startPosY)
-    update = updateWorld
--- | заглушка на месте обработки событий
-cap :: a -> World -> World
-cap _ = id
---}
-
--- | Act of Creation
--- создание мира
-initWorld
-  :: StdGen -- ^ Глобальный ГПСЧ мира, получен со старта.
-  -> World
-initWorld sGen = World (createField sizeX sizeY) sGen busPointList
-
-
--- | Вывод поля на экран playField
--- 'unsafeGet' :: Int-> Int -> Matrix a -> a
--- без проверки на соответствие границ, import from 'Matrix'
-getWorldPoint
-  :: World -- ^ World
-  -> Point -- ^ Point from [-1,1]^2 conformal mapping to Field
-  -> Color -- ^ safe Color from Field
-getWorldPoint bnw
-  = \(x,y) -> let
-      i, j :: Int -- ^ Translation on shift vector in discrete field
-      i = round ((x+1) * halfX) +1
-      j = round ((y+1) * halfY) +1
-    in mkCol $! unsafeGet i j field
-  where field = mugenga bnw
-      
-mkCol :: UnsafeColour -> Color
--- ^ convertation with log scale and checking
-mkCol (r,g,b,a) = rgb' (control r) (control g) (control b)
-  where
-    -- better choice is log1p, but it is not accessible
-    logscale = (log a)/a
-    control x = normal $ logscale * x
-    -- normalization to [0,1]
-    normal sample
-      | sample > 1.0 = 1.0
-      | otherwise = sample
-
-{- | соседи одной точки, расположенные в центрах окружающих квадратов
-порядок обхода - по контуру
-v22  -  v11
- |  [0]  |
-v21  -  v12
--}
-getNeigbours
-  :: Double -- ^ size
-  -> Vec    -- ^ center
-  -> [Vec]
-getNeigbours dl (x,y) = [v11,v12,v21,v22]
-  where
-    v11 = (x+dl,y+dl)
-    v12 = (x+dl,y-dl)
-    v21 = (x-dl,y-dl)
-    v22 = (x-dl,y+dl)
--- | Список соседей одного порядка.
--- геометрическая прогрессия: 1, 4, 16, 64 ..
--- использует 'getNeigbours' и рекурсивное обращение к себе
-nthNeigbours :: Int -> [Vec]
-nthNeigbours n | n>0 = concat $ map (getNeigbours dl) (nthNeigbours (n-1))
-  where
-    dl = 2 ** (- fromIntegral n)
-nthNeigbours _ = [(0,0)]
--- | Cast Infinite List
--- бесконечный список соседей
--- использует 'nthNeigbours'
-busPointList :: [Vec]
-busPointList = concat [ nthNeigbours i | i <- [0,1..]]

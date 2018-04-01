@@ -9,13 +9,16 @@ import Prelude
 --import System.Random
 import Types
 
+-- | проверка, не выходит ли индекс за границу списка
 inRange :: [a]->Int->Bool
 inRange l i
          | i < 0 = False
          | i >=length l = False
          | otherwise = True
 
-type Operation = GVec->(GVec->GVec)->(GVec->GVec)->(GVec->GVec)
+-- | получает два вектора, возвращает вектор
+type Operation = GVec->GVec->GVec
+-- | путь точки
 type Path = [Int]
 
 -- | Дерево выражения над вариациями
@@ -24,7 +27,7 @@ type Path = [Int]
 -- | что необходимо для работы скриптов и изменения модели через гуи
 data VTree = Node Operation [VTree] | Leaf Variation
 
-
+-- | вставка элемента
 insertAt :: Int->a->[a]->[a]
 insertAt z y xs = as ++ (y:bs)
                   where (as,bs) = splitAt z xs
@@ -36,6 +39,7 @@ getSubTree (Node _ l) (x:xs) | inRange l x =  getSubTree (l !! x) xs
                              | otherwise = Nothing
 getSubTree (Leaf _) _ = Nothing
 
+-- | проверка на правильность дерева
 isValidTree :: VTree -> Bool
 isValidTree (Node _ []) = False
 isValidTree  (Leaf _) = True
@@ -43,39 +47,6 @@ isValidTree (Node _ list) = and (map isValidTree list)
 
 --removeSubTree :: VTree -> Path -> VTree -- откуда \ по какому адресу удалять
 --replaceSubTree :: VTree->Path->VTree->VTree -- откуда \ по какому адресу \ чем заменить 
-
-{-
--- | Свёртка дерева в функцию из G-вектора в G-вектор
-foldTree :: VTree -> GVec -> GVec
-foldTree (Leaf var) gvec = (vScale var) |*| ((function var) (params var) gvec)
-foldTree (Node op list) gvec = foldr f (head listGVec) (tail listGVec)
-  where
--- aka foldr'
-    f x z = let temp=(op z x) in temp `seq` temp
--- listGVec = zipWith (VTree -> GVec -> GVec) [VTree] [GVec] -> [GVec]
--- right-lazy zipWith f [] _|_ = []
-    listGVec = zipWith (\tree vec -> (foldTree tree) vec) list (listSplit gvec)
--- GVec list
-    listSplit (GVec sgen vec)
-      = [(GVec newgen vec) | newgen <- listgen sgen]
--- PRNG list
-    listgen gen0
-      = gen1 : listgen gen2
-      where (gen1,gen2) = split gen0
--}
-
--- | Свёртка дерева в функцию из G-вектора в G-вектор
--- @op :: GVec->(GVec->GVec)->(GVec->GVec)->(GVec->GVec)
--- foldr :: (a -> b -> b) -> b -> t a -> b@
--- aka 'foldr''
-foldTree
-  :: VTree          -- ^ @(Leaf var) | (Node op list)@
-  -> (GVec -> GVec)
-foldTree (Leaf var) gvec = (vScale var) |*| ((function var) (params var) gvec)
-foldTree (Node op list) gvec =
-  foldr f id (tail list) gvec
-  where
-    f x acc = let temp=(op gvec acc (foldTree x)) in acc `seq` temp
 
 {-
 insertSubTree :: Path->VTree->VTree->VTree
