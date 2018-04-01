@@ -11,4 +11,17 @@ Data для хранения всех параметров постобрабо�
 --}
 module PostColoring where
 
---import Graphics.Gloss
+
+import Graphics.Gloss
+import Types
+
+type PostColorParam = Double
+-- |...
+--параметр обработки
+type PostColorParams = [PostColorParam]
+--все параметры обработки
+
+postColoring :: PostColorParams -> Field -> Field
+postColoring _ f = f
+--главная функция постобработки
+

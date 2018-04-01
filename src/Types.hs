@@ -6,9 +6,7 @@ Stability   : in progress
 -}
 module Types (module Types, module GVector) where -- re-export GVector for Everyone using Types
 import Prelude
---import Control.Category
---import System.Random
---import Graphics.Gloss
+import qualified Data.Vector.Unboxed as Vector
 import GVector
 
 -- | Точка и цвет в карте градиентов [0,1)
@@ -16,8 +14,8 @@ type Cast = (Vec, Double)
 -- | Бросок с привязанным генератором
 type CastGen = (GVec,Double)
 
-
-
+type Cell = (Double,Double,Double,Double)
+type Field = Vector.Vector Cell
 
 -- | Вариация как она есть, с параметрами, перевод GVec -> GVec
 type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возможно стоит использовать Nan'ы 

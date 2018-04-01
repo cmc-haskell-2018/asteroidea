@@ -104,4 +104,4 @@ exampleModel = Model { mName = "42"
                      , mRotation = 0
                      }
   where
-   grad = paletteToDouble currentGradient
+grad = paletteToDouble currentGradient

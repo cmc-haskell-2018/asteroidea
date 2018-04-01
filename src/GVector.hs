@@ -14,9 +14,9 @@ import System.Random
 type Vec = (Double, Double)  
 -- | Вектор с привязанным к нему генератором
 data GVec = GVec {
-  vgGen :: StdGen,
-  vgVec :: Vec
-}deriving(Show)
+  gvGen :: StdGen, -- ^ Генератор
+  gvVec :: Vec     -- ^ Вектор
+} deriving(Show)
 
 
 -- | Вычленение x,y координат из GVec
@@ -33,8 +33,13 @@ gvY (GVec _ (_ ,y)) = y
 nextGen :: GVec -> GVec
 nextGen (GVec gen v) = GVec (snd $ next gen) v
 
+-- | Разделение генераторов в два GVec
+splitGen :: GVec -> (GVec, GVec)
+splitGen (GVec gen0 vec) = ( (GVec gen1 vec),(GVec gen2 vec) )
+  where (gen1,gen2) = split gen0
+
 instance Eq GVec where
-  (==) gv1 gv2 = vgVec gv1 == vgVec gv2
+  (==) gv1 gv2 = gvVec gv1 == gvVec gv2
 
 -- | arctan x/y
 phase :: GVec->Double
@@ -48,7 +53,7 @@ antiPhase (GVec _ (x,y)) = atan2 x y
 
 -- | abs value
 magnitude :: GVec->Double
-magnitude (GVec _ (x,y)) = sqrt (x*x +y*y)
+magnitude (GVec _ (x,y)) = sqrt (x*x+y*y)
 
 -- | magnitude squared
 radiusSqr :: GVec -> Double
