@@ -22,7 +22,7 @@ import Gradient
 import Variations
 --import Debug.Trace
 -- | Поехали!
-type NewField = Vector.Vector Cell
+type Field = Vector.Vector Cell
 run :: IO ()
 run = do 
   -- Генератор случайных чисел, начальная инициализация
@@ -54,7 +54,7 @@ fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = idat }) =
 -- в текущий момент тут нет никакого рандома
 
 -- | Calculate whole fractal
-calcFlame :: StdGen ->  Model -> NewField
+calcFlame :: StdGen ->  Model -> Field
 calcFlame gen model = fst $ foldl' (calcPath model) startField pointList
   where
     sizeX = width model
@@ -66,7 +66,7 @@ calcFlame gen model = fst $ foldl' (calcPath model) startField pointList
 --(b -> a -> b) -> b -> t a -> b
 
 -- | Calculate and plot Path of one point from [-1,1]^2
-calcPath ::  Model->(NewField,StdGen)->Vec->(NewField,StdGen)
+calcPath ::  Model->(Field,StdGen)->Vec->(Field,StdGen)
 calcPath  model (field,gen) !vec = (foldl' (plot model) field path, lastGen)
   where
     start = (GVec gen vec, 0.5) -- CastGen
@@ -99,8 +99,8 @@ getWorldPoint bnw (i,j)
     cond size a = a < 1 || a > size
 -}
 -- отрисовка точки на поле
-plot ::Model -> NewField -> CastGen -> NewField
-plot model !field !(GVec _ v@(x,y), col) | inBounds = newField
+plot ::Model -> Field -> CastGen -> Field
+plot model !field !(GVec _ v@(x,y), col) | inBounds = Field
                                | otherwise = field
   where
     inBounds = control model v
@@ -110,12 +110,12 @@ plot model !field !(GVec _ v@(x,y), col) | inBounds = newField
     linearCoord = linearFieldIndex (width model) coord
     addedCol = Gradient.colorMap (gradient model) col
     --colour = calcColour addedCol $ (Vector.!) field linearCoord -- установка $! здесь приводит к неогранченному росту потребления памяти
-    --newField = field Vector.// [(linearCoord, colour)]
+    --Field = field Vector.// [(linearCoord, colour)]
     
-    newField = runST $ do -- setElem colour coord $! field
+    Field = runST $ do -- setElem colour coord $! field
       mutableVector <- Vector.unsafeThaw field
-      col <- Vector.Mutable.read mutableVector linearCoord
-      Vector.Mutable.write mutableVector linearCoord (calcColour addedCol col)
+      --col <- Vector.Mutable.read mutableVector linearCoord
+      Vector.Mutable.modify  mutableVector (calcColour addedCol) linearCoord 
       updatedField <- Vector.unsafeFreeze mutableVector
       return updatedField
     
@@ -138,7 +138,7 @@ calcColour :: (Double,Double,Double) -> Cell -> Cell
 calcColour (r1,g1,b1) (Cell r2 g2 b2 a) = Cell (r2+r1) (g2+g1) (b2+b1) (a+1) -- заглушка
 --calcColour _ _ = Cell 1 0 0
 
-fieldCellToPixel :: Int -> NewField  -> Int -> Int -> PixelRGBA8
+fieldCellToPixel :: Int -> Field  -> Int -> Int -> PixelRGBA8
 fieldCellToPixel width field  x y = toPixel $  field  Vector.! (linearFieldIndex width (x,y))
   where
     toPixel (Cell r g b a )= PixelRGBA8 nr ng nb 255

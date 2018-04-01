@@ -20,8 +20,6 @@ type CastGen = (GVec,Double)
 data Cell = Cell {getR :: Double, getG :: Double, getB :: Double, getA :: Double} 
   deriving (Show)
 
--- | Поле есть матрица цветов
-type Field = Matrix Cell
 
 -- | Вариация как она есть, с параметрами, перевод GVec -> GVec
 type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возможно стоит использовать Nan'ы 
