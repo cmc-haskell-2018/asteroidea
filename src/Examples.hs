@@ -66,8 +66,8 @@ t2 :: Transform
 t2 = Transform { tName          = "t2"
                , tVariation     = dbgAffine2
                , tWeight        = 1
-               , tColorPosition = 0
-               , tColorSpeed    = 0.889
+               , tColorPosition = 0.889
+               , tColorSpeed    = 0
                , tOpacity       = 1
                , tXaos          = []
                }

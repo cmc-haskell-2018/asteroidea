@@ -13,7 +13,6 @@ import Graphics.Gloss
 import Control.Monad.ST (runST)
 import qualified Data.Vector.Unboxed as Vector
 import qualified Data.Vector.Unboxed.Mutable as Vector.Mutable
-import Data.List
 import Codec.Picture
 import Types
 import Data.Vector.Storable (unsafeToForeignPtr)
@@ -26,7 +25,6 @@ type Cell = (Double,Double,Double,Double)
 type Field = Vector.Vector Cell
 run :: IO ()
 run = do 
-  -- Генератор случайных чисел, начальная инициализация
   genRand <-  newStdGen
   
   let startField =  initField mainModel
@@ -64,21 +62,18 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
 -- | Calculate whole fractal
 calcFlame :: StdGen ->  Model -> [(Vec,Double)]
 calcFlame gen model = concat $ map (calcPath model) pointList
-  where
-    --(g1,g2)= split gen    
-    --pointList = take outerIter busPointList -- лист с точками что будем обсчитывать
+  where    
     pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
-    outerIter = 21845 -- внешний цикл, 
---(b -> a -> b) -> b -> t a -> b
+    outerIter = 21845 -- внешний цикл, gо хорошему должен быть в модели
 
 -- | Calculate and plot Path of one point
 calcPath ::  Model->Vec->[(Vec,Double)]
 calcPath  model vec@(x,y) = cleanPath
   where
-    gen =  mkStdGen $ floor (10000 * (x+y))
+    gen =  mkStdGen $ floor (100000 * (x+y))
     start = (GVec gen vec, 0.5) -- CastGen
     infPath = iterate (calcOne model) start -- весь путь точки
-    path = drop 20 $ take 200 $ infPath -- 300 - внутренний цикл
+    path = drop 20 $ take 200 $ infPath --  внутренний цикл, по хорошему должен быть в модели
     cleanPath = map convertCast path
 
 -- | Convert CastGen to (Vec,Double)
@@ -96,7 +91,8 @@ calcOne model ( GVec gen v, col) = (newGVec, newCol)
     speed = tColorSpeed transform
     newCol = ( col *  (1 + speed) + (tColorPosition transform) * (1 - speed) )/2 
 
--- отрисовка точки на поле
+
+-- | отрисовка точки на поле
 plot :: Model -> Field -> (Vec,Double) -> Field
 plot model field (v@(x,y), col)  | inBounds = newField
                                  | otherwise = field
@@ -107,10 +103,7 @@ plot model field (v@(x,y), col)  | inBounds = newField
     coord = (setX, setY)
     linearCoord = linearFieldIndex (mWidth model) coord
     addedCol = Gradient.colorMap (mGradient model) col
-    --colour = calcColour addedCol $ (Vector.!) field linearCoord -- установка $! здесь приводит к неогранченному росту потребления памяти
-    --Field = field Vector.// [(linearCoord, colour)]
-    
-    newField = runST $ do -- setElem colour coord $! field
+    newField = runST $ do 
       mutableVector <- Vector.unsafeThaw field
       Vector.Mutable.modify  mutableVector (calcColour addedCol) linearCoord 
       updatedField <- Vector.unsafeFreeze mutableVector
@@ -120,6 +113,7 @@ plot model field (v@(x,y), col)  | inBounds = newField
 linearFieldIndex :: Int -> (Int, Int) -> Int
 linearFieldIndex w (i, j) = i + j * w
 
+-- | проверка что точка входит в поле
 control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее
 control m !(a,b) = not (cond halfX a || cond halfY b)
   where
@@ -130,11 +124,12 @@ control m !(a,b) = not (cond halfX a || cond halfY b)
       isInfinite x ||
       x <= - 1 ||
       x >=  1
+
 -- | TODO alpha blending colours
 calcColour :: (Double,Double,Double) -> Cell -> Cell
-calcColour (r1,g1,b1) (r2, g2, b2, a) = ( (r2+r1), (g2+g1), (b2+b1), (a+1)) -- заглушка
---calcColour _ _ = Cell 1 0 0
+calcColour (r1,g1,b1) (r2, g2, b2, a) = ( (r2+r1), (g2+g1), (b2+b1), (a+1)) 
 
+-- | convert Field element to pixel 
 fieldCellToPixel :: Int -> Field  -> Int -> Int -> PixelRGBA8
 fieldCellToPixel width field  x y = toPixel $  field  Vector.! (linearFieldIndex width (x,y))
   where
@@ -144,16 +139,19 @@ fieldCellToPixel width field  x y = toPixel $  field  Vector.! (linearFieldIndex
       ng = fromIntegral $ round $ (g/a)*255
       nb = fromIntegral $ round $ (b/a)*255
 
--- | Случайная точка из би-единичного квадрата:
-randomBiUnitSquarePoint :: RandomGen g => g -> (Vec, g)
-randomBiUnitSquarePoint g = ((x, y), g'')
-  where
-    (x, g')  = randomR (-1, 1) g
-    (y, g'') = randomR (-1, 1) g'
-
+-- | Список случайных точек из би-единичного квадрата:
 randBUSlist :: RandomGen g => g -> [Vec]
 randBUSlist gen = zip randXS randYS
   where
     (g1,g2) = split gen
     randXS = randomRs (-1,1) g1
     randYS = randomRs (-1,1) g2
+
+{-
+-- | Случайная точка из би-единичного квадрата:
+randomBiUnitSquarePoint :: RandomGen g => g -> (Vec, g)
+randomBiUnitSquarePoint g = ((x, y), g'')
+  where
+    (x, g')  = randomR (-1, 1) g
+    (y, g'') = randomR (-1, 1) g'
+-}

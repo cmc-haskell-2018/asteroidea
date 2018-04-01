@@ -7,7 +7,6 @@ Stability   : in progress
 module Const where
 import Examples (exampleModel)
 import Types (Model,mScale,mRotation)
-import GVector
 --import Codec.Picture
 -- | export example model
 mainModel :: Model
@@ -74,6 +73,7 @@ numCast = 10
 modelCount :: Double
 modelCount = 3
 
+{-
 -- | Функции для и само замощение квадрата [-1,1]^2
 getNeigbours::Num a =>  a->(a,a)->[(a,a)]
 getNeigbours dl (x,y) = [v11,v12,v22,v21]
@@ -92,3 +92,4 @@ nthNeigbours _ = [(0,0)]
 -- | бесконечный список соседей
 busPointList :: [Vec]
 busPointList = concat [ nthNeigbours i | i <- [0,1..]]
+-}

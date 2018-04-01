@@ -8,7 +8,6 @@ module Types (module Types, module GVector) where -- re-export GVector for Every
 import Prelude
 --import Control.Category
 --import System.Random
-import Data.Matrix
 --import Graphics.Gloss
 import GVector
 
