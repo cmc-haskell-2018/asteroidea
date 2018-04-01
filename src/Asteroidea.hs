@@ -31,7 +31,7 @@ run = do
   
   let startField =  initField mainModel
   let field = updateField mainModel startField $ calcFlame genRand mainModel
-  let img = generateImage (fieldCellToPixel (width mainModel) field)  (width mainModel) (height mainModel)
+  let img = generateImage (fieldCellToPixel (mWidth mainModel) field)  (mWidth mainModel) (mHeight mainModel)
   let pic = fromImageRGBA8 img
   
   savePngImage  "./pic.png" (ImageRGBA8  img) 
@@ -56,8 +56,8 @@ updateField m oldField xs = foldl (plot m) oldField xs
 initField :: Model -> Field
 initField m = Vector.generate (sizeX*sizeY) initFunction
   where
-    sizeX = width m
-    sizeY = height m
+    sizeX = mWidth m
+    sizeY = mHeight m
     initFunction = \_ -> (0,0,0,0)  -- По хорошему цвет фона должен быть в модели
 
 
@@ -90,11 +90,11 @@ convertCast (GVec _ v , col) = ( v , col)
 calcOne :: Model -> CastGen -> CastGen
 calcOne model ( GVec gen v, col) = (newGVec, newCol)
   where
-    (ptr , newGen) = randomR (0, (length $ tranforms model) -1 ) gen
-    tranform = tranforms model !! ptr    
-    newGVec = calcVariation (variation tranform) (GVec newGen v)
-    speed = colorSpeed tranform
-    newCol = ( col *  (1 + speed) + (colorPosition tranform) * (1 - speed) )/2 
+    (ptr , newGen) = randomR (0, (length $ mTransforms model) -1 ) gen
+    transform = mTransforms model !! ptr    
+    newGVec = calcVariation (tVariation transform) (GVec newGen v)
+    speed = tColorSpeed transform
+    newCol = ( col *  (1 + speed) + (tColorPosition transform) * (1 - speed) )/2 
 
 -- отрисовка точки на поле
 plot :: Model -> Field -> (Vec,Double) -> Field
@@ -102,11 +102,11 @@ plot model field (v@(x,y), col)  | inBounds = newField
                                  | otherwise = field
   where
     inBounds = control model v
-    setX = truncate ( (x+1) * (fromIntegral $ width model)/2  ) 
-    setY = truncate ( (-y+1) * (fromIntegral $ height model)/2  ) -- -y because y-axis direction is opposite of row number
+    setX = truncate ( (x+1) * (fromIntegral $ mWidth model)/2  ) 
+    setY = truncate ( (-y+1) * (fromIntegral $ mHeight model)/2  ) -- -y because y-axis direction is opposite of row number
     coord = (setX, setY)
-    linearCoord = linearFieldIndex (width model) coord
-    addedCol = Gradient.colorMap (gradient model) col
+    linearCoord = linearFieldIndex (mWidth model) coord
+    addedCol = Gradient.colorMap (mGradient model) col
     --colour = calcColour addedCol $ (Vector.!) field linearCoord -- установка $! здесь приводит к неогранченному росту потребления памяти
     --Field = field Vector.// [(linearCoord, colour)]
     
@@ -123,8 +123,8 @@ linearFieldIndex w (i, j) = i + j * w
 control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее
 control m !(a,b) = not (cond halfX a || cond halfY b)
   where
-    halfX = (fromIntegral $ width m)/2
-    halfY = (fromIntegral $ height m)/2
+    halfX = (fromIntegral $ mWidth m)/2
+    halfY = (fromIntegral $ mHeight m)/2
     cond _ x = -- here was size
       isNaN x ||
       isInfinite x ||

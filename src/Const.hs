@@ -6,7 +6,7 @@ Stability   : in progress
 -}
 module Const where
 import Examples (exampleModel)
-import Types (Model,mScale,rotation)
+import Types (Model,mScale,mRotation)
 import GVector
 --import Codec.Picture
 -- | export example model
@@ -22,7 +22,7 @@ shiftY = -1 - halfY
 -}
 -- | rotation in radian
 rotRad :: Double
-rotRad = (pi/360*) $ rotation mainModel
+rotRad = (pi/360*) $ mRotation mainModel
 -- | sin rotation
 sinTheta :: Float
 sinTheta = realToFrac . (/scaleFactor) $ (sin rotRad)

@@ -48,8 +48,8 @@ data Params = None | List [Double] | Matrix AffineMatrix
 -- | Обертка над VariationFunc - хранит ее параметры и скалярный множитель
 data Variation = Var {
   vScale :: Double, -- ^ скалярный множитель
-  params :: Params, -- ^ параметры
-  function :: VariationFunc -- ^ применяемое отображение
+  vParams :: Params, -- ^ параметры
+  vFunction :: VariationFunc -- ^ применяемое отображение
 }
 
 -- | Матрицы афинных преобразований
@@ -73,36 +73,36 @@ idMatrix = AffineMatrix 1 0 0 1 0 0
 -- | Обычно это отображение точек - это сложное выражение из функций-вариаций
 data Transform = Transform {
 -- | Name ?
-transformName :: String,
+tName :: String,
 -- | возможны линейные комбинации, композиция, параметры =>
 -- variation :: VTree
-variation :: Variation,  
-weight :: Double,
+tVariation :: Variation,  
+tWeight :: Double,
 -- ^ вес в вероятностном распределении
-colorPosition :: Double,
-colorSpeed :: Double,
+tColorPosition :: Double,
+tColorSpeed :: Double,
 -- ^ калибровка коэффициентов при смешении
-opacity :: Double,
-xaos :: [Double]
+tOpacity :: Double,
+tXaos :: [Double]
 }
 
 -- | Набоор параметров, однозначно задающих фрактал
 data Model = Model {
-  modelName :: String,
+  mName :: String,
   -- | череда трансформ
-  tranforms :: [Transform],
+  mTransforms :: [Transform],
   -- viewPoint, условно
-  camera :: Maybe Transform,
+  mCamera :: Maybe Transform,
   -- | карта градиентов
   -- стоит сделать матрицей
   -- мб Data.Vector?
-  gradient :: [(Double,Double,Double)],
+  mGradient :: [(Double,Double,Double)],
   -- | Размер картинки, 
   --backGrCol :: Cell
-  width :: Int,
-  height :: Int,
+  mWidth :: Int,
+  mHeight :: Int,
   -- | зум
   mScale :: Double,
   -- | и поворот.
-  rotation :: Double
+  mRotation :: Double
 }

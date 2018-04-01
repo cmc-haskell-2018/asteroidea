@@ -52,18 +52,56 @@ dbgGVec = GVec defGen (1,1)
 
 t1 :: Transform
 -- ^ DEBUG transform 1
-t1 = Transform "t1" dbgAffine1 1 1 0 1 []
+t1 = Transform { tName          = "t1"
+               , tVariation     = dbgAffine1
+               , tWeight        = 1
+               , tColorPosition = 1
+               , tColorSpeed    = 0
+               , tOpacity       = 1
+               , tXaos          = []
+               }
+
 t2 :: Transform
 -- ^ DEBUG transform 2
-t2 = Transform "t2" dbgAffine2 1 0.889 0 1 []
+t2 = Transform { tName          = "t2"
+               , tVariation     = dbgAffine2
+               , tWeight        = 1
+               , tColorPosition = 0
+               , tColorSpeed    = 0.889
+               , tOpacity       = 1
+               , tXaos          = []
+               }
+
 t3 :: Transform
 -- ^ DEBUG transform 3
-t3 = Transform "t3" dbgAffine3 1 0 0 1 []
+t3 = Transform { tName          = "t3"
+               , tVariation     = dbgAffine3
+               , tWeight        = 1
+               , tColorPosition = 0
+               , tColorSpeed    = 0
+               , tOpacity       = 1
+               , tXaos          = []
+               }
 t4 :: Transform
 -- ^ DEBUG transform 4
-t4 = Transform "t4" dbgAffine4 1 1 1 1 []
+t4 = Transform { tName          = "t4"
+               , tVariation     = dbgAffine4
+               , tWeight        = 1
+               , tColorPosition = 1
+               , tColorSpeed    = 1
+               , tOpacity       = 1
+               , tXaos          = []
+               }
 -- | exampleModel 42
 exampleModel :: Model 
-exampleModel = Model "42" [t1,t2,t3,t4] Nothing grad 1024 1024 50 0
+exampleModel = Model { mName = "42"
+                     , mTransforms = [t1,t2,t3,t4]
+                     , mCamera = Nothing
+                     , mGradient = grad
+                     , mWidth = 1024
+                     , mHeight = 1024
+                     , mScale = 50
+                     , mRotation = 0
+                     }
   where
    grad = paletteToDouble currentGradient
