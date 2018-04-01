@@ -38,6 +38,7 @@ run = do
   where       
     window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
 
+-- TO DO: разобраться с кашей из старых и новых типов
  
 fromImageRGBA8 :: Image PixelRGBA8 -> Picture
 fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = idat }) =
