@@ -17,8 +17,7 @@ type Cast = (Vec, Double)
 -- | Бросок с привязанным генератором
 type CastGen = (GVec,Double)
 
-data Cell = Cell {getR :: Double, getG :: Double, getB :: Double, getA :: Double} 
-  deriving (Show)
+
 
 
 -- | Вариация как она есть, с параметрами, перевод GVec -> GVec

@@ -11,8 +11,8 @@ module Asteroidea where
 import System.Random
 import Graphics.Gloss
 import Control.Monad.ST (runST)
-import qualified Data.Vector as Vector
-import qualified Data.Vector.Mutable as Vector.Mutable
+import qualified Data.Vector.Unboxed as Vector
+import qualified Data.Vector.Unboxed.Mutable as Vector.Mutable
 import Data.List
 import Codec.Picture
 import Types
@@ -22,6 +22,7 @@ import Gradient
 import Variations
 --import Debug.Trace
 -- | Поехали!
+type Cell = (Double,Double,Double,Double)
 type Field = Vector.Vector Cell
 run :: IO ()
 run = do 
@@ -57,7 +58,7 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
   where
     sizeX = width m
     sizeY = height m
-    initFunction = \_ -> Cell 0 0 0 0  -- По хорошему цвет фона должен быть в модели
+    initFunction = \_ -> (0,0,0,0)  -- По хорошему цвет фона должен быть в модели
 
 
 -- | Calculate whole fractal
@@ -131,13 +132,13 @@ control m !(a,b) = not (cond halfX a || cond halfY b)
       x >=  1
 -- | TODO alpha blending colours
 calcColour :: (Double,Double,Double) -> Cell -> Cell
-calcColour (r1,g1,b1) (Cell r2 g2 b2 a) = Cell (r2+r1) (g2+g1) (b2+b1) (a+1) -- заглушка
+calcColour (r1,g1,b1) (r2, g2, b2, a) = ( (r2+r1), (g2+g1), (b2+b1), (a+1)) -- заглушка
 --calcColour _ _ = Cell 1 0 0
 
 fieldCellToPixel :: Int -> Field  -> Int -> Int -> PixelRGBA8
 fieldCellToPixel width field  x y = toPixel $  field  Vector.! (linearFieldIndex width (x,y))
   where
-    toPixel (Cell r g b a )= PixelRGBA8 nr ng nb 255
+    toPixel (r, g, b, a)= PixelRGBA8 nr ng nb 255
      where
       nr = fromIntegral $ round $ (r/a)*255
       ng = fromIntegral $ round $ (g/a)*255
