@@ -28,51 +28,61 @@ run = do
   -- Генератор случайных чисел, начальная инициализация
   genRand <-  newStdGen
   
-  let field = calcFlame genRand mainModel 
+  let startField =  initField mainModel
+  let field = updateField mainModel startField $ calcFlame genRand mainModel
   let img = generateImage (fieldCellToPixel (width mainModel) field)  (width mainModel) (height mainModel)
   let pic = fromImageRGBA8 img
   
   savePngImage  "./pic.png" (ImageRGBA8  img) 
-  display window white pic
-
-  
-  where   
-    --getter = getWorldPoint
+  display window white pic  
+  where       
     window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
-   -- update = updateWorld
--- window -- FullScreen
+
+ 
 fromImageRGBA8 :: Image PixelRGBA8 -> Picture
 fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = idat }) =
   bitmapOfForeignPtr w h
                      (BitmapFormat TopToBottom PxRGBA)
                      ptr True
     where (ptr, _, _) = unsafeToForeignPtr idat
--- | Act of Creation
--- создание мира
 
--- TODO StdGen Handling
--- в текущий момент тут нет никакого рандома
+-- | Add points to the field
+updateField :: Model -> Field -> [(Vec,Double)]->Field
+updateField m oldField xs = foldl (plot m) oldField xs 
+
+-- | Initialize field
+initField :: Model -> Field
+initField m = Vector.generate (sizeX*sizeY) initFunction
+  where
+    sizeX = width m
+    sizeY = height m
+    initFunction = \_ -> Cell 0 0 0 0  -- По хорошему цвет фона должен быть в модели
+
 
 -- | Calculate whole fractal
-calcFlame :: StdGen ->  Model -> Field
-calcFlame gen model = fst $ foldl' (calcPath model) startField pointList
+calcFlame :: StdGen ->  Model -> [(Vec,Double)]
+calcFlame gen model = concat $ map (calcPath model) pointList
   where
-    sizeX = width model
-    sizeY = height model
-    startField = (Vector.generate (sizeX*sizeY) initFunction, gen)
-    initFunction = \_ -> Cell 0 0 0 0  -- По хорошему цвет фона должен быть в модели
-    pointList = take outerIter busPointList -- лист с точками что будем обсчитывать
+    --(g1,g2)= split gen    
+    --pointList = take outerIter busPointList -- лист с точками что будем обсчитывать
+    pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
     outerIter = 21845 -- внешний цикл, 
 --(b -> a -> b) -> b -> t a -> b
 
--- | Calculate and plot Path of one point from [-1,1]^2
-calcPath ::  Model->(Field,StdGen)->Vec->(Field,StdGen)
-calcPath  model (field,gen) !vec = (foldl' (plot model) field path, lastGen)
+-- | Calculate and plot Path of one point
+calcPath ::  Model->Vec->[(Vec,Double)]
+calcPath  model vec@(x,y) = cleanPath
   where
+    gen =  mkStdGen $ floor (10000 * (x+y))
     start = (GVec gen vec, 0.5) -- CastGen
     infPath = iterate (calcOne model) start -- весь путь точки
     path = drop 20 $ take 200 $ infPath -- 300 - внутренний цикл
-    lastGen = vgGen $ fst $ last path
+    cleanPath = map convertCast path
+
+-- | Convert CastGen to (Vec,Double)
+convertCast :: CastGen -> (Vec,Double)
+convertCast (GVec _ v , col) = ( v , col)
+
 
 -- | Calculate one point and color
 calcOne :: Model -> CastGen -> CastGen
@@ -83,25 +93,11 @@ calcOne model ( GVec gen v, col) = (newGVec, newCol)
     newGVec = calcVariation (variation tranform) (GVec newGen v)
     speed = colorSpeed tranform
     newCol = ( col *  (1 + speed) + (colorPosition tranform) * (1 - speed) )/2 
-  {- 
--- | Вывод поля на экран playField
--- не совсем верно - зум и поворто должны производится до нанесения на поле, если же после, то это приводит к потере части изображения
-getWorldPoint :: World -> Int -> Int -> Cell 
-getWorldPoint bnw (i,j)
-  | flag = getElem trrI trrJ (mugenga bnw)
-  | otherwise = backGrCol
-  where
-    x = j*sinTheta + i*cosTheta
-    y = j*cosTheta - i*sinTheta
-    trrI = round (x*halfX - shiftX)
-    trrJ = round (y*halfY - shiftY)
-    flag = not (cond sizeX trrI|| cond sizeY trrJ)
-    cond size a = a < 1 || a > size
--}
+
 -- отрисовка точки на поле
-plot ::Model -> Field -> CastGen -> Field
-plot model !field !(GVec _ v@(x,y), col) | inBounds = Field
-                               | otherwise = field
+plot :: Model -> Field -> (Vec,Double) -> Field
+plot model field (v@(x,y), col)  | inBounds = newField
+                                 | otherwise = field
   where
     inBounds = control model v
     setX = truncate ( (x+1) * (fromIntegral $ width model)/2  ) 
@@ -112,9 +108,8 @@ plot model !field !(GVec _ v@(x,y), col) | inBounds = Field
     --colour = calcColour addedCol $ (Vector.!) field linearCoord -- установка $! здесь приводит к неогранченному росту потребления памяти
     --Field = field Vector.// [(linearCoord, colour)]
     
-    Field = runST $ do -- setElem colour coord $! field
+    newField = runST $ do -- setElem colour coord $! field
       mutableVector <- Vector.unsafeThaw field
-      --col <- Vector.Mutable.read mutableVector linearCoord
       Vector.Mutable.modify  mutableVector (calcColour addedCol) linearCoord 
       updatedField <- Vector.unsafeFreeze mutableVector
       return updatedField
@@ -146,3 +141,17 @@ fieldCellToPixel width field  x y = toPixel $  field  Vector.! (linearFieldIndex
       nr = fromIntegral $ round $ (r/a)*255
       ng = fromIntegral $ round $ (g/a)*255
       nb = fromIntegral $ round $ (b/a)*255
+
+-- | Случайная точка из би-единичного квадрата:
+randomBiUnitSquarePoint :: RandomGen g => g -> (Vec, g)
+randomBiUnitSquarePoint g = ((x, y), g'')
+  where
+    (x, g')  = randomR (-1, 1) g
+    (y, g'') = randomR (-1, 1) g'
+
+randBUSlist :: RandomGen g => g -> [Vec]
+randBUSlist gen = zip randXS randYS
+  where
+    (g1,g2) = split gen
+    randXS = randomRs (-1,1) g1
+    randYS = randomRs (-1,1) g2
