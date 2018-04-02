@@ -1,0 +1,1 @@
++RTS -A1m -H20m -Sfile -hc -s -K100M -hc -ls -N8 -B

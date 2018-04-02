@@ -5,7 +5,6 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 
---{-# OPTIONS_GHC -XStrict #-}
 module Asteroidea where
 
 import System.Random
@@ -29,7 +28,7 @@ run = do
   
   let startField =  initField mainModel
   let field = updateField mainModel startField $ calcFlame genRand mainModel
-  let img = generateImage (fieldCellToPixel (mWidth mainModel) field)  (mWidth mainModel) (mHeight mainModel)
+  let img = generateImage (fieldCellToPixel (mWidth mainModel) field) (mWidth mainModel) (mHeight mainModel)
   let pic = fromImageRGBA8 img
   
   savePngImage  "./pic.png" (ImageRGBA8  img) 
@@ -39,15 +38,18 @@ run = do
 
 -- TO DO: разобраться с кашей из старых и новых типов
  
-fromImageRGBA8 :: Image PixelRGBA8 -> Picture
-fromImageRGBA8 (Image { imageWidth = w, imageHeight = h, imageData = idat }) =
+fromImageRGBA8
+  :: Image PixelRGBA8
+  -> Picture
+fromImageRGBA8 
+  Image { imageWidth = w, imageHeight = h, imageData = idat } =
   bitmapOfForeignPtr w h
                      (BitmapFormat TopToBottom PxRGBA)
                      ptr True
     where (ptr, _, _) = unsafeToForeignPtr idat
 
 -- | Add points to the field
-updateField :: Model -> Field -> [(Vec,Double)]->Field
+updateField :: Model -> Field -> [Cast]->Field
 updateField m oldField xs = foldl (plot m) oldField xs 
 
 -- | Initialize field
@@ -67,17 +69,17 @@ calcFlame gen model = concat $ map (calcPath model) pointList
     outerIter = 21845 -- внешний цикл, gо хорошему должен быть в модели
 
 -- | Calculate and plot Path of one point
-calcPath ::  Model->Vec->[(Vec,Double)]
+calcPath ::  Model->Vec->[Cast]
 calcPath  model vec@(x,y) = cleanPath
   where
     gen =  mkStdGen $ floor (100000 * (x+y))
     start = (GVec gen vec, 0.5) -- CastGen
     infPath = iterate (calcOne model) start -- весь путь точки
-    path = drop 20 $ take 200 $ infPath --  внутренний цикл, по хорошему должен быть в модели
+    path = drop 20 $ take 512 $ infPath --  внутренний цикл, по хорошему должен быть в модели
     cleanPath = map convertCast path
 
--- | Convert CastGen to (Vec,Double)
-convertCast :: CastGen -> (Vec,Double)
+-- | Convert CastGen to Cast
+convertCast :: CastGen -> Cast
 convertCast (GVec _ v , col) = ( v , col)
 
 
@@ -89,17 +91,22 @@ calcOne model ( GVec gen v, col) = (newGVec, newCol)
     transform = mTransforms model !! ptr    
     newGVec = calcVariation (tVariation transform) (GVec newGen v)
     speed = tColorSpeed transform
-    newCol = ( col *  (1 + speed) + (tColorPosition transform) * (1 - speed) )/2 
-
+    newCol = (
+               (1 + speed)*col
+              +
+               (1 - speed)*(tColorPosition transform)
+             ) /2 
 
 -- | отрисовка точки на поле
-plot :: Model -> Field -> (Vec,Double) -> Field
-plot model field (v@(x,y), col)  | inBounds = newField
-                                 | otherwise = field
+plot :: Model -> Field -> Cast -> Field
+plot model field (v@(x,y), col)
+  | inBounds = newField
+  | otherwise = field
   where
     inBounds = control model v
-    setX = truncate ( (x+1) * (fromIntegral $ mWidth model)/2  ) 
-    setY = truncate ( (-y+1) * (fromIntegral $ mHeight model)/2  ) -- -y because y-axis direction is opposite of row number
+    setX = truncate ( ( x+1) * (fromIntegral $ mWidth  model)/2  ) 
+    setY = truncate ( (-y+1) * (fromIntegral $ mHeight model)/2  )
+-- -y because y-axis direction is opposite of row number
     coord = (setX, setY)
     linearCoord = linearFieldIndex (mWidth model) coord
     addedCol = Gradient.colorMap (mGradient model) col
@@ -108,13 +115,13 @@ plot model field (v@(x,y), col)  | inBounds = newField
       Vector.Mutable.modify  mutableVector (calcColour addedCol) linearCoord 
       updatedField <- Vector.unsafeFreeze mutableVector
       return updatedField
-    
 
 linearFieldIndex :: Int -> (Int, Int) -> Int
 linearFieldIndex w (i, j) = i + j * w
 
 -- | проверка что точка входит в поле
-control :: Model -> (Double,Double) -> Bool -- не совсем верно - не учитывается зум и прочее
+control :: Model -> (Double,Double) -> Bool
+-- не совсем верно - не учитывается зум и прочее
 control m (a,b) = not (cond halfX a || cond halfY b)
   where
     halfX = (fromIntegral $ mWidth m)/2
@@ -131,9 +138,10 @@ calcColour (r1,g1,b1) (r2, g2, b2, a) = ( (r2+r1), (g2+g1), (b2+b1), (a+1))
 
 -- | convert Field element to pixel 
 fieldCellToPixel :: Int -> Field  -> Int -> Int -> PixelRGBA8
-fieldCellToPixel width field  x y = toPixel $  field  Vector.! (linearFieldIndex width (x,y))
+fieldCellToPixel width field x y =
+  toPixel $  field  Vector.! (linearFieldIndex width (x,y))
   where
-    toPixel (r, g, b, a)= PixelRGBA8 nr ng nb 255
+    toPixel (r, g, b, a) = PixelRGBA8 nr ng nb 255
      where
       nr = fromIntegral $ round $ (r/a)*255
       ng = fromIntegral $ round $ (g/a)*255
@@ -146,12 +154,3 @@ randBUSlist gen = zip randXS randYS
     (g1,g2) = split gen
     randXS = randomRs (-1,1) g1
     randYS = randomRs (-1,1) g2
-
-{-
--- | Случайная точка из би-единичного квадрата:
-randomBiUnitSquarePoint :: RandomGen g => g -> (Vec, g)
-randomBiUnitSquarePoint g = ((x, y), g'')
-  where
-    (x, g')  = randomR (-1, 1) g
-    (y, g'') = randomR (-1, 1) g'
--}
