@@ -26,6 +26,7 @@ library
                      , PostColoring
                      , Model.Hex
                      , Model.Tile
+                     , Model.Serpinski
 
   build-depends:       base >= 4.7 && < 5
                      , gloss
@@ -63,6 +64,7 @@ test-suite asteroidea-test
                      , PostColoring
                      , Model.Hex
                      , Model.Tile
+                     , Model.Serpinski
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster

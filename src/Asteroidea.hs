@@ -19,7 +19,7 @@ import Data.Vector.Storable (unsafeToForeignPtr)
 import Const
 import Gradient
 import Variations
-import Model.Hex
+import Model.Serpinski
 --import Debug.Trace
 -- | Поехали!
 
