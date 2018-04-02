@@ -76,7 +76,7 @@ calcPath  model vec@(x,y) = cleanPath
     gen =  mkStdGen $ floor (100000 * (x+y))
     start = (GVec gen vec, 0.5) -- CastGen
     infPath = iterate (calcOne model) start -- весь путь точки
-    path = drop 20 $ take 512 $ infPath --  внутренний цикл, по хорошему должен быть в модели
+    path = drop 20 $ take 200 $ infPath --  внутренний цикл, по хорошему должен быть в модели
     cleanPath = map convertCast path
 
 -- | Convert CastGen to Cast
