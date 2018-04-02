@@ -59,7 +59,7 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
   where
     sizeX = mWidth m
     sizeY = mHeight m
-    initFunction = \_ -> (0,0,0,0)  -- По хорошему цвет фона должен быть в модели
+    initFunction = mBackgroundColour m  -- По хорошему цвет фона должен быть в модели
 
 
 -- | Calculate whole fractal
@@ -67,16 +67,17 @@ calcFlame :: StdGen ->  Model -> [(Vec,Double)]
 calcFlame gen model = concat $ map (calcPath model) pointList
   where    
     pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
-    outerIter = 21845 -- внешний цикл, gо хорошему должен быть в модели
+    outerIter = mOuterIter model -- внешний цикл, gо хорошему должен быть в модели
 
 -- | Calculate and plot Path of one point
 calcPath ::  Model->Vec->[Cast]
 calcPath  model vec@(x,y) = cleanPath
   where
     gen =  mkStdGen $ floor (100000 * (x+y))
+    innerIter = mInnerIter model
     start = (GVec gen vec, 0.5) -- CastGen
     infPath = iterate (calcOne model) start -- весь путь точки
-    path = drop 20 $ take 512 $ infPath --  внутренний цикл, по хорошему должен быть в модели
+    path = drop 20 $ take innerIter $ infPath --  внутренний цикл, по хорошему должен быть в модели
     cleanPath = map convertCast path
 
 -- | Convert CastGen to Cast

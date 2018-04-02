@@ -101,5 +101,8 @@ data Model = Model {
   -- | зум
   mScale :: Double,
   -- | и поворот.
-  mRotation :: Double
+  mRotation :: Double,
+  mBackgroundColour :: (Int -> Cell),
+  mOuterIter :: Int,
+  mInnerIter :: Int
 }
