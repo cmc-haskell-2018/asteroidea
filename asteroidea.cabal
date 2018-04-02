@@ -21,11 +21,12 @@ library
                      , Variations
                      , GVector
                      , Gradient
-                     , Examples
                      , PostColoring
                      , VarTree
                      , PostColoring
-                     , PostColoring
+                     , Model.Hex
+                     , Model.Tile
+
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster
@@ -57,11 +58,11 @@ test-suite asteroidea-test
                      , Variations
                      , GVector
                      , Gradient
-                     , Examples
                      , PostColoring
                      , VarTree
                      , PostColoring
-                     , PostColoring
+                     , Model.Hex
+                     , Model.Tile
   build-depends:       base >= 4.7 && < 5
                      , gloss
                      , gloss-raster
