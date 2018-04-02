@@ -19,6 +19,7 @@ import Const
 import Gradient
 import Variations
 import Model.Serpinski
+--import Data.List
 --import Debug.Trace
 -- | Поехали!
 
@@ -32,7 +33,7 @@ run = do
   let pic = fromImageRGBA8 img
   
   savePngImage  "./pic.png" (ImageRGBA8  img) 
-  display window white pic  
+  animate window white (\_->pic)
   where       
     window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
 
@@ -49,7 +50,7 @@ fromImageRGBA8
     where (ptr, _, _) = unsafeToForeignPtr idat
 
 -- | Add points to the field
-updateField :: Model -> Field -> [Cast]->Field
+updateField :: Model -> Field -> [Cast]-> Field
 updateField m oldField xs = foldl (plot m) oldField xs 
 
 -- | Initialize field

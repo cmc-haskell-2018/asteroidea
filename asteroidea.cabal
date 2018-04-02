@@ -14,7 +14,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  ghc-options:         -Wall -fno-warn-type-defaults -O2 -funbox-strict-fields -ddump-simpl -optc-ffast-math -fexcess-precision -rtsopts
+  ghc-options:         -Wall -fno-warn-type-defaults -O2 -funbox-strict-fields -ddump-simpl -optc-ffast-math -fexcess-precision
   exposed-modules:     Asteroidea
   other-modules:       Types
                      , Const
