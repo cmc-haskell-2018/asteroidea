@@ -7,8 +7,28 @@ Stability   : in progress
 module Transform where
 
 import Types
-import Const
+--import Const
+import System.Random
 
+getTransformNumber
+  :: [Transform]
+  -> StdGen 
+  -> (Int, StdGen)
+getTransformNumber transforms gen =
+  (chooseTransform weights $ sumWeight * rand, gen')
+  where
+    (rand, gen') = randomR (0, 1) gen
+    weights = map tWeight transforms
+    sumWeight = sum weights
+
+chooseTransform
+  :: [Double]
+  -> Double
+  -> Int
+chooseTransform ( w : ws ) num
+  | (num <= w) = 0
+  | otherwise = 1 + chooseTransform ws (num - w)
+{-
 -- | Выбор трансформы из списка
 -- нашей модели
 askTransform
@@ -43,3 +63,4 @@ applyTransform transform colour =
     variatTr = variation transform
     varFuncT = (function variatTr) $ (params variatTr)
   in \gvec -> (varFuncT gvec, newColour)
+-}

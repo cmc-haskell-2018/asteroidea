@@ -19,6 +19,7 @@ import Const
 import Gradient
 import Variations
 import Model.Serpinski
+import Transform
 --import Data.List
 --import Debug.Trace
 -- | Поехали!
@@ -89,6 +90,7 @@ convertCast (GVec _ v , col) = ( v , col)
 calcOne :: Model -> CastGen -> CastGen
 calcOne model ( GVec gen v, col) = (newGVec, newCol)
   where
+    --(ptr , newGen) = Transform.getTransformNumber (mTransforms model) gen
     (ptr , newGen) = randomR (0, (length $ mTransforms model) -1 ) gen
     transform = mTransforms model !! ptr    
     newGVec = calcVariation (tVariation transform) (GVec newGen v)

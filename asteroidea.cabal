@@ -20,6 +20,7 @@ library
                      , Const
                      , Variations
                      , GVector
+                     , Transform
                      , Gradient
                      , PostColoring
                      , VarTree
@@ -58,6 +59,7 @@ test-suite asteroidea-test
   main-is:             ../test/Spec.hs
   other-modules:       Types
                      , Const
+                     , Transform
                      , Variations
                      , GVector
                      , Gradient
