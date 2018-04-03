@@ -90,8 +90,8 @@ convertCast (GVec _ v , col) = ( v , col)
 calcOne :: Model -> CastGen -> CastGen
 calcOne model ( GVec gen v, col) = (newGVec, newCol)
   where
-    --(ptr , newGen) = Transform.getTransformNumber (mTransforms model) gen
-    (ptr , newGen) = randomR (0, (length $ mTransforms model) -1 ) gen
+    (ptr , newGen) = Transform.getTransformNumber (mTransforms model) gen
+    --(ptr , newGen) = randomR (0, (length $ mTransforms model) -1 ) gen
     transform = mTransforms model !! ptr    
     newGVec = calcVariation (tVariation transform) (GVec newGen v)
     speed = tColorSpeed transform

@@ -4,7 +4,7 @@ Description : operations with transform
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Transform where
+module Transform (getTransformNumber) where
 
 import Types
 --import Const
