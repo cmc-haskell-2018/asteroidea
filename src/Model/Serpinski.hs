@@ -25,7 +25,7 @@ t1 :: Transform
 -- ^ DEBUG transform 1
 t1 = Transform { tName          = "t1"
                , tVariation     = dbgAffine1
-               , tWeight        = 10
+               , tWeight        = 1
                , tColorPosition = 0
                , tColorSpeed    = 0
                , tOpacity       = 1
