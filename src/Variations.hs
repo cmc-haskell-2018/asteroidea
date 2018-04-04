@@ -34,11 +34,6 @@ juliaN (List (power:dist:_)) g@(GVec gen (x,y)) = nextGen (GVec gen (r**(dist/po
         t = ((atan2 y x) + 2*pi*p3)/power
 juliaN _ a = a
 
--- | афинное преобразование
-affineTransform :: VariationFunc 
-affineTransform (Matrix m) g@(GVec _ (x,y)) = g {gvVec = (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m)}
-affineTransform _ a = a
-
 -- | линейное преобразование
 linear :: VariationFunc
 linear _ g = g
