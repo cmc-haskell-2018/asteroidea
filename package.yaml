@@ -20,10 +20,8 @@ ghc-options:
 - -fno-warn-type-defaults
 - -O2
 - -fexcess-precision
-- -dynamic
 - -optc-ffast-math
 - -funbox-strict-fields
-- -ddump-simpl
 
 dependencies:
 - base >= 4.7 && < 5
