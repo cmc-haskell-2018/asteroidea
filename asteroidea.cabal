@@ -1,81 +1,73 @@
-name:                asteroidea
-version:             0.8
--- synopsis:
-description:         Fractal generator
--- homepage:
--- license:
--- license-file:
-author:              Haalon
--- maintainer:       
--- copyright:        
-build-type:          Simple
-extra-source-files:  README.md
-cabal-version:       >=1.10
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 71dd7b923b3d13a1985c985fd91eaf73891c4cd4c1ee5c48f2f84135d742234f
+
+name:           asteroidea
+version:        0.8.0
+synopsis:       Fractal generator
+description:    Please see the README on Github at <https://github.com/cmc-haskell-2018/asteroidea#readme>
+homepage:       https://github.com/cmc-haskell-2018/asteroidea#readme
+bug-reports:    https://github.com/cmc-haskell-2018/asteroidea/issues
+author:         Team «Just Nothing»
+copyright:      Team «Just Nothing»
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/cmc-haskell-2018/asteroidea
 
 library
-  hs-source-dirs:      src
-  ghc-options:         -Wall -fno-warn-type-defaults -O2 -funbox-strict-fields -ddump-simpl -optc-ffast-math -fexcess-precision
-  exposed-modules:     Asteroidea
-  other-modules:       Types
-                     , Const
-                     , Variations
-                     , GVector
-                     , Transform
-                     , Gradient
-                     , PostColoring
-                     , VarTree
-                     , PostColoring
-                     , Model.Hex
-                     , Model.Tile
-                     , Model.Serpinski
-                     , Model.Sphere
-                     , Model.Square
-
-  build-depends:       base >= 4.7 && < 5
-                     , gloss
-                     , gloss-raster
-                     , random
-                     , JuicyPixels
-                     , vector
-  default-language:    Haskell2010
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -fno-warn-type-defaults -O2 -fexcess-precision -dynamic -optc-ffast-math -funbox-strict-fields -ddump-simpl
+  build-depends:
+      JuicyPixels
+    , base >=4.7 && <5
+    , gloss
+    , gloss-raster
+    , matrix
+    , random
+    , vector
+  exposed-modules:
+      Asteroidea
+      Const
+      Gradient
+      GVector
+      Model.Hex
+      Model.Serpinski
+      Model.Sphere
+      Model.Square
+      Model.Tile
+      Plotter
+      PostColoring
+      Transform
+      Types
+      Variations
+      VarTree
+  other-modules:
+      Paths_asteroidea
+  default-language: Haskell2010
 
 executable asteroidea
-  hs-source-dirs:      app
-  main-is:             Main.hs
-  ghc-options:         -Wall -fno-warn-type-defaults -O2 -funbox-strict-fields -ddump-simpl -optc-ffast-math -fexcess-precision -threaded -rtsopts
-  build-depends:       base
-                     , asteroidea
-                     , gloss
-                     , gloss-raster
-                     , random
-                     , matrix
-                     , JuicyPixels
-                     , vector
-  default-language:    Haskell2010
-
-test-suite asteroidea-test
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      src
-  main-is:             ../test/Spec.hs
-  other-modules:       Types
-                     , Const
-                     , Transform
-                     , Variations
-                     , GVector
-                     , Gradient
-                     , PostColoring
-                     , VarTree
-                     , PostColoring
-                     , Model.Hex
-                     , Model.Tile
-                     , Model.Serpinski
-                     , Model.Sphere
-                     , Model.Square
-  build-depends:       base >= 4.7 && < 5
-                     , gloss
-                     , gloss-raster
-                     , random
-                     , JuicyPixels
-                     , vector
-  ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N 
-  default-language:    Haskell2010
+  main-is: Main.hs
+  hs-source-dirs:
+      app
+  ghc-options: -Wall -fno-warn-type-defaults -O2 -fexcess-precision -dynamic -optc-ffast-math -funbox-strict-fields -ddump-simpl -threaded -rtsopts -with-rtsopts=-N -fexcess-precision -fno-state-hack
+  build-depends:
+      JuicyPixels
+    , asteroidea
+    , base >=4.7 && <5
+    , gloss
+    , gloss-raster
+    , matrix
+    , random
+    , vector
+  other-modules:
+      Paths_asteroidea
+  default-language: Haskell2010

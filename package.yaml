@@ -1,0 +1,51 @@
+name:                asteroidea
+version:             0.8.0
+github:              "cmc-haskell-2018/asteroidea"
+author:              "Team «Just Nothing»"
+copyright:           "Team «Just Nothing»"
+
+extra-source-files:
+- README.md
+
+# Metadata used when publishing your package
+synopsis:            Fractal generator
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on Github at <https://github.com/cmc-haskell-2018/asteroidea#readme>
+
+ghc-options:
+- -Wall
+- -fno-warn-type-defaults
+- -O2
+- -fexcess-precision
+- -dynamic
+- -optc-ffast-math
+- -funbox-strict-fields
+- -ddump-simpl
+
+dependencies:
+- base >= 4.7 && < 5
+- gloss
+- gloss-raster
+- matrix
+- random
+- JuicyPixels
+- vector
+
+library:
+  source-dirs: src
+
+executables:
+  asteroidea:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -fexcess-precision
+    - -fno-state-hack
+    dependencies:
+    - asteroidea

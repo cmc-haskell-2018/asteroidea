@@ -96,10 +96,11 @@ data Model = Model {
   mGradient :: [(Double,Double,Double)],
   -- | Размер картинки, 
   --backGrCol :: Cell
-  mWidth :: Int,
-  mHeight :: Int,
+  mWidth, mHeight :: Int,
   -- | зум
   mScale :: Double,
+  -- | смещение
+  mShiftX, mShiftY :: Double,
   -- | и поворот.
   mRotation :: Double,
   mBackgroundColour :: (Int -> Cell),
