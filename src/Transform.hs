@@ -12,14 +12,37 @@ import System.Random
 
 getTransformNumber
   :: [Transform]
-  -> StdGen 
+  -> (Int, StdGen) 
   -> (Int, StdGen)
-getTransformNumber transforms gen =
+getTransformNumber transforms (ptr, gen) 
+  | ptr < 0   = getSimple transforms gen
+  | tXaos (transforms !! ptr) == [] = getSimple transforms gen -- if xaos is == []
+  | otherwise = getWithXaos transforms (ptr, gen)
+
+
+getSimple
+  :: [Transform]
+  -> StdGen
+  -> (Int, StdGen)
+getSimple transforms gen =
   (chooseTransform weights $ sumWeight * rand, gen')
   where
     (rand, gen') = randomR (0, 1) gen
     weights = map tWeight transforms
     sumWeight = sum weights
+
+getWithXaos    
+  :: [Transform]
+  -> (Int, StdGen) 
+  -> (Int, StdGen)
+getWithXaos transforms (ptr, gen) =
+  (chooseTransform weights $ sumWeight * rand, gen')
+  where
+    xaos = tXaos (transforms !! ptr)
+    (rand, gen') = randomR (0, 1) gen
+    weights = zipWith (*) xaos $ map tWeight transforms
+    sumWeight = sum weights
+
 
 chooseTransform
   :: [Double]

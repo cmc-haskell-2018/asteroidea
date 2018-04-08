@@ -12,8 +12,9 @@ import Gradient
 
 -- | Точка и цвет в карте градиентов [0,1)
 type Cast = (Vec, Double)
--- | Бросок с привязанным генератором
-type CastGen = (GVec,Double)
+
+-- | Бросок , цвет , номер трансформы
+type CastGen = (GVec,Double,Int)
 
 type Cell = (Double,Double,Double,Double)
 type Field = Vector.Vector Cell

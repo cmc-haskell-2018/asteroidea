@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a9f45ccece68aac26f4eda41ee782944e96366c775e993269fe075225eee1658
+-- hash: f2e79f685bf2b4f255365f40f6f175e6bbbfe2f91bb96b741a83be181ab64aac
 
 name:           asteroidea
 version:        0.8.0
@@ -37,6 +37,7 @@ library
   exposed-modules:
       Asteroidea
       Const
+      Core
       Gradient
       GVector
       Model.Hex

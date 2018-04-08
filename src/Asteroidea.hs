@@ -20,10 +20,12 @@ import Gradient
 import Variations
 import Model.Serpinski
 import Transform
+import Core
+import Plotter
 --import Data.List
 --import Debug.Trace
 -- | Поехали!
-import Plotter
+
 
 run :: IO ()
 run = do 
@@ -51,9 +53,6 @@ fromImageRGBA8
                      ptr True
     where (ptr, _, _) = unsafeToForeignPtr idat
 
--- | Add points to the field
-updateField :: Model -> Field -> [Cast]-> Field
-updateField m oldField xs = foldl (plot m) oldField xs 
 
 -- | Initialize field
 initField :: Model -> Field
@@ -64,44 +63,8 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
     initFunction = mBackgroundColour m  -- По хорошему цвет фона должен быть в модели
 
 
--- | Calculate whole fractal
-calcFlame :: StdGen ->  Model -> [(Vec,Double)]
-calcFlame gen model = concat $ map (calcPath model) pointList
-  where    
-    pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
-    outerIter = mOuterIter model -- внешний цикл, gо хорошему должен быть в модели
 
--- | Calculate and plot Path of one point
-calcPath ::  Model->Vec->[Cast]
-calcPath  model vec@(x,y) = cleanPath
-  where
-    gen =  mkStdGen $ floor (100000 * (x+y))
-    innerIter = mInnerIter model
-    start = (GVec gen vec, 0.5) -- CastGen
-    infPath = iterate (calcOne model) start -- весь путь точки
-    path = drop 20 $ take innerIter $ infPath --  внутренний цикл, по хорошему должен быть в модели
-    cleanPath = map convertCast path
-
--- | Convert CastGen to Cast
-convertCast :: CastGen -> Cast
-convertCast (GVec _ v , col) = ( v , col)
-
-
--- | Calculate one point and color
-calcOne :: Model -> CastGen -> CastGen
-calcOne model ( GVec gen v, col) = (newGVec, newCol)
-  where
-    (ptr , newGen) = Transform.getTransformNumber (mTransforms model) gen
-    --(ptr , newGen) = randomR (0, (length $ mTransforms model) -1 ) gen
-    transform = mTransforms model !! ptr    
-    newGVec = calcVariation (tVariation transform) (GVec newGen v)
-    speed = tColorSpeed transform
-    newCol = (
-               (1 + speed)*col
-              +
-               (1 - speed)*(tColorPosition transform)
-             ) /2  
-
+-- it's actually belongs to a post-coloring
 -- | convert Field element to pixel 
 fieldCellToPixel :: Int -> Field  -> Int -> Int -> PixelRGBA8
 fieldCellToPixel width field x y =
@@ -113,11 +76,5 @@ fieldCellToPixel width field x y =
       ng = fromIntegral $ round $ (g/a)*255
       nb = fromIntegral $ round $ (b/a)*255
 
--- | Список случайных точек из би-единичного квадрата:
-randBUSlist :: RandomGen g => g -> [Vec]
-randBUSlist gen = zip randXS randYS
-  where
-    (g1,g2) = split gen
-    randXS = randomRs (-1,1) g1
-    randYS = randomRs (-1,1) g2
+
 
