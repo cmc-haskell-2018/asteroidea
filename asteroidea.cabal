@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f2e79f685bf2b4f255365f40f6f175e6bbbfe2f91bb96b741a83be181ab64aac
+-- hash: 44116510a4b394034ab9c7c47faac1f20feb333a737a7424db477fa1dd11bb25
 
 name:           asteroidea
 version:        0.8.0
@@ -47,7 +47,6 @@ library
       Model.Tile
       Plotter
       PostColoring
-      Transform
       Types
       Variations
       VarTree

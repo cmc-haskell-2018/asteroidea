@@ -4,22 +4,37 @@ Description : Module that contains all calculations
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Core (calcFlame, calcOne) where
+module Core  where
 import System.Random
 import Types
 import Data.Vector.Storable (unsafeToForeignPtr)
 import Const
 import Gradient
 import Variations
-import Transform
 
+
+
+-- | Если xaos в трансформе - пустой список, то будем считать что переходы к любой другой трансформе равновозможны
+initXaos :: Model -> Model
+initXaos m@(Model {mTransforms = trs}) = m { mTransforms = map init trs }
+ where
+  init tr | tXaos tr == [] = tr { tXaos =  replicate (length trs) 1 }
+          | otherwise      = tr
+
+-- | xaos и веса не меняются в процессе вычисления => все необходимые "модифицированные" веса можно вычислить заранее
+prepareModel :: Model -> Model
+prepareModel m@(Model {mTransforms = trs}) = m { mTransforms = preparedTransforms }
+ where 
+  preparedTransforms = map prepare trs
+  prepare tr = tr { tXaos = zipWith (*) (tXaos tr) $ map tWeight trs}  
 
 -- | Calculate whole fractal
 calcFlame :: StdGen ->  Model -> [CastGen]
-calcFlame gen model = concat $ map (calcPath model) pointList
+calcFlame gen model = concat $ map (calcPath $! preparedModel) pointList
   where    
     pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
     outerIter = mOuterIter model -- внешний цикл, gо хорошему должен быть в модели
+    preparedModel = prepareModel $ initXaos model
 
 -- | Calculate and plot Path of one point
 calcPath ::  Model->Vec->[CastGen]
@@ -28,19 +43,16 @@ calcPath  model vec@(x,y) = path
     gen =  mkStdGen $ floor (100000 * (x+y))
     --(gen1,gen2) = split gen
     innerIter = mInnerIter model
-    start = (GVec gen vec, 0.5, -1) -- CastGen
-    infPath = iterate (calcOne model) start -- весь путь точки
+    start = (GVec gen vec, 0.5, 0) -- here can be INITIAL transform
+    infPath = iterate (\ c@(_,_,i) -> calcOne (mTransforms model !! i) c) start -- весь путь точки
     path = drop 20 $ take innerIter $ infPath --  внутренний цикл, по хорошему должен быть в модели
 
 -- | Calculate one point and color
-calcOne :: Model -> CastGen -> CastGen
-calcOne model ( gv, col, ptr)
-  | ptr < 0   = (gv, col, newPtr) -- here can be INITIAL transform
-  | otherwise = (newGVec, newCol, newPtr)
+calcOne :: Transform -> CastGen -> CastGen
+calcOne transform ( gv, col, ptr) = (newGVec, newCol, newPtr)
   where
-    --(ptr , newGen) = randomR (0, (length $ mTransforms model) -1 ) gen    
-    (newPtr , newGen) = Transform.getTransformNumber (mTransforms model) (ptr, (gvGen gv))
-    transform = mTransforms model !! ptr 
+    --(newPtr , newGen) = randomR (0, (length $ tXaos transform) -1 ) (gvGen gv)    
+    (newPtr , newGen) = getTransformNumber transform (gvGen gv)
     newGVec = calcVariation (tVariation transform) $ gv {gvGen = newGen}
     speed = tColorSpeed transform
     newCol = (
@@ -57,3 +69,18 @@ randBUSlist gen = zip randXS randYS
     (g1,g2) = split gen
     randXS = randomRs (-1,1) g1
     randYS = randomRs (-1,1) g2
+
+getTransformNumber :: Transform -> StdGen -> (Int, StdGen)
+getTransformNumber transform gen 
+  | tXaos transform == [] = (-1, gen) -- if xaos is == [] t
+  | otherwise = (chooseTransform list pointer, gen') 
+   where
+    (rand, gen') = randomR (0, 1) gen
+    list = tXaos transform
+    pointer = rand * sum list
+{-# INLINE getTransformNumber #-}
+
+chooseTransform :: [Double] -> Double -> Int
+chooseTransform ( w : ws ) num
+  | (num <= w) = 0
+  | otherwise = 1 + chooseTransform ws (num - w)

@@ -5,7 +5,7 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 
-module Plotter (updateField, linearFieldIndex) where
+module Plotter (initField, updateField, linearFieldIndex) where
 import Types
 import Core
 import qualified Gradient
@@ -14,12 +14,21 @@ import qualified Data.Vector.Unboxed.Mutable as Vector.Mutable
 import Control.Monad.ST (runST)
 
 
+-- | Initialize field
+initField :: Model -> Field
+initField m = Vector.generate (sizeX*sizeY) initFunction
+  where
+    sizeX = mWidth m
+    sizeY = mHeight m
+    initFunction = mBackgroundColour m  
+
 -- | Add points to the field
 updateField :: Model -> Field -> [CastGen]-> Field
 updateField m oldField points = foldl (plot m) oldField points 
 --where
 --finalPoints = map (applyFinal m) points
  --finalestPoints = map (applyCamera m) finalPoints
+
 {-
 -- | отрисовка точки на поле
 plot :: Model -> Field -> CastGen -> Field

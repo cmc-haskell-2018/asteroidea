@@ -19,7 +19,6 @@ import Const
 import Gradient
 import Variations
 import Model.Serpinski
-import Transform
 import Core
 import Plotter
 --import Data.List
@@ -52,15 +51,6 @@ fromImageRGBA8
                      (BitmapFormat TopToBottom PxRGBA)
                      ptr True
     where (ptr, _, _) = unsafeToForeignPtr idat
-
-
--- | Initialize field
-initField :: Model -> Field
-initField m = Vector.generate (sizeX*sizeY) initFunction
-  where
-    sizeX = mWidth m
-    sizeY = mHeight m
-    initFunction = mBackgroundColour m  -- По хорошему цвет фона должен быть в модели
 
 
 
