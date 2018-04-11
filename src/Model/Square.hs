@@ -95,6 +95,7 @@ exampleModel :: Model
 exampleModel = templateModel { 
                        mTransforms = [t1,t2,t3,t4,t5,t6,t7,t8,t9]
                      , mGradient = grad
+                     , mFinal = Just templateTransform { tVariation = Var 4 (List [-1,0]) exponential }
                      }
   where
 grad = paletteToDouble "\

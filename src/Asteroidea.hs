@@ -18,7 +18,7 @@ import Data.Vector.Storable (unsafeToForeignPtr)
 import Const
 import Gradient
 import Variations
-import Model.Serpinski
+import Model.Square
 import Core
 import Plotter
 --import Data.List

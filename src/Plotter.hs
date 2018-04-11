@@ -8,6 +8,7 @@ Stability   : in progress
 module Plotter (initField, updateField, linearFieldIndex) where
 import Types
 import Core
+import Data.Maybe
 import qualified Gradient
 import qualified Data.Vector.Unboxed as Vector
 import qualified Data.Vector.Unboxed.Mutable as Vector.Mutable
@@ -24,9 +25,10 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
 
 -- | Add points to the field
 updateField :: Model -> Field -> [CastGen]-> Field
-updateField m oldField points = foldl (plot m) oldField points 
---where
---finalPoints = map (applyFinal m) points
+updateField m oldField points = foldl (plot m) oldField finalPoints 
+ where
+  finalPoints | isNothing $ mFinal m  = points
+              | otherwise             = map (applyFinal m) points
  --finalestPoints = map (applyCamera m) finalPoints
 
 {-
@@ -67,7 +69,8 @@ plot model field ((GVec g v@(x,y)), col, ptr)
       return updatedField
 {-# INLINE plot #-}
 -}
---applyFinal :: Model -> CastGen -> CastGen
+applyFinal :: Model -> CastGen -> CastGen
+applyFinal (Model {mFinal = Just final}) point = calcOne final point
 
 -- | отрисовка точки на поле
 plot :: Model -> Field -> CastGen -> Field

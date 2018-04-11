@@ -114,7 +114,7 @@ data Model = Model {
   -- | череда трансформ
   mTransforms :: [Transform],
   -- viewPoint, условно
-  mCamera :: Maybe Transform,
+  mFinal :: Maybe Transform,
   -- | карта градиентов
   -- стоит сделать матрицей
   -- мб Data.Vector?
@@ -138,7 +138,7 @@ templateModel :: Model
 templateModel = Model {
     mName             = "42"
   , mTransforms       = []
-  , mCamera           = Nothing
+  , mFinal           = Nothing
   , mGradient         = grad
   , mWidth            = 1024
   , mHeight           = 1024

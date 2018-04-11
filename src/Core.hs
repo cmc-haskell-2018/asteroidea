@@ -4,7 +4,7 @@ Description : Module that contains all calculations
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Core  where
+module Core(calcOne, calcFlame)  where
 import System.Random
 import Types
 import Data.Vector.Storable (unsafeToForeignPtr)
@@ -52,7 +52,7 @@ calcOne :: Transform -> CastGen -> CastGen
 calcOne transform ( gv, col, ptr) = (newGVec, newCol, newPtr)
   where
     --(newPtr , newGen) = randomR (0, (length $ tXaos transform) -1 ) (gvGen gv)    
-    (newPtr , newGen) = getTransformNumber transform (gvGen gv)
+    (newPtr , newGen) = getTransformNumber transform (ptr, (gvGen gv))
     newGVec = calcVariation (tVariation transform) $ gv {gvGen = newGen}
     speed = tColorSpeed transform
     newCol = (
@@ -70,9 +70,9 @@ randBUSlist gen = zip randXS randYS
     randXS = randomRs (-1,1) g1
     randYS = randomRs (-1,1) g2
 
-getTransformNumber :: Transform -> StdGen -> (Int, StdGen)
-getTransformNumber transform gen 
-  | tXaos transform == [] = (-1, gen) -- if xaos is == [] t
+getTransformNumber :: Transform -> (Int, StdGen) -> (Int, StdGen)
+getTransformNumber transform (ptr, gen) 
+  | tXaos transform == [] = (ptr, gen) -- if xaos is == [] t
   | otherwise = (chooseTransform list pointer, gen') 
    where
     (rand, gen') = randomR (0, 1) gen
