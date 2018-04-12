@@ -18,6 +18,9 @@ type CastGen = (GVec,Double,Int)
 
 type Cell = (Double,Double,Double,Double)
 type Field = Vector.Vector Cell
+linearFieldIndex :: Int -> (Int, Int) -> Int
+linearFieldIndex w (i, j) = i + j * w
+{-# INLINE linearFieldIndex #-}
 
 -- | Вариация как она есть, с параметрами, перевод GVec -> GVec
 type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возможно стоит использовать Nan'ы 
@@ -142,7 +145,7 @@ templateModel = Model {
   , mGradient         = grad
   , mWidth            = 1024
   , mHeight           = 1024
-  , mScale            = 50
+  , mScale            = 1
   , mShiftX           = 0
   , mShiftY           = 0
   , mRotation         = 0

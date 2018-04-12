@@ -25,10 +25,11 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
 
 -- | Add points to the field
 updateField :: Model -> Field -> [CastGen]-> Field
-updateField m oldField points = foldl (plot m) oldField finalPoints 
+updateField m oldField points = foldl (plot m) oldField finalestPoints 
  where
   finalPoints | isNothing $ mFinal m  = points
               | otherwise             = map (applyFinal m) points
+  finalestPoints = map (\ (GVec g vec, c,i) -> (GVec g (applyCamera m vec), c,i)) finalPoints
  --finalestPoints = map (applyCamera m) finalPoints
 
 {-
@@ -72,6 +73,16 @@ plot model field ((GVec g v@(x,y)), col, ptr)
 applyFinal :: Model -> CastGen -> CastGen
 applyFinal (Model {mFinal = Just final}) point = calcOne final point
 
+applyCamera :: Model -> Vec -> Vec
+applyCamera m (x,y) = (scalex,scaleY)
+  where
+    (shiftX, shiftY) = (x+ mShiftX m, y+ mShiftY m)
+    rotRad = (2*pi/360*) $ mRotation m
+    sinT = sin rotRad
+    cosT = cos rotRad
+    (rotX, rotY) = ( shiftX*cosT-shiftY*sinT, shiftY*cosT+shiftX*sinT)
+    (scalex,scaleY) =(rotX * mScale m,rotY * mScale m )
+
 -- | отрисовка точки на поле
 plot :: Model -> Field -> CastGen -> Field
 plot model field ((GVec g v@(x,y)), col, ptr)
@@ -106,9 +117,7 @@ control m (a,b) = not (cond halfX a || cond halfY b)
       x >= 1
 
 {-# INLINE control #-}
-linearFieldIndex :: Int -> (Int, Int) -> Int
-linearFieldIndex w (i, j) = i + j * w
-{-# INLINE linearFieldIndex #-}
+
 
 -- | TODO alpha blending colours
 calcColour :: (Double,Double,Double) -> Cell -> Cell
