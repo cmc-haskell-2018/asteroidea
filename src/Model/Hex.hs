@@ -38,25 +38,30 @@ t1 = templateTransform { tName          = "t1"
                , tVariation     = af1
                , tColorPosition = 1
                , tColorSpeed    = 0
+               , tXaos = [1,0,0,1,1,1,1]
                }
 
 t2 :: Transform
 t2 = templateTransform { tName          = "t1"
                , tVariation     = af2
+               , tXaos = [0,1,1,1,0,1,1]
                }
 t3 :: Transform
 t3 = templateTransform { tName          = "t1"
                , tVariation     = af3
+               , tXaos = [0,1,1,0,1,1,1]
                }
 
 t4 :: Transform
 t4 = templateTransform { tName          = "t1"
                , tVariation     = af4
+               , tXaos = [1,1,0,1,1,0,1]
                }
 
 t5 :: Transform
 t5 = templateTransform { tName          = "t1"
                , tVariation     = af5
+               , tXaos = [1,0,1,1,1,0,1]
                }
 
 t6 :: Transform
@@ -64,6 +69,7 @@ t6 = templateTransform { tName          = "t1"
                , tVariation     = af6
                , tColorPosition = 1
                , tColorSpeed    = 0
+               , tXaos = [1,1,1,0,0,1,1]
                }
 
 t7 :: Transform
@@ -71,11 +77,12 @@ t7 = templateTransform { tName          = "t1"
                , tVariation     = af7
                , tColorPosition = 0
                , tColorSpeed    = 0.8
+               , tXaos = [1,1,1,1,1,1,1]
                }
 
 -- | exampleModel 42
 exampleModel :: Model 
-exampleModel = exampleModel {
+exampleModel = templateModel {
                        mTransforms = [t1,t2,t3,t4,t5,t6,t7]
                      , mGradient = grad
                      }

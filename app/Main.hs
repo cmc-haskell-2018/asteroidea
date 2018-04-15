@@ -1,6 +1,6 @@
 module Main where
 
-import Model.Square
+
 import Core
 import Plotter
 import PostColoring
@@ -9,6 +9,7 @@ import Types
 import System.Random
 import Codec.Picture
 import Graphics.Gloss
+import Model.Hex
 
 main :: IO ()
 main = run
