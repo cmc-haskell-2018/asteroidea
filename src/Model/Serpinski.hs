@@ -21,6 +21,12 @@ dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0)) affineTransform
 dbgAffine4 :: Variation
 dbgAffine4 = Var 1 (Matrix (AffineMatrix (-0.5) 0 0 (-0.5) 0.5 0.5)) affineTransform
 
+sphere :: Variation
+sphere = Var 0.25 None spherical
+
+blur1 :: Variation
+blur1 = Var 0.004 None blur
+
 t1 :: Transform
 -- ^ DEBUG transform 1
 t1 = templateTransform { tName          = "t1"
@@ -41,7 +47,7 @@ t3 = templateTransform { tName          = "t3"
 t4 :: Transform
 -- ^ DEBUG transform 4
 t4 = templateTransform { tName          = "t4"
-               , tVariation     = dbgAffine4
+               , tVariation     = (blur1 |+| sphere) |.| dbgAffine4 
                , tColorPosition = 1
                , tColorSpeed = 0
                }
@@ -49,8 +55,8 @@ t4 = templateTransform { tName          = "t4"
 exampleModel :: Model 
 exampleModel = templateModel {
                        mTransforms = [t1,t2,t3,t4]
-                     , mScale = 80
+                     , mScale = 1
                      , mRotation = 0
-                     , mShiftX = 0.3
-                     , mShiftY = 0.3
+                     , mShiftX = -0.3
+                     , mShiftY = -0.3
                      }

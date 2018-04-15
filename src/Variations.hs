@@ -14,6 +14,22 @@ import Types
 calcVariation :: Variation -> GVec-> GVec
 calcVariation (Var s p f) a = s |*| (f p a)
 
+-- | Variation composition
+(|.|) :: Variation->Variation->Variation
+(|.|) v1 v2 = Var 1 None compose
+  where
+    compose _ gv = calcVariation v1 (calcVariation v2 gv)
+
+-- | Variation sum
+(|+|) :: Variation->Variation->Variation
+(|+|) v1 v2 = Var 1 None sum
+  where
+    sum _ gv = gv1 + gv2
+      where
+        gv2@(GVec gen _) = calcVariation v2 gv
+        gv' = gv {gvGen = gen} -- новый генератор
+        gv1 = calcVariation v1 gv'
+
 -- | отображение в коэффициент потенциала в точке
 --potent :: Project
 --potent p = 1 / (magnitude p) ^ (2::Int)
