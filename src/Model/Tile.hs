@@ -10,41 +10,41 @@ mainModel :: Model
 mainModel = exampleModel
 
 
-dbgAffine1 :: Variation
-dbgAffine1 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 0.5)) affine
+dbgAffine1 :: AffineMatrix
+dbgAffine1 = AffineMatrix 0.5 0 0 0.5 0.5 0.5
 -- | DEBUG affine 2
-dbgAffine2 :: Variation
-dbgAffine2 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) (-0.5))) affine
+dbgAffine2 :: AffineMatrix
+dbgAffine2 = AffineMatrix 0 0.5 (-0.5) 0 (-0.5) (-0.5)
 -- | DEBUG affine 3
-dbgAffine3 :: Variation
-dbgAffine3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.5 (-0.5))) affine
+dbgAffine3 :: AffineMatrix
+dbgAffine3 = AffineMatrix 0.5 0 0 0.5 0.5 (-0.5)
 -- | DEBUG affine 4
-dbgAffine4 :: Variation
-dbgAffine4 = Var 1 (Matrix (AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5)) affine
+dbgAffine4 :: AffineMatrix
+dbgAffine4 = AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5
 
 t1 :: Transform
 -- ^ DEBUG transform 1
 t1 = templateTransform { 
-                tVariation     = dbgAffine1
+                tVariation     = affine dbgAffine1
                , tColorPosition = 1
                }
 
 t2 :: Transform
 -- ^ DEBUG transform 2
 t2 = templateTransform { 
-                tVariation     = dbgAffine2
+                tVariation     = affine dbgAffine2
                , tColorPosition = 0.889
                }
 
 t3 :: Transform
 -- ^ DEBUG transform 3
 t3 = templateTransform { 
-                tVariation     = dbgAffine3
+                tVariation     = affine dbgAffine3
                }
 t4 :: Transform
 -- ^ DEBUG transform 4
 t4 = templateTransform { 
-                tVariation     = dbgAffine4
+                tVariation     = affine dbgAffine4
                , tColorPosition = 1
                , tColorSpeed    = 1
                }

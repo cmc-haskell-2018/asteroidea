@@ -53,7 +53,7 @@ calcOne transform ( gv, col, ptr) = (newGVec, newCol, newPtr)
   where
     --(newPtr , newGen) = randomR (0, (length $ tXaos transform) -1 ) (gvGen gv)    
     (newPtr , newGen) = getTransformNumber transform (ptr, (gvGen gv))
-    newGVec = calcVariation (tVariation transform) $ gv {gvGen = newGen}
+    newGVec =  tVariation transform $ gv {gvGen = newGen}
     speed = tColorSpeed transform
     newCol = (
                (1 + speed)*col

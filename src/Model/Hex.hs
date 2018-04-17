@@ -10,32 +10,32 @@ mainModel :: Model
 mainModel = exampleModel
 
 
-af1 :: Variation
-af1 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 1 0)) affine
+af1 :: AffineMatrix
+af1 = AffineMatrix 0.5 0 0 0.5 1 0
 
-af2 :: Variation
-af2 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.49975 0.866169)) affine
+af2 :: AffineMatrix
+af2 = AffineMatrix 0.5 0 0 0.5 0.49975 0.866169
 
-af3 :: Variation
-af3 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0.49975 (-0.86616))) affine
+af3 :: AffineMatrix
+af3 = AffineMatrix 0.5 0 0 0.5 0.49975 (-0.86616)
 
-af4 :: Variation
-af4 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 (-0.49975) (-0.86616))) affine
+af4 :: AffineMatrix
+af4 = AffineMatrix 0.5 0 0 0.5 (-0.49975) (-0.86616)
 
-af5 :: Variation
-af5 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 (-0.49975) 0.86616)) affine
+af5 :: AffineMatrix
+af5 = AffineMatrix 0.5 0 0 0.5 (-0.49975) 0.86616
 
-af6 :: Variation
-af6 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 (-1) 0)) affine
+af6 :: AffineMatrix
+af6 = AffineMatrix 0.5 0 0 0.5 (-1) 0
 
-af7 :: Variation
-af7 = Var 1 (Matrix (AffineMatrix 0.5 0 0 0.5 0 0)) affine
+af7 :: AffineMatrix
+af7 = AffineMatrix 0.5 0 0 0.5 0 0
 
 
 
 t1 :: Transform
 t1 = templateTransform { 
-                tVariation     = af1
+                tVariation     = affine af1
                , tColorPosition = 1
                , tColorSpeed    = 0
                , tXaos = [1,0,0,1,1,1,1]
@@ -43,30 +43,30 @@ t1 = templateTransform {
 
 t2 :: Transform
 t2 = templateTransform { 
-                tVariation     = af2
+                tVariation     = affine af2
                , tXaos = [0,1,1,1,0,1,1]
                }
 t3 :: Transform
 t3 = templateTransform { 
-                tVariation     = af3
+                tVariation     = affine af3
                , tXaos = [0,1,1,0,1,1,1]
                }
 
 t4 :: Transform
 t4 = templateTransform { 
-                tVariation     = af4
+                tVariation     = affine af4
                , tXaos = [1,1,0,1,1,0,1]
                }
 
 t5 :: Transform
 t5 = templateTransform { 
-                tVariation     = af5
+                tVariation     = affine af5
                , tXaos = [1,0,1,1,1,0,1]
                }
 
 t6 :: Transform
 t6 = templateTransform { 
-                tVariation     = af6
+                tVariation     = affine af6
                , tColorPosition = 1
                , tColorSpeed    = 0
                , tXaos = [1,1,1,0,0,1,1]
@@ -74,7 +74,7 @@ t6 = templateTransform {
 
 t7 :: Transform
 t7 = templateTransform { 
-                tVariation     = af7
+                tVariation     = affine af7
                , tColorPosition = 0
                , tColorSpeed    = 0.8
                , tXaos = [1,1,1,1,1,1,1]

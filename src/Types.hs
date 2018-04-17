@@ -18,47 +18,13 @@ type CastGen = (GVec,Double,Int)
 
 type Cell = (Double,Double,Double,Double)
 type Field = Vector.Vector Cell
+
 linearFieldIndex :: Int -> (Int, Int) -> Int
 linearFieldIndex w (i, j) = i + j * w
 {-# INLINE linearFieldIndex #-}
 
--- | Вариация как она есть, с параметрами, перевод GVec -> GVec
-type VariationFunc =  Params -> GVec -> GVec --вместо Maybe Vec возможно стоит использовать Nan'ы 
--- | Любое отображение из R2 -> R
-type Project = Vec ->  Double
-
-{--
--- Категория значительно затуманивает устройство обёртки,
--- и усложняет добавление других данных к обёртке.
--- В ответ мы получаем лишь возможность использовать
--- знакомую точку (.) для композиции.
--- Так стоит ли это того?  
-newtype Var a b = Var Params (Params->a->b)
-instance Category Var where
-  id = Var None (\_ a -> a)
--- @
--- (.) :: (Var p) b c -> (Var p) a b -> (Var p) a c
--- @
-  (.) (Var p2 bc) (Var p1 ab) = Var None (\_ a -> bc p2 (ab p1 a))
--- композиция работает, пример:
--- >>> calcVariation (dbgAffine . dbgSpherical) (defGen , (1,1))
---}
-
--- | параметры для вариаций
-data Params = None | List [Double] | Matrix AffineMatrix
-
--- | Обертка над VariationFunc - хранит ее параметры и скалярный множитель
-data Variation = Var {
-  vScale :: Double, -- ^ скалярный множитель
-  vParams :: Params, -- ^ параметры
-  vFunction :: VariationFunc -- ^ применяемое отображение
-}
--- | Тождественная вариация
-idVariation = Var {
-    vScale    = 1
-  , vParams   = None
-  , vFunction = (\_ v -> v)
-  }
+-- | Вариация как она есть - перевод GVec -> GVec
+type Variation = GVec -> GVec 
 
 -- | Матрицы афинных преобразований
 data AffineMatrix = AffineMatrix {
@@ -95,7 +61,7 @@ tXaos :: [Double]
 templateTransform :: Transform
 {-# INLINE templateTransform #-}
 templateTransform = Transform {
-                 tVariation     = idVariation
+                 tVariation     = id
                , tWeight        = 1
                , tColorPosition = 0
                , tColorSpeed    = 0

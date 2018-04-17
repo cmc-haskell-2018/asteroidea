@@ -26,8 +26,8 @@ gvY :: GVec -> Double
 gvY (GVec _ (_ ,y)) = y 
 
 -- | произведение GVec на скаляр
-(|*|)::Double -> GVec -> GVec
-(|*|) scl (GVec gen (x,y)) = GVec gen (scl*x , scl*y)
+scale ::Double -> GVec -> GVec
+scale scl (GVec gen (x,y)) = GVec gen (scl*x , scl*y)
 
 -- | делает GVec'у следующий генератор
 nextGen :: GVec -> GVec
@@ -39,7 +39,7 @@ splitGen (GVec gen0 vec) = ( (GVec gen1 vec),(GVec gen2 vec) )
   where (gen1,gen2) = split gen0
 
 instance Eq GVec where
-  (==) gv1 gv2 = gvVec gv1 == gvVec gv2
+  (==) gv1 gv2 = gvVec gv1 == gvVec gv2 && (show $ gvGen gv1) == (show $ gvGen gv2)
 
 -- | arctan x/y
 phase :: GVec->Double
@@ -68,3 +68,7 @@ instance Num GVec where
   signum gv@(GVec g (x,y)) = GVec g (x/r, y/r) where r = magnitude gv
   fromInteger i = (GVec (mkStdGen 42) (fromInteger i,0))
 
+instance Fractional GVec where
+  fromRational r = (GVec (mkStdGen 42) (fromRational r,0))
+  recip gv@(GVec g (x,y)) = GVec g (x/rad,-y/rad)
+    where rad = radiusSqr gv

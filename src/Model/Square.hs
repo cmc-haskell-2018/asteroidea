@@ -10,39 +10,39 @@ mainModel :: Model
 mainModel = exampleModel
 
 
-v1 :: Variation
-v1 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0 0)) affine
+v1 :: AffineMatrix
+v1 = AffineMatrix 0.333333333 0 0 0.333333333 0 0
 
-v2 :: Variation
-v2 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0)) affine
+v2 :: AffineMatrix
+v2 = AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0
 
-v3 :: Variation
-v3 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0 (-0.333333333))) affine
+v3 :: AffineMatrix
+v3 = AffineMatrix 0.333333333 0 0 0.333333333 0 (-0.333333333)
 
-v4 :: Variation
-v4 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0)) affine
+v4 :: AffineMatrix
+v4 = AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0
 
-v5 :: Variation
-v5 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0 0.333333333)) affine
+v5 :: AffineMatrix
+v5 = AffineMatrix 0.333333333 0 0 0.333333333 0 0.333333333
 
-v6 :: Variation
-v6 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0.333333333)) affine
+v6 :: AffineMatrix
+v6 = AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0.333333333
 
-v7 :: Variation
-v7 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0.333333333)) affine
+v7 :: AffineMatrix
+v7 = AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0.333333333
 
-v8 :: Variation
-v8 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) (-0.333333333))) affine
+v8 :: AffineMatrix
+v8 = AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) (-0.333333333)
 
-v9 :: Variation
-v9 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 (-0.333333333))) affine
+v9 :: AffineMatrix
+v9 = AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 (-0.333333333)
 
 
 
 
 t1 :: Transform
 t1 = templateTransform { 
-                tVariation     = v1
+                tVariation     = affine v1
                , tColorPosition = 1
                , tColorSpeed    = 0
                }
@@ -50,44 +50,44 @@ t1 = templateTransform {
 
 t2 :: Transform
 t2 = templateTransform { 
-                tVariation     = v2
+                tVariation     = affine  v2
                , tColorPosition = 0
                , tColorSpeed    = 0
                }
 
 t3 :: Transform
 t3 = templateTransform { 
-                tVariation     = v3
+                tVariation     = affine v3
                }
 
 t4 :: Transform
 t4 = templateTransform { 
-                tVariation     = v4
+                tVariation     = affine  v4
                }
 
 t5 :: Transform
 t5 = templateTransform { 
-                tVariation     = v5
+                tVariation     = affine v5
                }
 
 t6 :: Transform
 t6 = templateTransform { 
-                tVariation     = v6
+                tVariation     = affine v6
                }
 
 t7 :: Transform
 t7 = templateTransform { 
-                tVariation     = v7
+                tVariation     = affine v7
                }
 
 t8 :: Transform
 t8 = templateTransform { 
-                tVariation     = v8
+                tVariation     = affine v8
                }
 
 t9 :: Transform
 t9 = templateTransform { 
-                tVariation     = v9
+                tVariation     = affine v9
                }
 
 -- | exampleModel 42
@@ -97,7 +97,7 @@ exampleModel = templateModel {
                      , mGradient = grad
                      , mShiftX = (-0.5)
                      , mScale = 2
-                     , mFinal = Just templateTransform { tVariation = Var 1 (List [1,0]) exponential }
+                     , mFinal = Just templateTransform { tVariation = exponential 1 0 }
                      }
   where
 grad = paletteToDouble "\
