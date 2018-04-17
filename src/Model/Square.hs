@@ -11,83 +11,83 @@ mainModel = exampleModel
 
 
 v1 :: Variation
-v1 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0 0)) affineTransform
+v1 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0 0)) affine
 
 v2 :: Variation
-v2 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0)) affineTransform
+v2 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0)) affine
 
 v3 :: Variation
-v3 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0 (-0.333333333))) affineTransform
+v3 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0 (-0.333333333))) affine
 
 v4 :: Variation
-v4 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0)) affineTransform
+v4 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0)) affine
 
 v5 :: Variation
-v5 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0 0.333333333)) affineTransform
+v5 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0 0.333333333)) affine
 
 v6 :: Variation
-v6 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0.333333333)) affineTransform
+v6 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0.333333333)) affine
 
 v7 :: Variation
-v7 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0.333333333)) affineTransform
+v7 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0.333333333)) affine
 
 v8 :: Variation
-v8 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) (-0.333333333))) affineTransform
+v8 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) (-0.333333333))) affine
 
 v9 :: Variation
-v9 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 (-0.333333333))) affineTransform
+v9 = Var 1 (Matrix (AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 (-0.333333333))) affine
 
 
 
 
 t1 :: Transform
-t1 = templateTransform { tName          = "t1"
-               , tVariation     = v1
+t1 = templateTransform { 
+                tVariation     = v1
                , tColorPosition = 1
                , tColorSpeed    = 0
                }
 
 
 t2 :: Transform
-t2 = templateTransform { tName          = "t1"
-               , tVariation     = v2
+t2 = templateTransform { 
+                tVariation     = v2
                , tColorPosition = 0
                , tColorSpeed    = 0
                }
 
 t3 :: Transform
-t3 = templateTransform { tName          = "t1"
-               , tVariation     = v3
+t3 = templateTransform { 
+                tVariation     = v3
                }
 
 t4 :: Transform
-t4 = templateTransform { tName          = "t1"
-               , tVariation     = v4
+t4 = templateTransform { 
+                tVariation     = v4
                }
 
 t5 :: Transform
-t5 = templateTransform { tName          = "t1"
-               , tVariation     = v5
+t5 = templateTransform { 
+                tVariation     = v5
                }
 
 t6 :: Transform
-t6 = templateTransform { tName          = "t1"
-               , tVariation     = v6
+t6 = templateTransform { 
+                tVariation     = v6
                }
 
 t7 :: Transform
-t7 = templateTransform { tName          = "t1"
-               , tVariation     = v7
+t7 = templateTransform { 
+                tVariation     = v7
                }
 
 t8 :: Transform
-t8 = templateTransform { tName          = "t1"
-               , tVariation     = v8
+t8 = templateTransform { 
+                tVariation     = v8
                }
 
 t9 :: Transform
-t9 = templateTransform { tName          = "t1"
-               , tVariation     = v9
+t9 = templateTransform { 
+                tVariation     = v9
                }
 
 -- | exampleModel 42
@@ -97,7 +97,7 @@ exampleModel = templateModel {
                      , mGradient = grad
                      , mShiftX = (-0.5)
                      , mScale = 2
-                     , mFinal = Just templateTransform { tVariation = Var 4 (List [-1,0]) exponential }
+                     , mFinal = Just templateTransform { tVariation = Var 1 (List [1,0]) exponential }
                      }
   where
 grad = paletteToDouble "\

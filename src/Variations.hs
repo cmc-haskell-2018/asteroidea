@@ -36,6 +36,12 @@ calcVariation (Var s p f) a = s |*| (f p a)
 
 
 -- ======== преобразования
+
+-- | афинное преобразование
+affine :: VariationFunc 
+affine (Matrix m) g@(GVec _ (x,y)) = g {gvVec = (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m)}
+affine _ a = a
+
 -- | сферическое преобразование
 spherical :: VariationFunc
 spherical _ g@(GVec _ (x,y))  = g{gvVec = (coef *x, coef *y)}

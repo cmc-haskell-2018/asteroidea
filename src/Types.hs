@@ -56,14 +56,9 @@ data Variation = Var {
 -- | Тождественная вариация
 idVariation = Var {
     vScale    = 1
-  , vParams   = Matrix idMatrix
-  , vFunction = affineTransform
+  , vParams   = None
+  , vFunction = (\_ v -> v)
   }
-
--- | афинное преобразование
-affineTransform :: VariationFunc 
-affineTransform (Matrix m) g@(GVec _ (x,y)) = g {gvVec = (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m)}
-affineTransform _ a = a
 
 -- | Матрицы афинных преобразований
 data AffineMatrix = AffineMatrix {
@@ -85,8 +80,6 @@ idMatrix = AffineMatrix 1 0 0 1 0 0
 -- | По сути - Transform олицетворяет отображение из старой точки и цвета в новые точку и цвет
 -- | Обычно это отображение точек - это сложное выражение из функций-вариаций
 data Transform = Transform {
--- | Name ?
-tName :: String,
 -- | возможны линейные комбинации, композиция, параметры =>
 -- variation :: VTree
 tVariation :: Variation,  
@@ -102,8 +95,7 @@ tXaos :: [Double]
 templateTransform :: Transform
 {-# INLINE templateTransform #-}
 templateTransform = Transform {
-                 tName          = "template"
-               , tVariation     = idVariation
+                 tVariation     = idVariation
                , tWeight        = 1
                , tColorPosition = 0
                , tColorSpeed    = 0
