@@ -72,6 +72,7 @@ plot model field ((GVec g v@(x,y)), col, ptr)
 -}
 applyFinal :: Model -> CastGen -> CastGen
 applyFinal (Model {mFinal = Just final}) point = calcOne final point
+applyFinal _ c = c
 
 applyCamera :: Model -> Vec -> Vec
 applyCamera m (x,y) = (scalex,scaleY)
@@ -85,7 +86,7 @@ applyCamera m (x,y) = (scalex,scaleY)
 
 -- | отрисовка точки на поле
 plot :: Model -> Field -> CastGen -> Field
-plot model field ((GVec g v@(x,y)), col, ptr)
+plot model field ((GVec _ v@(x,y)), col, _)
   | inBounds = newField
   | otherwise = field
   where

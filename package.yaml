@@ -21,6 +21,7 @@ ghc-options:
 - -O2
 - -fexcess-precision
 - -optc-ffast-math
+- -fforce-recomp
 - -funbox-strict-fields
 
 dependencies:

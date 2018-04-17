@@ -1,8 +1,6 @@
-module Model.Sphere (mainModel) where
-import Prelude  
+module Model.Sphere (mainModel) where  
 --import Control.Category
 import Variations
-import Gradient
 --import Graphics.Gloss
 import Types
 

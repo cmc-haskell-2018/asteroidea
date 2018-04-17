@@ -15,31 +15,41 @@ import Types
 (|*|)::Double -> Variation -> Variation
 (|*|) scl v =  (scale scl) . v 
 
-instance Eq Variation where
-  (==) v1 v2 = True 
-
-{-
--- | Variation sum
-(|+|) :: Variation->Variation->Variation
-(|+|) v1 v2 = Var 1 None sum
+-- | convert binary GVec operation to binary Variation operation
+binGVecToVar :: (GVec->GVec->GVec)->Variation->Variation->Variation
+binGVecToVar op v1 v2 = binaryOp
   where
-    sum _ gv = gv1 + gv2
+    binaryOp gv = op gv1 gv2
       where
-        gv2@(GVec gen _) = calcVariation v2 gv
+        gv1 = v1 gv'
         gv' = gv {gvGen = gen} -- новый генератор
-        gv1 = calcVariation v1 gv'
--}
--- | отображение в коэффициент потенциала в точке
---potent :: Project
---potent p = 1 / (magnitude p) ^ (2::Int)
+        gv2@(GVec gen _) = v2 gv
 
+instance Eq Variation where
+  (==) v1 v2 = and [t1,t2,t3,t4]
+   where
+    g = mkStdGen 42
+    t1 = (v1 $ GVec g (1,0)) == (v2 $ GVec g (1,0))
+    t2 = (v1 $ GVec g (-1,-1)) == (v2 $ GVec g (-1,-1))
+    t3 = (v1 $ GVec g (0.05,-0.234)) == (v2 $ GVec g (0.05,-0.234))
+    t4 = (v1 $ GVec g (-1123,1.1)) == (v2 $ GVec g (-1123,1.1))
+
+instance Num Variation where
+  (+) = binGVecToVar (+)
+  (*) = binGVecToVar (*)
+  abs v = abs . v
+  negate v = negate . v
+  signum v = signum . v
+  fromInteger i = (\ (GVec g _) -> GVec g (fromInteger i,0))
+
+instance Fractional Variation where
+  fromRational r = (\ (GVec g _) -> GVec g (fromRational r,0))
+  (/) = binGVecToVar (/)
 
 -- ======== преобразования
-
 -- | афинное преобразование
 affine :: AffineMatrix -> Variation 
 affine m g@(GVec _ (x,y)) = g {gvVec = (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m)}
-affine _ a = a
 
 -- | сферическое преобразование
 spherical :: Variation
@@ -48,11 +58,11 @@ spherical  g@(GVec _ (x,y))  = g{gvVec = (coef *x, coef *y)}
 
 -- | отображение в стиле множества Жюлиа
 juliaN ::Double-> Double-> Variation 
-juliaN  power dist g@(GVec gen (x,y)) = GVec gen' (r**(dist/power)*(cos t) , r**(dist/power)*(sin t))
+juliaN  power dist g@(GVec gen _) = GVec gen' (r**(dist/power)*(cos t) , r**(dist/power)*(sin t))
   where r = magnitude g
         (k, gen') = random gen
         p3 = fromInteger . truncate $ k*power
-        t = ((atan2 y x) + 2*pi*p3)/power
+        t = (phase g + 2*pi*p3)/power
 
 -- | линейное преобразование
 linear :: Variation

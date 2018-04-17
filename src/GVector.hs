@@ -72,3 +72,31 @@ instance Fractional GVec where
   fromRational r = (GVec (mkStdGen 42) (fromRational r,0))
   recip gv@(GVec g (x,y)) = GVec g (x/rad,-y/rad)
     where rad = radiusSqr gv
+
+instance Floating GVec where
+  pi = (GVec (mkStdGen 42) (pi ,0))
+  exp (GVec g (x,y)) = GVec g (expx * cos y , expx * sin y)
+    where expx = exp x
+  sqrt gv@(GVec g (x,y)) = GVec g (u , (if y < 0 then -v else v))
+    where 
+      (u,v) = if x < 0 then (v',u') else (u',v')
+      v'    = abs y / (u'*2)
+      u'    = sqrt ((magnitude gv + abs x) / 2)
+  log gv@(GVec g _) = GVec g (magnitude gv, phase gv)
+  sin (GVec g (x,y)) = GVec g (sin x * cosh y , cos x * sinh y)
+  cos (GVec g (x,y)) = GVec g (cos x * cosh y , (- sin x * sinh y))
+  sinh (GVec g (x,y)) = GVec g (cos y * sinh x , sin y * cosh x)
+  cosh (GVec g (x,y)) = GVec g (cos y * cosh x , sin y * sinh x)
+  asin gv@(GVec g (x,y))  = GVec g (y' , (-x')) 
+    where  
+      GVec _ (x' , y') = log ( GVec g ((-y) , x) + sqrt (1 - gv*gv))
+  acos gv@(GVec g _) = GVec g  (y'' , (-x''))
+    where 
+      GVec _ (x'' , y'') = log (gv + GVec g ((-y') , x'))
+      GVec _ (x' , y')   = sqrt (1 - gv*gv)
+  atan gv@(GVec g (x,y))  = GVec g (y',(-x'))
+    where 
+      GVec _ (x' , y') = log ( (GVec g ((1-y) , x)) / sqrt (1+gv*gv))
+  asinh gv = log (gv + sqrt (1+gv*gv))
+  acosh gv = log (gv + (sqrt $ gv+1) * (sqrt $ gv-1))
+  atanh gv = 0.5 * log ((1.0+gv) / (1.0-gv))

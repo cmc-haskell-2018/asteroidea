@@ -7,19 +7,13 @@ Stability   : in progress
 module Core(calcOne, calcFlame)  where
 import System.Random
 import Types
-import Data.Vector.Storable (unsafeToForeignPtr)
-import Const
-import Gradient
-import Variations
-
-
 
 -- | Если xaos в трансформе - пустой список, то будем считать что переходы к любой другой трансформе равновозможны
 initXaos :: Model -> Model
-initXaos m@(Model {mTransforms = trs}) = m { mTransforms = map init trs }
+initXaos m@(Model {mTransforms = trs}) = m { mTransforms = map ini trs }
  where
-  init tr | tXaos tr == [] = tr { tXaos =  replicate (length trs) 1 }
-          | otherwise      = tr
+  ini tr | tXaos tr == [] = tr { tXaos =  replicate (length trs) 1 }
+         | otherwise      = tr
 
 -- | xaos и веса не меняются в процессе вычисления => все необходимые "модифицированные" веса можно вычислить заранее
 prepareModel :: Model -> Model
@@ -81,6 +75,7 @@ getTransformNumber transform (ptr, gen)
 {-# INLINE getTransformNumber #-}
 
 chooseTransform :: [Double] -> Double -> Int
+chooseTransform [] _ = 0
 chooseTransform ( w : ws ) num
   | (num <= w) = 0
   | otherwise = 1 + chooseTransform ws (num - w)

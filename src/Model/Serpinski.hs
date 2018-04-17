@@ -1,8 +1,6 @@
 module Model.Serpinski (mainModel) where
-import Prelude  
 --import Control.Category
 import Variations
-import Gradient
 --import Graphics.Gloss
 import Types
 
