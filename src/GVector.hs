@@ -82,7 +82,7 @@ instance Floating GVec where
       (u,v) = if x < 0 then (v',u') else (u',v')
       v'    = abs y / (u'*2)
       u'    = sqrt ((magnitude gv + abs x) / 2)
-  log gv@(GVec g _) = GVec g (magnitude gv, phase gv)
+  log gv@(GVec g _) = GVec g (log $ magnitude gv, phase gv)
   sin (GVec g (x,y)) = GVec g (sin x * cosh y , cos x * sinh y)
   cos (GVec g (x,y)) = GVec g (cos x * cosh y , (- sin x * sinh y))
   sinh (GVec g (x,y)) = GVec g (cos y * sinh x , sin y * cosh x)

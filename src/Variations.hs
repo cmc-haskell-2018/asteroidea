@@ -11,10 +11,6 @@ import Prelude
 import System.Random
 import Types
 
--- | произведение GVec на скаляр
-(|*|)::Double -> Variation -> Variation
-(|*|) scl v =  (scale scl) . v 
-
 -- | convert binary GVec operation to binary Variation operation
 binGVecToVar :: (GVec->GVec->GVec)->Variation->Variation->Variation
 binGVecToVar op v1 v2 = binaryOp
