@@ -49,8 +49,6 @@ t4 = templateTransform {
 exampleModel :: Model 
 exampleModel = templateModel {
                        mTransforms = [t1,t2,t3,t4]
-                     , mScale = 1
-                     , mRotation = 0
-                     , mShiftX = -0.3
-                     , mShiftY = -0.3
+                     , mRotation = 90
+                     , mFinal = Just templateTransform { tVariation = (exponential 1 0) . (affine $ AffineMatrix 2.5 1 (-2.5) 1 (-2.15) 0 ) . mirrorX . mirrorY  }               
                      }

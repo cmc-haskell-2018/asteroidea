@@ -167,3 +167,23 @@ hyperb g@(GVec _ (x,y)) = g {gvVec =  (x / y , y / x)}
 -- Фактически, вытянутая парабола, сходящаяся к (0,0)
 sumMultAxis :: Variation
 sumMultAxis g@(GVec _ (x,y)) = g {gvVec = ((x+y) * x , (x+y) * y )}
+
+mirrorX :: Variation
+mirrorX (GVec g (x,y)) = GVec g' (x',y)
+  where
+    (i,g') = randomR (0,1) g :: (Int, StdGen)
+    x' = if i == 0 then x else negate x
+
+mirrorY :: Variation
+mirrorY (GVec g (x,y)) = GVec g' (x,y')
+  where
+    (i,g') = randomR (0,1) g :: (Int, StdGen)
+    y' = if i == 0 then y else negate y
+
+mirrorR :: Variation
+mirrorR gv@(GVec g (x,y)) = GVec g' (x',y')
+  where
+    r = radiusSqr gv
+    (i,g') = randomR (0,1) g :: (Int, StdGen)
+    y' = if i == 0 then y else y/r
+    x' = if i == 0 then x else x/r

@@ -9,7 +9,7 @@ import Types
 import System.Random
 import Codec.Picture
 import Graphics.Gloss
-import Model.Tile
+import Model.Serpinski
 
 main :: IO ()
 main = run

@@ -38,6 +38,33 @@ data AffineMatrix = AffineMatrix {
   oy :: Double
 } deriving(Show)
 
+
+
+rotate :: Double -> AffineMatrix -> AffineMatrix
+rotate angle am = AffineMatrix xxNew yxNew xyNew yyNew oxNew oyNew
+            where 
+                xxNew = cosA * xx am - sinA * yx am
+                xyNew = cosA * xy am - sinA * yy am
+                yxNew = sinA * xx am + cosA * yx am
+                yyNew = sinA * xy am + cosA * yy am
+                oxNew = ox am
+                oyNew = oy am
+                angle' = angle * pi / 180
+                sinA = sin angle'
+                cosA = cos angle'
+
+scale :: Double -> AffineMatrix ->  AffineMatrix
+scale coeff am = scaleX coeff $ scaleY coeff am
+
+scaleX :: Double -> AffineMatrix ->  AffineMatrix
+scaleX coeff am = am { xx = coeff * xx am, yx = coeff * yx am }
+
+scaleY :: Double -> AffineMatrix ->  AffineMatrix
+scaleY coeff am = am { yy = coeff * yy am, xy = coeff * xy am }
+
+translate :: Vec -> AffineMatrix -> AffineMatrix
+translate (x, y) am = am { ox = x + ox am , oy = y + oy am} 
+
 -- | тождественная матрица
 idMatrix :: AffineMatrix
 idMatrix = AffineMatrix 1 0 0 1 0 0

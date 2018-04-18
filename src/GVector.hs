@@ -25,9 +25,6 @@ gvX (GVec _ (x ,_)) = x
 gvY :: GVec -> Double
 gvY (GVec _ (_ ,y)) = y 
 
--- | произведение GVec на скаляр
-scale ::Double -> GVec -> GVec
-scale scl (GVec gen (x,y)) = GVec gen (scl*x , scl*y)
 
 -- | делает GVec'у следующий генератор
 nextGen :: GVec -> GVec

@@ -95,7 +95,7 @@ exampleModel = templateModel {
                      , mGradient = grad 
                      , mShiftX = (-0.5)
                      , mScale = 2
-                     , mFinal = Just templateTransform { tVariation = exponential 1 0 . scale 2 }
+                     , mFinal = Just templateTransform { tVariation = exponential 1 0 . (*2) }
                      }
   where
     grad = paletteToDouble "\
