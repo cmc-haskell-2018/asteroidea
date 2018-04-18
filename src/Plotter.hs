@@ -28,14 +28,14 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
 -- | Add points to the field
 updateField :: Model -> Field -> [CastGen]-> Field
 updateField m oldField points =
-   newplot m finalestPoints oldField
+  newplot m finalestPoints oldField
   where
-    finalPoints | isNothing $ mFinal m  = points
-                | otherwise             = map (applyFinal m) points
+    finalFunc (Just final) = map (calcOne final)
+    finalFunc Nothing      = id
     finalestPoints =
       map
         (  \ (GVec g vec, c,i) -> ((applyCamera m vec), c, i) )
-        finalPoints
+        (finalFunc (mFinal m) points)
 
 -- | Функция размещения в поле ряда точек.
 -- Если я успею, то сделаю всё более красиво и понятно.
@@ -92,20 +92,14 @@ pointBUStoFieldPoint
   :: Model            -- параметры модели
   -> (Double, Double) -- точка из би-квадрата
   -> (Int,Int)        -- точка на поле
-pointBUStoFieldPoint model =
-    \(x',y') ->
-       (
-         truncate $ scaleX *( x'+1)
-       , truncate $ scaleY *(-y'+1)
-       )
+pointBUStoFieldPoint model (x', y') =
+  ( truncate $ scaleX *( x'+1)
+  , truncate $ scaleY *(-y'+1)
+  )
   where 
     scaleX = half $ mWidth  model
     scaleY = half $ mHeight model
     half x = (fromIntegral x) /2
-
-applyFinal :: Model -> CastGen -> CastGen
-applyFinal (Model {mFinal = Just final}) point = calcOne final point
-applyFinal _ c = c
 
 applyCamera :: Model -> Vec -> Vec
 applyCamera m (x,y) = (scaleX,scaleY)

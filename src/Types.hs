@@ -106,7 +106,7 @@ data Model = Model {
   -- | карта градиентов
   -- стоит сделать матрицей
   -- мб Data.Vector?
-  mGradient :: [(Double,Double,Double)],
+  mGradient :: Gradient,
   -- | Размер картинки, 
   --backGrCol :: Cell
   mWidth, mHeight :: Int,
