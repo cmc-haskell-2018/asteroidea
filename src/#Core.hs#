@@ -7,9 +7,9 @@ Stability   : in progress
 module Core(calcOne, calcFlame)  where
 import System.Random
 import Types
-import RND (fromVec)
-import Data.List      (map, concatMap, replicate, zipWith, iterate, sum, zip, (!!), filter, take, drop, length)
 import Prelude hiding (map, concatMap, replicate, zipWith, iterate, sum, zip, (!!), filter, take, drop, length)
+import Data.List (findIndex)
+-- import Data.List      (map, concatMap, replicate, zipWith, iterate, sum, zip, (!!), filter, take, drop, length)
 
 -- | Если xaos в трансформе - пустой список, то будем считать что переходы к любой другой трансформе равновозможны
 initXaos :: Model -> Model
@@ -48,9 +48,16 @@ calcPath ::  Model->Vec->[CastGen]
 calcPath  model vec = path
   where
     gen =  fromVec vec
+    --(gen1,gen2) = split gen
     innerIter = mInnerIter model --  внутренний цикл
     start = (GVec gen vec, 0.5, 0) -- here can be INITIAL transform
-    infPath = iterate (\ c@(_,_,i) -> calcOne (mTransforms model !! i) c) start -- весь путь точки
+    infPath = iterate
+                (\ c@(_,_,i)
+                   -> calcOne
+                      (mTransforms model !! i)
+                      c
+                )
+                start -- весь путь точки
     path = drop 20 $ take innerIter $ infPath 
 
 -- | Calculate one point and color
@@ -86,7 +93,7 @@ randBUSlist gen = zip randXS randYS
     randXS = randomRs (-1,1) g1
     randYS = randomRs (-1,1) g2
 
-getTransformNumber :: RandomGen g => Transform -> (Int, g) -> (Int, g)
+getTransformNumber :: Transform -> (Int, StdGen) -> (Int, StdGen)
 getTransformNumber transform (ptr, gen) 
   | tXaos transform == [] = (ptr, gen)
   | otherwise = (chooseTransform list pointer, gen') 
@@ -96,8 +103,16 @@ getTransformNumber transform (ptr, gen)
     pointer = rand * sum list
 {-# INLINE getTransformNumber #-}
 
-chooseTransform :: [Double] -> Double -> Int
-chooseTransform [] _ = 0
-chooseTransform ( w : ws ) num
-  | (num <= w) = 0
-  | otherwise = 1 + chooseTransform ws (num - w)
+-- | получение трансформы из структуры по значению
+getTransform
+  :: V.Vector Transform
+  -> [Double]
+  -> Double 
+  -> Transform
+{-# INLINABLE getTransform #-}
+getTransform transforms xaos rand =
+  transforms V.! (index-1)
+  where
+    index = getter $ findIndex (>= rand) xaos
+    getter Just temp = temp
+    getter Nothing   = 0

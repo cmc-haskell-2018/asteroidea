@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e2a865105cb33574894ff779febcc63bd7c1c3f5e6ea4606ec8d1183dc933943
+-- hash: 6bf44b2290604f3a2cb27b8be0d81ba95378ed2e2a115bb77b1a38f0d2f5020e
 
 name:           asteroidea
 version:        0.8.0
@@ -44,6 +44,7 @@ library
       Model.Tile
       Plotter
       PostColoring
+      RND
       Types
       Variations
       VarTree

@@ -6,7 +6,7 @@ Stability   : in progress
 -}
 module GVector where
 import Prelude 
-import System.Random 
+import RND
 
 -- | Вектор Double
 -- VS Gloss.Data.Point Float
@@ -14,7 +14,7 @@ import System.Random
 type Vec = (Double, Double)  
 -- | Вектор с привязанным к нему генератором
 data GVec = GVec {
-  gvGen :: StdGen, -- ^ Генератор
+  gvGen :: RND,    -- ^ Генератор
   gvVec :: Vec     -- ^ Вектор
 } deriving(Show)
 
@@ -63,15 +63,15 @@ instance Num GVec where
   abs gv@(GVec g _) = GVec g (magnitude gv, 0) 
   signum (GVec g (0,0)) = GVec g (0, 0)
   signum gv@(GVec g (x,y)) = GVec g (x/r, y/r) where r = magnitude gv
-  fromInteger i = (GVec (mkStdGen 42) (fromInteger i,0))
+  fromInteger i = (GVec (RND $ fromInteger i) (fromInteger i,0))
 
 instance Fractional GVec where
-  fromRational r = (GVec (mkStdGen 42) (fromRational r,0))
+  fromRational r = (GVec (RND $ floor $ r*950706376) (fromRational r,0))
   recip gv@(GVec g (x,y)) = GVec g (x/rad,-y/rad)
     where rad = radiusSqr gv
 
 instance Floating GVec where
-  pi = (GVec (mkStdGen 42) (pi ,0))
+  pi = (GVec (RND 42) (pi ,0))
   exp (GVec g (x,y)) = GVec g (expx * cos y , expx * sin y)
     where expx = exp x
   sqrt gv@(GVec g (x,y)) = GVec g (u , (if y < 0 then -v else v))

@@ -8,7 +8,7 @@ Stability   : in progress
 module Variations where
 import Prelude  
 --import Control.Category
-import System.Random
+import RND
 import Types
 
 -- | convert binary GVec operation to binary Variation operation
@@ -24,7 +24,7 @@ binGVecToVar op v1 v2 = binaryOp
 instance Eq Variation where
   (==) v1 v2 = and [t1,t2,t3,t4]
    where
-    g = mkStdGen 42
+    g = RND 42
     t1 = (v1 $ GVec g (1,0)) == (v2 $ GVec g (1,0))
     t2 = (v1 $ GVec g (-1,-1)) == (v2 $ GVec g (-1,-1))
     t3 = (v1 $ GVec g (0.05,-0.234)) == (v2 $ GVec g (0.05,-0.234))
@@ -171,19 +171,19 @@ sumMultAxis g@(GVec _ (x,y)) = g {gvVec = ((x+y) * x , (x+y) * y )}
 mirrorX :: Variation
 mirrorX (GVec g (x,y)) = GVec g' (x',y)
   where
-    (i,g') = randomR (0,1) g :: (Int, StdGen)
+    (i,g') = randomR (0::Int,1) g
     x' = if i == 0 then x else negate x
 
 mirrorY :: Variation
 mirrorY (GVec g (x,y)) = GVec g' (x,y')
   where
-    (i,g') = randomR (0,1) g :: (Int, StdGen)
+    (i,g') = randomR (0::Int,1) g
     y' = if i == 0 then y else negate y
 
 mirrorR :: Variation
 mirrorR gv@(GVec g (x,y)) = GVec g' (x',y')
   where
     r = radiusSqr gv
-    (i,g') = randomR (0,1) g :: (Int, StdGen)
+    (i,g') = randomR (0::Int,1) g
     y' = if i == 0 then y else y/r
     x' = if i == 0 then x else x/r
