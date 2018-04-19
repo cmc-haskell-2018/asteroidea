@@ -32,9 +32,13 @@ calcFlame gen model = finalestPoints
     points = concat $ map (calcPath $! preparedModel) pointList
     finalFunc (Just final) = map (calcOne final)
     finalFunc Nothing      = id
-    finalestPoints = map
+    finalestPoints =
+      filter inBounds $
+        map
         (  \ (GVec _ vec, c,i) -> ((applyCamera model vec), c, i) )
         (finalFunc (mFinal model) points)
+    inBounds ((x,y),_,_) = (control x) && (control y)
+    control x = (x > - 1) && (x < 1)
 
 -- | Calculate and plot Path of one point
 calcPath ::  Model->Vec->[CastGen]

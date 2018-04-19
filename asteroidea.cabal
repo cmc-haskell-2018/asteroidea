@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7d0b07e247380ff9b033d6fbbe844ee8dc614ae4ddb27feed2ed4a47ac5f06c1
+-- hash: e2a865105cb33574894ff779febcc63bd7c1c3f5e6ea4606ec8d1183dc933943
 
 name:           asteroidea
 version:        0.8.0
@@ -30,8 +30,6 @@ library
       JuicyPixels
     , base >=4.7 && <5
     , gloss
-    , gloss-raster
-    , matrix
     , random
     , vector
   exposed-modules:
@@ -63,8 +61,6 @@ executable asteroidea
     , asteroidea
     , base >=4.7 && <5
     , gloss
-    , gloss-raster
-    , matrix
     , random
     , vector
   other-modules:
