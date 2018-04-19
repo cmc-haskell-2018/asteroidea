@@ -7,7 +7,6 @@ Stability   : in progress
 
 module Plotter (initField, updateField, linearFieldIndex) where
 import Types
-import Core
 import qualified Gradient                      (colorMap)
 import qualified Data.Vector.Unboxed as Vector (unsafeThaw, unsafeFreeze,generate)
 import qualified Data.Vector.Unboxed.Mutable as Mutable (modify)
@@ -24,22 +23,9 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
     sizeY = mHeight m
     initFunction = mBackgroundColour m  
 
--- | Add points to the field
-updateField :: Model -> Field -> [CastGen]-> Field
-updateField m oldField points =
-  newplot m finalestPoints oldField
-  where
-    finalFunc (Just final) = map (calcOne final)
-    finalFunc Nothing      = id
-    finalestPoints =
-      map
-        (  \ (GVec _ vec, c,i) -> ((applyCamera m vec), c, i) )
-        (finalFunc (mFinal m) points)
-
 -- | Функция размещения в поле ряда точек.
 -- Если я успею, то сделаю всё более красиво и понятно.
-newplot
-  :: 
+updateField  :: 
    ( M.MonadPlus  t
    , Foldable     t
    )
@@ -47,7 +33,7 @@ newplot
   -> t (Vec,Double,Int)
   -> Field
   -> Field
-newplot model listCast field = let
+updateField model listCast field = let
     listFieldPoints = produceListFromCasts model listCast
   in runST $ do 
      mutableVector <- Vector.unsafeThaw field
@@ -104,16 +90,6 @@ pointBUStoFieldPoint model (x', y') =
     scaleX' = half $ mWidth  model
     scaleY' = half $ mHeight model
     half x = (fromIntegral x) /2
-
-applyCamera :: Model -> Vec -> Vec
-applyCamera m (x,y) = (x',y')
-  where
-    (shiftX, shiftY) = (x+ mShiftX m, y+ mShiftY m)
-    rotRad = (pi/180*) $ mRotation m
-    sinT = sin rotRad
-    cosT = cos rotRad
-    (rotX, rotY) = ( shiftX*cosT-shiftY*sinT, shiftY*cosT+shiftX*sinT)
-    (x',y') =(rotX * mScale m,rotY * mScale m )
 
 -- | TODO alpha blending colours
 calcColour :: Int -> Model -> (Double,Double,Double) -> Cell -> Cell

@@ -23,12 +23,18 @@ prepareModel m@(Model {mTransforms = trs}) = m { mTransforms = preparedTransform
   prepare tr = tr { tXaos = zipWith (*) (tXaos tr) $ map tWeight trs}  
 
 -- | Calculate whole fractal
-calcFlame :: StdGen ->  Model -> [CastGen]
-calcFlame gen model = concat $ map (calcPath $! preparedModel) pointList
+calcFlame :: StdGen ->  Model -> [(Vec,Double,Int)]
+calcFlame gen model = finalestPoints
   where    
     pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
-    outerIter = mOuterIter model -- внешний цикл, gо хорошему должен быть в модели
+    outerIter = mOuterIter model -- внешний цикл
     preparedModel = prepareModel $ initXaos model
+    points = concat $ map (calcPath $! preparedModel) pointList
+    finalFunc (Just final) = map (calcOne final)
+    finalFunc Nothing      = id
+    finalestPoints = map
+        (  \ (GVec _ vec, c,i) -> ((applyCamera model vec), c, i) )
+        (finalFunc (mFinal model) points)
 
 -- | Calculate and plot Path of one point
 calcPath ::  Model->Vec->[CastGen]
@@ -36,10 +42,10 @@ calcPath  model vec@(x,y) = path
   where
     gen =  mkStdGen $ floor (100000 * (x+y))
     --(gen1,gen2) = split gen
-    innerIter = mInnerIter model
+    innerIter = mInnerIter model --  внутренний цикл
     start = (GVec gen vec, 0.5, 0) -- here can be INITIAL transform
     infPath = iterate (\ c@(_,_,i) -> calcOne (mTransforms model !! i) c) start -- весь путь точки
-    path = drop 20 $ take innerIter $ infPath --  внутренний цикл, по хорошему должен быть в модели
+    path = drop 20 $ take innerIter $ infPath 
 
 -- | Calculate one point and color
 calcOne :: Transform -> CastGen -> CastGen
@@ -54,6 +60,16 @@ calcOne transform ( gv, col, ptr) = (newGVec, newCol, newPtr)
                (1 - speed)*(tColorPosition transform)
              ) /2  
 {-# INLINE calcOne #-}
+
+applyCamera :: Model -> Vec -> Vec
+applyCamera m (x,y) = (x',y')
+  where
+    (shiftX, shiftY) = (x+ mShiftX m, y+ mShiftY m)
+    rotRad = (pi/180*) $ mRotation m
+    sinT = sin rotRad
+    cosT = cos rotRad
+    (rotX, rotY) = ( shiftX*cosT-shiftY*sinT, shiftY*cosT+shiftX*sinT)
+    (x',y') =(rotX * mScale m,rotY * mScale m )
 
 -- | Список случайных точек из би-единичного квадрата:
 randBUSlist :: RandomGen g => g -> [Vec]
