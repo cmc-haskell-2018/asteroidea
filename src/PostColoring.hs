@@ -11,13 +11,12 @@ Data для хранения всех параметров постобрабо�
 --}
 module PostColoring where
 
-
-import Graphics.Gloss
 import Types
 import Codec.Picture
 import Graphics.Gloss
 import qualified Data.Vector.Unboxed as Vector
 import Data.Vector.Storable (unsafeToForeignPtr)
+-- import Graphics.Gloss
 
 type PostColorParam = Double
 -- |...
@@ -45,6 +44,6 @@ fieldCellToPixel m field x y =
   where
     toPixel (r, g, b, a) = PixelRGBA8 nr ng nb 255
      where
-      nr = fromIntegral $ round $ (r/a)*255
-      ng = fromIntegral $ round $ (g/a)*255
-      nb = fromIntegral $ round $ (b/a)*255
+      nr = fromInteger $ round $ (r/a)*255
+      ng = fromInteger $ round $ (g/a)*255
+      nb = fromInteger $ round $ (b/a)*255

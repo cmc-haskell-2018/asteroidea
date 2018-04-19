@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6bf44b2290604f3a2cb27b8be0d81ba95378ed2e2a115bb77b1a38f0d2f5020e
+-- hash: 8212924498d528b7f9f73d1a048e2e1a696a0790e0f0e2955128ddcc9d6e2599
 
 name:           asteroidea
 version:        0.8.0
@@ -25,7 +25,7 @@ source-repository head
 library
   hs-source-dirs:
       src
-  ghc-options: -Wall -O2 -fexcess-precision -optc-ffast-math -fforce-recomp
+  ghc-options: -Wall -O2 -fexcess-precision -optc-ffast-math
   build-depends:
       JuicyPixels
     , base >=4.7 && <5
@@ -56,7 +56,7 @@ executable asteroidea
   main-is: Main.hs
   hs-source-dirs:
       app
-  ghc-options: -Wall -O2 -fexcess-precision -optc-ffast-math -fforce-recomp -threaded -rtsopts -with-rtsopts=-N -fexcess-precision
+  ghc-options: -Wall -O2 -fexcess-precision -optc-ffast-math -threaded -rtsopts -with-rtsopts=-N -fexcess-precision
   build-depends:
       JuicyPixels
     , asteroidea

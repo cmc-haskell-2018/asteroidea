@@ -8,33 +8,48 @@ module Core(calcOne, calcFlame)  where
 import System.Random
 import Types
 import RND (fromVec)
-import Data.List      (map, concatMap, replicate, zipWith, iterate, sum, zip, (!!), filter, take, drop, length)
-import Prelude hiding (map, concatMap, replicate, zipWith, iterate, sum, zip, (!!), filter, take, drop, length)
+import Data.List
+import Data.Maybe (fromJust)
 
--- | Если xaos в трансформе - пустой список, то будем считать что переходы к любой другой трансформе равновозможны
+{- | Если xaos в трансформе - пустой список,
+то будем считать что переходы к любой другой трансформе равновозможны
+xaos и веса не меняются в процессе вычисления =>
+все необходимые "модифицированные" веса можно вычислить заранее
+-}
 initXaos :: Model -> Model
 initXaos m@(Model {mTransforms = trs}) = m { mTransforms = map ini trs }
- where
-  ini tr | tXaos tr == [] = tr { tXaos =  replicate (length trs) 1 }
-         | otherwise      = tr
-
--- | xaos и веса не меняются в процессе вычисления => все необходимые "модифицированные" веса можно вычислить заранее
-prepareModel :: Model -> Model
-prepareModel m@(Model {mTransforms = trs}) = m { mTransforms = preparedTransforms }
- where 
-  preparedTransforms = map prepare trs
-  prepare tr = tr { tXaos = zipWith (*) (tXaos tr) $ map tWeight trs}  
+  where
+    originWeights = map tWeight trs
+    ini tr = tr {tXaos = list}
+      where
+        xaos = tXaos tr
+        alter [] = id
+        alter ll = zipWith (*) ll
+        xaosWeights = (alter xaos) originWeights
+        getRankedWeights = scanl (+) (0::Double) $ xaosWeights
+        weightNormalCoef = (/last getRankedWeights)
+        list = map weightNormalCoef getRankedWeights
 
 -- | Calculate whole fractal
-calcFlame :: StdGen ->  Model -> [(Vec,Double,Int)]
-calcFlame gen model = finalestPoints
+calcFlame :: Model -> StdGen -> [(Vec,Double,Int)]
+calcFlame model gen = finalestPoints
   where    
     pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
     outerIter = mOuterIter model -- внешний цикл
-    preparedModel = prepareModel $ initXaos model
+    preparedModel = initXaos model
     points = concatMap (calcPath preparedModel) pointList
-    finalFunc (Just final) = map (calcOne final)
+    finalFunc (Just final) = map (calc final)
     finalFunc Nothing      = id
+    calc transform = let
+      varGV =  (tVariation transform)
+      speed = tColorSpeed transform
+      posit = tColorPosition transform
+      shift col = (
+               (1 + speed)*col
+              +
+               (1 - speed)*posit
+             ) /2
+      in \(v,c,i) -> (varGV v, shift c, i)
     finalestPoints =
       filter inBounds $
         map
@@ -44,28 +59,35 @@ calcFlame gen model = finalestPoints
     control x = (x > - 1) && (x < 1)
 
 -- | Calculate and plot Path of one point
-calcPath ::  Model->Vec->[CastGen]
-calcPath  model vec = path
+calcPath ::  Model -> Vec -> [CastGen]
+calcPath model vec = path
   where
     gen =  fromVec vec
     innerIter = mInnerIter model --  внутренний цикл
     start = (GVec gen vec, 0.5, 0) -- here can be INITIAL transform
-    infPath = iterate (\ c@(_,_,i) -> calcOne (mTransforms model !! i) c) start -- весь путь точки
+    infPath = iterate (calcOne model) start -- весь путь точки
     path = drop 20 $ take innerIter $ infPath 
 
 -- | Calculate one point and color
-calcOne :: Transform -> CastGen -> CastGen
-calcOne transform ( gv, col, ptr) = (newGVec, newCol, newPtr)
+calcOne :: Model -> CastGen -> CastGen
+{-# INLINE calcOne #-}
+calcOne model (gv, col, ptr) = (newGVec, newCol, newPtr)
   where
-    (newPtr , newGen) = getTransformNumber transform (ptr, (gvGen gv))
-    newGVec =  tVariation transform $ gv {gvGen = newGen}
+    transform = (mTransforms model) !! ptr
+    (threshold, newGV) = randomR (0, 1) gv
+    newGVec =  tVariation transform $ newGV
+    
+    newPtr = (-1 + ) $ fromJust
+             $ findIndex
+                 (>= threshold)
+                 (tXaos transform)
     speed = tColorSpeed transform
+    posit = tColorPosition transform
     newCol = (
                (1 + speed)*col
               +
-               (1 - speed)*(tColorPosition transform)
-             ) /2  
-{-# INLINE calcOne #-}
+               (1 - speed)*posit
+             ) /2
 
 applyCamera :: Model -> Vec -> Vec
 applyCamera m (x,y) = (x',y')
@@ -74,9 +96,9 @@ applyCamera m (x,y) = (x',y')
     rotRad = (pi/180*) $ mRotation m
     sinT = sin rotRad
     cosT = cos rotRad
-    scale = mScale m
+    scl = mScale m
     (rotX, rotY) = ( shiftX*cosT-shiftY*sinT, shiftY*cosT+shiftX*sinT)
-    (x',y') =(rotX * scale,rotY * scale)
+    (x',y') =(rotX * scl,rotY * scl)
 
 -- | Список случайных точек из би-единичного квадрата:
 randBUSlist :: RandomGen g => g -> [Vec]
@@ -85,19 +107,3 @@ randBUSlist gen = zip randXS randYS
     (g1,g2) = split gen
     randXS = randomRs (-1,1) g1
     randYS = randomRs (-1,1) g2
-
-getTransformNumber :: RandomGen g => Transform -> (Int, g) -> (Int, g)
-getTransformNumber transform (ptr, gen) 
-  | tXaos transform == [] = (ptr, gen)
-  | otherwise = (chooseTransform list pointer, gen') 
-   where
-    (rand, gen') = randomR (0, 1) gen
-    list = tXaos transform
-    pointer = rand * sum list
-{-# INLINE getTransformNumber #-}
-
-chooseTransform :: [Double] -> Double -> Int
-chooseTransform [] _ = 0
-chooseTransform ( w : ws ) num
-  | (num <= w) = 0
-  | otherwise = 1 + chooseTransform ws (num - w)

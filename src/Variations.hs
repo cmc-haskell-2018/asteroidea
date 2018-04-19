@@ -1,10 +1,11 @@
+{-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-|
 Module      : Variations
 Description : basically a module with Variation Functions
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-{-# LANGUAGE FlexibleInstances #-}
 module Variations where
 import Prelude  
 --import Control.Category

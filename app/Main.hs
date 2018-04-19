@@ -19,7 +19,7 @@ run = do
   genRand <-  newStdGen
   
   let startField =  initField mainModel
-  let field = updateField mainModel (calcFlame genRand mainModel) startField 
+  let field = updateField mainModel (calcFlame mainModel genRand) startField 
   let img = generateImage (fieldCellToPixel mainModel field) (mWidth mainModel) (mHeight mainModel)
   let pic = fromImageRGBA8 img
   
