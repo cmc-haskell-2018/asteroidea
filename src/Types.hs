@@ -19,12 +19,12 @@ type CastGen = (GVec,Double,Int)
 type Cell = (Double,Double,Double,Double)
 type Field = Vector.Vector Cell
 
-linearFieldIndex :: Int -> (Int, Int) -> Int
-linearFieldIndex w (i, j) = i + j * w
+linearFieldIndex :: Model -> (Int, Int) -> Int
+linearFieldIndex m (i, j) = i + j * (mWidth m)
 {-# INLINE linearFieldIndex #-}
 
 -- | Вариация как она есть - перевод GVec -> GVec
-type Variation = GVec -> GVec 
+type Variation = (GVec -> GVec)
 
 -- | Матрицы афинных преобразований
 data AffineMatrix = AffineMatrix {

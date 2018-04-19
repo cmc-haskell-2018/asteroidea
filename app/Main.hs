@@ -20,7 +20,7 @@ run = do
   
   let startField =  initField mainModel
   let field = updateField mainModel startField $ calcFlame genRand mainModel
-  let img = generateImage (fieldCellToPixel (mWidth mainModel) field) (mWidth mainModel) (mHeight mainModel)
+  let img = generateImage (fieldCellToPixel mainModel field) (mWidth mainModel) (mHeight mainModel)
   let pic = fromImageRGBA8 img
   
   savePngImage  "./pic.png" (ImageRGBA8  img) 

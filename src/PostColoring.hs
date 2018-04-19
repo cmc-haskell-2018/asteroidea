@@ -39,9 +39,9 @@ fromImageRGBA8
 
 -- it's actually belongs to a post-coloring
 -- | convert Field element to pixel 
-fieldCellToPixel :: Int -> Field  -> Int -> Int -> PixelRGBA8
-fieldCellToPixel width field x y =
-  toPixel $  field  Vector.! (linearFieldIndex width (x,y))
+fieldCellToPixel :: Model -> Field  -> Int -> Int -> PixelRGBA8
+fieldCellToPixel m field x y =
+  toPixel $  field  Vector.! (linearFieldIndex m (x,y))
   where
     toPixel (r, g, b, a) = PixelRGBA8 nr ng nb 255
      where

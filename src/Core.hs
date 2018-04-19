@@ -45,7 +45,6 @@ calcPath  model vec@(x,y) = path
 calcOne :: Transform -> CastGen -> CastGen
 calcOne transform ( gv, col, ptr) = (newGVec, newCol, newPtr)
   where
-    --(newPtr , newGen) = randomR (0, (length $ tXaos transform) -1 ) (gvGen gv)    
     (newPtr , newGen) = getTransformNumber transform (ptr, (gvGen gv))
     newGVec =  tVariation transform $ gv {gvGen = newGen}
     speed = tColorSpeed transform

@@ -8,7 +8,6 @@ Stability   : in progress
 module Plotter (initField, updateField, linearFieldIndex) where
 import Types
 import Core
-import Data.Maybe
 import qualified Gradient                      (colorMap)
 import qualified Data.Vector.Unboxed as Vector (unsafeThaw, unsafeFreeze,generate)
 import qualified Data.Vector.Unboxed.Mutable as Mutable (modify)
@@ -34,7 +33,7 @@ updateField m oldField points =
     finalFunc Nothing      = id
     finalestPoints =
       map
-        (  \ (GVec g vec, c,i) -> ((applyCamera m vec), c, i) )
+        (  \ (GVec _ vec, c,i) -> ((applyCamera m vec), c, i) )
         (finalFunc (mFinal m) points)
 
 -- | Функция размещения в поле ряда точек.
@@ -73,19 +72,24 @@ produceListFromCasts model startList =
   M.fmap convert filteredList
   where
     convert (coord,col,ind) = (
-        (calcColour model ind)
-      . Gradient.colorMap
-        (mGradient            model)
+        compose
+          (calcColour ind)
+          grad
       $ col        
-      , linearFieldIndex
-        (mWidth               model)
-      . (pointBUStoFieldPoint model)
+      , compose
+          linearFieldIndex
+          pointBUStoFieldPoint
       $ coord             )
     filteredList =
         -- require MonadPlus
-        M.mfilter (inBounds . (\(a,b,c)->a))
+        M.mfilter inBounds
         startList
-    inBounds (x,y) = (control x) && (control y)
+    -- | проверка, что точка входит в поле (-1,1)
+    compose f g = (f model) . (g model) -- TODO right way
+    grad = Gradient.colorMap . mGradient
+    inBounds :: ((Double,Double),b,c) -> Bool
+    inBounds ((x,y),_,_) = (control x) && (control y)
+    control x = (x > - 1) && (x < 1)
 
 -- | convert index from virtual field as BUS to real field as Vector
 pointBUStoFieldPoint
@@ -93,30 +97,24 @@ pointBUStoFieldPoint
   -> (Double, Double) -- точка из би-квадрата
   -> (Int,Int)        -- точка на поле
 pointBUStoFieldPoint model (x', y') =
-  ( truncate $ scaleX *( x'+1)
-  , truncate $ scaleY *(-y'+1)
+  ( truncate $ scaleX' *( x'+1)
+  , truncate $ scaleY' *(-y'+1)
   )
   where 
-    scaleX = half $ mWidth  model
-    scaleY = half $ mHeight model
+    scaleX' = half $ mWidth  model
+    scaleY' = half $ mHeight model
     half x = (fromIntegral x) /2
 
 applyCamera :: Model -> Vec -> Vec
-applyCamera m (x,y) = (scaleX,scaleY)
+applyCamera m (x,y) = (x',y')
   where
     (shiftX, shiftY) = (x+ mShiftX m, y+ mShiftY m)
     rotRad = (pi/180*) $ mRotation m
     sinT = sin rotRad
     cosT = cos rotRad
     (rotX, rotY) = ( shiftX*cosT-shiftY*sinT, shiftY*cosT+shiftX*sinT)
-    (scaleX,scaleY) =(rotX * mScale m,rotY * mScale m )
+    (x',y') =(rotX * mScale m,rotY * mScale m )
 
 -- | TODO alpha blending colours
-calcColour :: Model -> Int -> (Double,Double,Double) -> Cell -> Cell
+calcColour :: Int -> Model -> (Double,Double,Double) -> Cell -> Cell
 calcColour _ _ (r1,g1,b1) (r2, g2, b2, a) = ( (r2+r1), (g2+g1), (b2+b1), (a+1))
-{-# INLINE calcColour #-}
-
--- | проверка, что точка входит в поле (-1,1)
-control :: Double -> Bool
-{-# INLINE control #-}
-control x = (x > - 1) && (x < 1)

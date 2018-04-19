@@ -17,12 +17,10 @@ description:         Please see the README on Github at <https://github.com/cmc-
 
 ghc-options:
 - -Wall
-- -fno-warn-type-defaults
 - -O2
 - -fexcess-precision
 - -optc-ffast-math
 - -fforce-recomp
-- -funbox-strict-fields
 
 dependencies:
 - base >= 4.7 && < 5
@@ -45,6 +43,5 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     - -fexcess-precision
-    - -fno-state-hack
     dependencies:
     - asteroidea
