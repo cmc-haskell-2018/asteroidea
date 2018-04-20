@@ -31,10 +31,10 @@ initXaos m@(Model {mTransforms = trs}) = m { mTransforms = map ini trs }
         list = map weightNormalCoef getRankedWeights
 
 -- | Calculate whole fractal
-calcFlame :: Model -> StdGen -> [(Vec,Double,Transform)]
-calcFlame model gen = finalestPoints
-  where    
-    pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
+calcFlame :: Model -> Int -> [(Vec,Double,Transform)]
+calcFlame model seed = finalestPoints
+  where
+    pointList = take outerIter (randBUSlist seed) -- лист с точками что будем обсчитывать
     outerIter = mOuterIter model -- внешний цикл
     preparedModel = initXaos model
     points = concatMap (calcPath preparedModel) pointList
@@ -103,9 +103,5 @@ applyCamera m (x,y) = (x',y')
     (x',y') =(rotX * scl,rotY * scl)
 
 -- | Список случайных точек из би-единичного квадрата:
-randBUSlist :: StdGen -> [Vec]
-randBUSlist gen = zip randXS randYS
-  where
-    (g1,g2) = split gen
-    randXS = randomRs (-1,1) g1
-    randYS = randomRs (-1,1) g2
+randBUSlist :: Int -> [Vec]
+randBUSlist seed = generate (-1,1) (split $ RND seed)

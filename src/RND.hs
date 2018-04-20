@@ -4,11 +4,11 @@ Description : few instances of random generators
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module RND (module System.Random, module Data.Monoid, RND(..),fromVec,randomR) where
+module RND (module System.Random, module Data.Monoid, RND(..),fromVec,randomR,generate) where
 import System.Random hiding (randomR)
 import Data.Monoid
 -- | Малая реализация ГПСЧ (LCG - linear congruential generator).
--- Предназначена для ограниченного использования в вариациях.
+-- Предназначена для ограниченного использования.
 -- | look for http://statmath.wu.ac.at/prng/doc/prng.html
 newtype RND = RND Int deriving (Eq,Show)
 -- | Исполнение ГПСЧ в интерфейсе стандартного модуля
@@ -17,15 +17,16 @@ instance RandomGen RND where
   genRange _ = rangeRND
   split = splitRND
 
--- | Получение следующего, ГПСЧ базовый
+-- | Получение следующего элемента последовательности, ГПСЧ базовый
 nextRND  :: RND -> (Int, RND)
 {-# INLINE nextRND #-}
-nextRND (RND gen) = (abs (new `mod` 268435456), RND new)
+nextRND (RND gen) = (new `mod` 268435456, RND new)
   where new = (520332806*gen) `mod` 536870909
 
--- | Границы значений. Ограничения взяты с 'nextRND'.
-highLimit :: Double
+-- | Верхний предел, используется в дробной арифметике
+highLimit :: Num a => a
 highLimit = 268435455
+-- | Границы значений. Ограничения взяты с 'nextRND'.
 rangeRND :: (Int,Int)
 {-# INLINE rangeRND #-}
 rangeRND = (0, 268435455)
@@ -49,10 +50,51 @@ fromVec (x,y) =
 instance Monoid RND where
   mempty  = RND 42
   mappend = unionRND
+-- | Слияние двух генераторов, выполнено под моноид
 unionRND :: RND -> RND -> RND
+{-# INLINE unionRND #-}
 unionRND (RND a) (RND b) = RND $ (29908911*a + b) `mod` 268435399
 
+-- | смешение двух генераторов, получение сдвига на новые состояния
+-- | 18 bit LCG from 10 bit lagoon
+remixRND :: (RND, RND) -> (RND, RND)
+remixRND ((RND a), (RND b)) =
+  if c >= 1024 then ((RND b), (RND a))
+  else ((RND gen0), (RND gen1))
+  where
+    c = abs(b-a)
+    gen0 = c*92717 `mod` 262139
+    gen1 = c*21876 `mod` 262139
 
+-- | генерация списка точек заданного диапазона
+generate :: (Double, Double) -> (RND, RND) -> [(Double, Double)]
+{-# INLINABLE generate #-}
+generate (-1,1) genPair = newPair genPair
+generate (a,b) genPair | a<0 && b>0 = map func $ newPair genPair
+  where
+    func = \(x,y) -> (x*a', y*b)
+    a' = abs a
+generate (a,b) genPair = map func $ generate (-1, b-c) genPair
+  where
+    c = 1+a
+    func = (\(x,y)->(x+c,y+c))
+
+-- | 30 bit LCG with good figures of merit, odd c
+newPair :: (RND, RND) -> [(Double, Double)]
+newPair ((RND a), (RND b))
+  | (b-a) > 1024  = (res0, res1) : newPair nextGen
+  | (b-a) < -1024 = newPair ((RND b), (RND a))
+  | otherwise = newPair $ remixRND ((RND a), (RND b))
+  where
+    c = (b - a) * 2 + 1
+    gen0 = (438293613 * a + c) `mod` 1073741824
+    gen1 = (523592853 * a + c) `mod` 1073741824
+    res0 = (fromIntegral gen0) / 1073741824
+    res1 = (fromIntegral gen1) / 1073741824
+    nextGen = (RND gen0, RND gen1)
+
+-- | Instance of Random Class with specializtion
+--   but something went wrong...
 randomR :: Random a => (a, a) -> RND -> (a, RND)
 {-# INLINE[0] randomR #-}
 randomR a g = (head $ randomRs a g, snd $ next g)
@@ -76,8 +118,28 @@ randomBool (False,False) g          = (False   , g       )
 randomBool (True ,True ) g          = (True    , g       )
 
 -- | Int random
+-- basic implementation
 randomInt :: (Int, Int) -> RND -> (Int, RND)
-randomInt _ _ = error "rInt"
+randomInt (a,b) gen | a < b = randomInt (b,a) gen
+randomInt (0,n) (RND gen)
+  | n < highLimit = (new `mod` (n+1), RND new)
+  where
+    new = (520332806*gen) `mod` 536870909
+randomInt (a,b) (RND gen)
+  | a+b > 0 = randomInt (0, a+b) (RND gen)
+-- | aka MMIX by Donald Knuth
+randomInt (x,y) (RND gen0)
+  | otherwise = (fromInteger $ new - x', RND $ fromInteger gen1)
+  where
+    x' = fromIntegral x
+    y' = fromIntegral y
+    gen = fromIntegral gen0
+    a =  6364136223846793005::Integer
+    c =  1442695040888963407::Integer
+    -- m = 18446744073709551616::Integer
+    m = y' - x' + 1
+    (gen1, new) = (a * gen + c) `divMod` m
+
 -- | Integer random
 randomInteger :: (Integer, Integer) -> RND -> (Integer, RND)
 randomInteger _ _ = error "rInteger"
@@ -87,17 +149,9 @@ randomDouble (0,1) gen0 = (res, gen)
   where
     (new, gen) = next gen0
     res = (fromIntegral new) / highLimit
-randomDouble a g = error "nop" -- (head $ randomRs a g, snd $ next g)
-
-{-
-randomR :: (Int,Int) -> RND -> (Int,RND)
-randomR (0,max) (RND gen0)
-  | max == 1 = (new `mod` 2, gen1)
-  | max < level = (new `mod` (max+1), gen1)
-  | otherwise = (new `mod` max, gen1)
+randomDouble (-1,1) (RND gen0) = (res, RND gen)
   where
-    level = 268435399
-    new = 530877178 *gen0
-    gen1 = RND $ gen0 `mod` 536870909
-randomR _ _ = error "randomR"
--}
+    gen = (520332806*gen0) `mod` 536870909
+    new = gen - highLimit
+    res = (fromIntegral new) / highLimit
+randomDouble _ _ = error "nop" -- (head $ randomRs a g, snd $ next g)
