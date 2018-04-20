@@ -85,9 +85,9 @@ exampleModel :: Model
 exampleModel = templateModel {
                        mTransforms = [t1,t2,t3,t4,t5,t6,t7]
                      , mGradient = grad
-                     , mWidth = 1920
-                     , mHeight = 1080
-                     , mInnerIter = 512
+                     , mWidth = 800
+                     , mHeight = 450
+                     , mInnerIter = 256
                      }
   where
     grad = paletteToDouble "\
