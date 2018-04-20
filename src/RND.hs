@@ -82,15 +82,15 @@ generate (a,b) genPair = map func $ generate (-1, b-c) genPair
 -- | 30 bit LCG with good figures of merit, odd c
 newPair :: (RND, RND) -> [(Double, Double)]
 newPair ((RND a), (RND b))
-  | (b-a) > 1024  = (res0, res1) : newPair nextGen
-  | (b-a) < -1024 = newPair ((RND b), (RND a))
+  | d > 1024  = (res0, res1) : newPair nextGen
   | otherwise = newPair $ remixRND ((RND a), (RND b))
   where
-    c = (b - a) * 2 + 1
+    d = abs (b-a)
+    c = d * 2 + 1
     gen0 = (438293613 * a + c) `mod` 1073741824
     gen1 = (523592853 * a + c) `mod` 1073741824
-    res0 = (fromIntegral gen0) / 1073741824
-    res1 = (fromIntegral gen1) / 1073741824
+    res0 = (fromIntegral gen0) / 1073741823
+    res1 = (fromIntegral gen1) / 1073741823
     nextGen = (RND gen0, RND gen1)
 
 -- | Instance of Random Class with specializtion
