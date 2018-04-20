@@ -4,12 +4,12 @@ Description : Module that contains all calculations
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Core(calcOne, calcFlame)  where
+module Core(calcFlame)  where
 import System.Random
 import Types
 import RND (fromVec)
 import Data.List
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isNothing)
 
 {- | Если xaos в трансформе - пустой список,
 то будем считать что переходы к любой другой трансформе равновозможны
@@ -38,22 +38,22 @@ calcFlame model gen = finalestPoints
     outerIter = mOuterIter model -- внешний цикл
     preparedModel = initXaos model
     points = concatMap (calcPath preparedModel) pointList
-    finalFunc (Just final) = map (calc final)
-    finalFunc Nothing      = id
-    calc transform = let
-      varGV =  (tVariation transform)
-      speed = tColorSpeed transform
-      posit = tColorPosition transform
-      shift col = (
-               (1 + speed)*col
-              +
-               (1 - speed)*posit
-             ) /2
-      in \(v,c,i) -> (varGV v, shift c, i)
+    finalpoints = if isNothing $ mFinal model 
+      then points
+      else map (calcFinal $ fromJust $ mFinal model) points
     finalestPoints =
         map
         (  \ (GVec _ vec, c,i) -> ((applyCamera model vec), c, i) )
-        (finalFunc (mFinal model) points)
+        finalpoints
+
+-- | calculate Final transform
+-- it doesn't change pointers
+calcFinal :: Transform -> CastGen -> CastGen
+calcFinal tran (gv, col, ptr) = (newGVec, newCol, ptr)
+  where    
+    newCol = calcCol tran col
+    newGVec =  tVariation tran $ gv 
+
 -- | Calculate and plot Path of one point
 calcPath ::  Model -> Vec -> [CastGen]
 calcPath model vec = path
@@ -67,22 +67,28 @@ calcPath model vec = path
 -- | Calculate one point and color
 calcOne :: Model -> CastGen -> CastGen
 {-# INLINE calcOne #-}
-calcOne model (gv, col, ptr) = (newGVec, newCol, newPtr)
+calcOne model (gv, col, tran) = (newGVec, newCol, newTran)
   where
-    transform = ptr -- (mTransforms model) !! ptr
-    (threshold, newGV) = (randomR (0, 1) gv) :: (Double, GVec)
-    newGVec =  tVariation transform $ newGV    
-    newPtr = ((mTransforms model) !!) $ (-1 + ) $ fromJust
-             $ findIndex
-                 (>= threshold)
-                 (tXaos transform)
-    speed = tColorSpeed transform
-    posit = tColorPosition transform
-    newCol = (
-               (1 + speed)*col
-              +
-               (1 - speed)*posit
-             ) /2
+    newGVec =  tVariation tran $ newGV 
+    newCol = calcCol tran col  
+    (newTran, newGV) = calcPtr model (tran, gv)
+
+-- | Calculate color
+calcCol :: Transform -> Double -> Double
+calcCol tran col = newCol
+  where
+    speed = tColorSpeed tran
+    pos = tColorPosition tran
+    newCol = ((1 + speed)*col + (1 - speed)*pos) / 2
+
+-- | Calculate what transform will be used next
+-- GVec is used as StdGen 
+calcPtr :: Model -> (Transform, GVec) -> (Transform, GVec)
+calcPtr m (tran, gv) = (newTran, newGV)
+  where
+    (threshold, newGV) = randomR (0, 1) gv
+    index = (-1 + ) $ fromJust $ findIndex (>= threshold) (tXaos tran)
+    newTran = mTransforms m !! index
 
 applyCamera :: Model -> Vec -> Vec
 applyCamera m (x,y) = (x',y')
