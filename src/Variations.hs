@@ -13,19 +13,20 @@ import RND
 import Types
 
 -- | convert binary GVec operation to binary Variation operation
+-- if you really need different random generators, use 'splitGen'
+-- @ split :: GVec -> (GVec,GVec) @
 binGVecToVar :: (GVec->GVec->GVec)->Variation->Variation->Variation
 binGVecToVar op v1 v2 = binaryOp
   where
     binaryOp gv = op gv1 gv2
       where
-        gv1 = v1 gv'
-        gv' = gv {gvGen = gen} -- новый генератор
-        gv2@(GVec gen _) = v2 gv
+        gv1 = v1 gv
+        gv2 = v2 gv
 
 instance Eq Variation where
   (==) v1 v2 = and [t1,t2,t3,t4]
    where
-    g = RND 42
+    g = mempty
     t1 = (v1 $ GVec g (1,0)) == (v2 $ GVec g (1,0))
     t2 = (v1 $ GVec g (-1,-1)) == (v2 $ GVec g (-1,-1))
     t3 = (v1 $ GVec g (0.05,-0.234)) == (v2 $ GVec g (0.05,-0.234))

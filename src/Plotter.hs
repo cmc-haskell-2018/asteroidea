@@ -55,8 +55,6 @@ produceListFromCasts model startList =
       ,   (linearFieldIndex model) .
           (pointBUStoFieldPoint model)
       $ coord             )
-    -- | проверка, что точка входит в поле (-1,1)
-    compose f g = (f model) . (g model) -- TODO right way
     grad = Gradient.colorMap . mGradient
 
 -- | convert index from virtual field as BUS to real field as Vector

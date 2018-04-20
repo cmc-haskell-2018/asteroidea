@@ -16,7 +16,7 @@ type Vec = (Double, Double)
 data GVec = GVec {
   gvGen :: RND,    -- ^ Генератор
   gvVec :: Vec     -- ^ Вектор
-} deriving(Show)
+} deriving(Eq,Show)
 
 
 -- | Вычленение x,y координат из GVec
@@ -38,9 +38,6 @@ nextGen :: GVec -> (Int, GVec)
 nextGen (GVec gen0 vec) = (res, (GVec gen1 vec))
   where (res,gen1) = next gen0
 
-instance Eq GVec where
-  (==) gv1 gv2 = gvVec gv1 == gvVec gv2 && (show $ gvGen gv1) == (show $ gvGen gv2)
-
 -- | arctan x/y
 phase :: GVec->Double
 phase (GVec _ (0,0)) = 0
@@ -60,8 +57,8 @@ radiusSqr :: GVec -> Double
 radiusSqr (GVec _ (x,y)) = x*x + y*y
 
 instance Num GVec where
-  (+) (GVec g (x1,y1)) (GVec _ (x2,y2)) = GVec g ( x1+x2, y1+y2) 
-  (*) (GVec g (x1,y1)) (GVec _ (x2,y2)) = GVec g ( x1*x2-y1*y2, x1*y2+x2*y1)
+  (+) (GVec f (x1,y1)) (GVec g (x2,y2)) = GVec (f<>g) ( x1+x2, y1+y2) 
+  (*) (GVec f (x1,y1)) (GVec g (x2,y2)) = GVec (f<>g) ( x1*x2-y1*y2, x1*y2+x2*y1)
   negate (GVec g (x1,y1)) = GVec g (negate x1, negate y1)
   abs gv@(GVec g _) = GVec g (magnitude gv, 0) 
   signum (GVec g (0,0)) = GVec g (0, 0)

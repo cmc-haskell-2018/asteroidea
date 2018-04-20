@@ -4,12 +4,13 @@ Description : few instances of random generators
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module RND (module System.Random, RND(..),fromVec) where
+module RND (module System.Random, module Data.Monoid, RND(..),fromVec) where
 import System.Random
+import Data.Monoid
 -- | Малая реализация ГПСЧ (LCG - linear congruential generator).
 -- Предназначена для ограниченного использования в вариациях.
 -- | look for http://statmath.wu.ac.at/prng/doc/prng.html
-newtype RND = RND Int deriving (Show)
+newtype RND = RND Int deriving (Eq,Show)
 -- | Исполнение ГПСЧ в интерфейсе стандартного модуля
 instance RandomGen RND where
   next = nextRND
@@ -18,10 +19,11 @@ instance RandomGen RND where
 -- | Получение следующего, ГПСЧ базовый
 nextRND  :: RND -> (Int, RND)
 {-# INLINE nextRND #-}
-nextRND (RND a) = (abs (new) `mod` 268435456, RND new)
-  where new = 520332806*a `mod` 536870909
+nextRND (RND gen) = (abs (new) `mod` 268435456, RND new)
+  where new = (520332806*gen) `mod` 536870909
 -- | Границы значений. Ограничения взяты с 'nextRND'.
 rangeRND :: (Int,Int)
+{-# INLINE rangeRND #-}
 rangeRND = (0, 268435455)
 -- | Разделение генераторов на базе двух других генераторов.
 -- второй предполагается основным генератором состояния,
@@ -38,3 +40,9 @@ splitRND (RND gen0) = (RND gen1, RND gen2)
 fromVec :: (Double, Double) -> RND
 fromVec (x,y) =
   RND $ floor $ (x+y)*2147483562
+
+instance Monoid RND where
+  mempty  = RND 42
+  mappend = unionRND
+unionRND :: RND -> RND -> RND
+unionRND (RND a) (RND b) = RND $ (29908911*a + b) `mod` 268435399
