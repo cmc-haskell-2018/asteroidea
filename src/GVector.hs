@@ -33,7 +33,7 @@ instance RandomGen GVec where
 splitGen :: GVec -> (GVec, GVec)
 splitGen (GVec gen0 vec) = ( (GVec gen1 vec),(GVec gen2 vec) )
   where (gen1,gen2) = split gen0
--- | Разделение генераторов в два GVec
+-- | Следующее значение генератора
 nextGen :: GVec -> (Int, GVec)
 nextGen (GVec gen0 vec) = (res, (GVec gen1 vec))
   where (res,gen1) = next gen0

@@ -4,7 +4,7 @@ Description : few instances of random generators
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module RND (module System.Random, module Data.Monoid, RND(..),fromVec) where
+module RND (module System.Random, module Data.Monoid, RND(..),fromVec, randomB) where
 import System.Random
 import Data.Monoid
 -- | Малая реализация ГПСЧ (LCG - linear congruential generator).
@@ -19,7 +19,7 @@ instance RandomGen RND where
 -- | Получение следующего, ГПСЧ базовый
 nextRND  :: RND -> (Int, RND)
 {-# INLINE nextRND #-}
-nextRND (RND gen) = (abs (new) `mod` 268435456, RND new)
+nextRND (RND gen) = (abs (new `mod` 268435456), RND new)
   where new = (520332806*gen) `mod` 536870909
 -- | Границы значений. Ограничения взяты с 'nextRND'.
 rangeRND :: (Int,Int)
@@ -46,3 +46,20 @@ instance Monoid RND where
   mappend = unionRND
 unionRND :: RND -> RND -> RND
 unionRND (RND a) (RND b) = RND $ (29908911*a + b) `mod` 268435399
+
+randomB :: RND -> (Bool, RND)
+randomB (RND gen0) = (res == 0, RND gen1)
+  where (gen1, res) = (gen0 + 4282663) `divMod` 2 -- aka cc65
+
+{-
+randomR :: (Int,Int) -> RND -> (Int,RND)
+randomR (0,max) (RND gen0)
+  | max == 1 = (new `mod` 2, gen1)
+  | max < level = (new `mod` (max+1), gen1)
+  | otherwise = (new `mod` max, gen1)
+  where
+    level = 268435399
+    new = 530877178 *gen0
+    gen1 = RND $ gen0 `mod` 536870909
+randomR _ _ = error "randomR"
+-}

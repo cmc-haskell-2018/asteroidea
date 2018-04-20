@@ -74,7 +74,7 @@ calcOne :: Model -> CastGen -> CastGen
 calcOne model (gv, col, ptr) = (newGVec, newCol, newPtr)
   where
     transform = ptr -- (mTransforms model) !! ptr
-    (threshold, newGV) = randomR (0, 1) gv
+    (threshold, newGV) = (randomR (0, 1) gv) :: (Double, GVec)
     newGVec =  tVariation transform $ newGV
     
     newPtr = ((mTransforms model) !!) $ (-1 + ) $ fromJust

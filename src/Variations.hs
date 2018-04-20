@@ -173,19 +173,19 @@ sumMultAxis g@(GVec _ (x,y)) = g {gvVec = ((x+y) * x , (x+y) * y )}
 mirrorX :: Variation
 mirrorX (GVec g (x,y)) = GVec g' (x',y)
   where
-    (i,g') = randomR (0::Int,1) g
-    x' = if i == 0 then x else negate x
+    (i,g') = randomB g
+    x' = if i then x else negate x
 
 mirrorY :: Variation
 mirrorY (GVec g (x,y)) = GVec g' (x,y')
   where
-    (i,g') = randomR (0::Int,1) g
-    y' = if i == 0 then y else negate y
+    (i,g') = randomB g
+    y' = if i then y else negate y
 
 mirrorR :: Variation
 mirrorR gv@(GVec g (x,y)) = GVec g' (x',y')
   where
     r = radiusSqr gv
-    (i,g') = randomR (0::Int,1) g
-    y' = if i == 0 then y else y/r
-    x' = if i == 0 then x else x/r
+    (i,g') = randomB g
+    y' = if i then y else y/r
+    x' = if i then x else x/r
