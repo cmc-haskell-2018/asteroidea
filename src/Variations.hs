@@ -20,8 +20,9 @@ binGVecToVar op v1 v2 = binaryOp
   where
     binaryOp gv = op gv1 gv2
       where
-        gv1 = v1 gv
-        gv2 = v2 gv
+        gv1@(GVec gen _) = v1 gv
+        gv' = gv {gvGen = gen <> gvGen gv}  -- новый генератор
+        gv2 = v2 gv'
 
 instance Eq Variation where
   (==) v1 v2 = and [t1,t2,t3,t4]

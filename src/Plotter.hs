@@ -28,7 +28,7 @@ updateField  ::  Model
   -> Field
   -> Field
 updateField model listCast field = let
-    listFieldPoints = produceListFromCasts model listCast
+    listFieldPoints = produceListFromCasts model $ filter (inBounds model) listCast
   in runST $ do 
      mutableVector <- Vector.unsafeThaw field
      _             <- mapM_
@@ -38,6 +38,13 @@ updateField model listCast field = let
      return updatedField
   where
     plot vector = \(c,v) -> Mutable.modify vector c v
+
+inBounds :: Model -> (Vec,Double,Transform) -> Bool
+inBounds m ((x,y) , _ , _) = flag
+  where
+  	divHW = fromIntegral (mHeight m) / fromIntegral (mWidth m)
+  	flag = abs x < 1 && abs y < divHW
+
 
 -- | Генерация из списка Cast списка вида (mutate colour, position)
 -- для работы 'Vector.Mutable.modify'
@@ -62,14 +69,13 @@ pointBUStoFieldPoint
   :: Model            -- параметры модели
   -> (Double, Double) -- точка из би-квадрата
   -> (Int,Int)        -- точка на поле
-pointBUStoFieldPoint model (x', y') =
-  ( truncate $ scaleX' *( x'+1)
-  , truncate $ scaleY' *(-y'+1)
+pointBUStoFieldPoint m (x, y) =
+  ( truncate $ scale *( x+1)
+  , truncate $ scale *(-y+divHW)
   )
-  where 
-    scaleX' = half $ mWidth  model
-    scaleY' = half $ mHeight model
-    half x = (fromIntegral x) /2
+  where
+    divHW = fromIntegral (mHeight m) / fromIntegral (mWidth m)
+    scale = fromIntegral (mWidth  m) / 2
 
 -- | TODO alpha blending colours
 calcColour :: Transform -> (Double,Double,Double) -> Cell -> Cell

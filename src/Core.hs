@@ -51,13 +51,9 @@ calcFlame model gen = finalestPoints
              ) /2
       in \(v,c,i) -> (varGV v, shift c, i)
     finalestPoints =
-      filter inBounds $
         map
         (  \ (GVec _ vec, c,i) -> ((applyCamera model vec), c, i) )
         (finalFunc (mFinal model) points)
-    inBounds ((x,y),_,_) = (control x) && (control y)
-    control x = (x > - 1) && (x < 1)
-
 -- | Calculate and plot Path of one point
 calcPath ::  Model -> Vec -> [CastGen]
 calcPath model vec = path
@@ -75,8 +71,7 @@ calcOne model (gv, col, ptr) = (newGVec, newCol, newPtr)
   where
     transform = ptr -- (mTransforms model) !! ptr
     (threshold, newGV) = (randomR (0, 1) gv) :: (Double, GVec)
-    newGVec =  tVariation transform $ newGV
-    
+    newGVec =  tVariation transform $ newGV    
     newPtr = ((mTransforms model) !!) $ (-1 + ) $ fromJust
              $ findIndex
                  (>= threshold)
