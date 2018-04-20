@@ -24,7 +24,7 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
 -- | Функция размещения в поле ряда точек.
 -- Если я успею, то сделаю всё более красиво и понятно.
 updateField  ::  Model
-  -> [(Vec,Double,Int)]
+  -> [(Vec,Double,Transform)]
   -> Field
   -> Field
 updateField model listCast field = let
@@ -43,19 +43,17 @@ updateField model listCast field = let
 -- для работы 'Vector.Mutable.modify'
 produceListFromCasts
   :: Model                -- ^ Параметры преобразований. Зачем я их таскаю?
-  -> [(Vec,Double,Int)]   -- ^ Структура бросков. TODO effective
+  -> [(Vec,Double,Transform)]   -- ^ Структура бросков. TODO effective
   -> [(Cell -> Cell,Int)] -- ^ Результат - функция-модификатор и индекс.
 produceListFromCasts model startList =
   map convert startList
   where
     convert (coord,col,ind) = (
-        compose
-          (calcColour ind)
-          grad
+        (calcColour ind)
+      $ grad model
       $ col        
-      , compose
-          linearFieldIndex
-          pointBUStoFieldPoint
+      ,   (linearFieldIndex model) .
+          (pointBUStoFieldPoint model)
       $ coord             )
     -- | проверка, что точка входит в поле (-1,1)
     compose f g = (f model) . (g model) -- TODO right way
@@ -76,5 +74,5 @@ pointBUStoFieldPoint model (x', y') =
     half x = (fromIntegral x) /2
 
 -- | TODO alpha blending colours
-calcColour :: Int -> Model -> (Double,Double,Double) -> Cell -> Cell
-calcColour _ _ (r1,g1,b1) (r2, g2, b2, a) = ( (r2+r1), (g2+g1), (b2+b1), (a+1))
+calcColour :: Transform -> (Double,Double,Double) -> Cell -> Cell
+calcColour _ (r1,g1,b1) (r2, g2, b2, a) = ( (r2+r1), (g2+g1), (b2+b1), (a+1))

@@ -14,7 +14,7 @@ import Gradient
 type Cast = (Vec, Double)
 
 -- | Бросок , цвет , номер трансформы
-type CastGen = (GVec,Double,Int)
+type CastGen = (GVec,Double,Transform)
 
 type Cell = (Double,Double,Double,Double)
 type Field = Vector.Vector Cell

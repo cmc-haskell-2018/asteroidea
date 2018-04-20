@@ -31,7 +31,7 @@ initXaos m@(Model {mTransforms = trs}) = m { mTransforms = map ini trs }
         list = map weightNormalCoef getRankedWeights
 
 -- | Calculate whole fractal
-calcFlame :: Model -> StdGen -> [(Vec,Double,Int)]
+calcFlame :: Model -> StdGen -> [(Vec,Double,Transform)]
 calcFlame model gen = finalestPoints
   where    
     pointList = take outerIter (randBUSlist gen) -- лист с точками что будем обсчитывать
@@ -64,7 +64,7 @@ calcPath model vec = path
   where
     gen =  fromVec vec
     innerIter = mInnerIter model --  внутренний цикл
-    start = (GVec gen vec, 0.5, 0) -- here can be INITIAL transform
+    start = (GVec gen vec, 0.5, head $ mTransforms model) -- here can be INITIAL transform
     infPath = iterate (calcOne model) start -- весь путь точки
     path = drop 20 $ take innerIter $ infPath 
 
@@ -73,11 +73,11 @@ calcOne :: Model -> CastGen -> CastGen
 {-# INLINE calcOne #-}
 calcOne model (gv, col, ptr) = (newGVec, newCol, newPtr)
   where
-    transform = (mTransforms model) !! ptr
+    transform = ptr -- (mTransforms model) !! ptr
     (threshold, newGV) = randomR (0, 1) gv
     newGVec =  tVariation transform $ newGV
     
-    newPtr = (-1 + ) $ fromJust
+    newPtr = ((mTransforms model) !!) $ (-1 + ) $ fromJust
              $ findIndex
                  (>= threshold)
                  (tXaos transform)
