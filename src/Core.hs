@@ -5,11 +5,11 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 module Core(calcOne, calcFlame)  where
-import System.Random
 import Types
-import RND (fromVec)
+import RND
 import Data.List
 import Data.Maybe (fromJust)
+-- import System.Random (StdGen, next, split, genRange)
 
 {- | Если xaos в трансформе - пустой список,
 то будем считать что переходы к любой другой трансформе равновозможны
@@ -69,9 +69,10 @@ calcOne :: Model -> CastGen -> CastGen
 {-# INLINE calcOne #-}
 calcOne model (gv, col, ptr) = (newGVec, newCol, newPtr)
   where
-    transform = ptr -- (mTransforms model) !! ptr
-    (threshold, newGV) = (randomR (0, 1) gv) :: (Double, GVec)
-    newGVec =  tVariation transform $ newGV    
+    transform = ptr
+    gen0 = gvGen gv
+    (threshold, gen1) = randomR (0, 1) gen0
+    newGVec =  tVariation transform $ gv {gvGen = gen1}   
     newPtr = ((mTransforms model) !!) $ (-1 + ) $ fromJust
              $ findIndex
                  (>= threshold)
@@ -96,7 +97,7 @@ applyCamera m (x,y) = (x',y')
     (x',y') =(rotX * scl,rotY * scl)
 
 -- | Список случайных точек из би-единичного квадрата:
-randBUSlist :: RandomGen g => g -> [Vec]
+randBUSlist :: StdGen -> [Vec]
 randBUSlist gen = zip randXS randYS
   where
     (g1,g2) = split gen

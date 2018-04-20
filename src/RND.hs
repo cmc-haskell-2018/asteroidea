@@ -4,8 +4,8 @@ Description : few instances of random generators
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module RND (module System.Random, module Data.Monoid, RND(..),fromVec, randomB) where
-import System.Random
+module RND (module System.Random, module Data.Monoid, RND(..),fromVec,randomR) where
+import System.Random hiding (randomR)
 import Data.Monoid
 -- | Малая реализация ГПСЧ (LCG - linear congruential generator).
 -- Предназначена для ограниченного использования в вариациях.
@@ -16,15 +16,20 @@ instance RandomGen RND where
   next = nextRND
   genRange _ = rangeRND
   split = splitRND
+
 -- | Получение следующего, ГПСЧ базовый
 nextRND  :: RND -> (Int, RND)
 {-# INLINE nextRND #-}
 nextRND (RND gen) = (abs (new `mod` 268435456), RND new)
   where new = (520332806*gen) `mod` 536870909
+
 -- | Границы значений. Ограничения взяты с 'nextRND'.
+highLimit :: Double
+highLimit = 268435455
 rangeRND :: (Int,Int)
 {-# INLINE rangeRND #-}
 rangeRND = (0, 268435455)
+
 -- | Разделение генераторов на базе двух других генераторов.
 -- второй предполагается основным генератором состояния,
 -- первый - генератором малого ряда значений
@@ -47,9 +52,42 @@ instance Monoid RND where
 unionRND :: RND -> RND -> RND
 unionRND (RND a) (RND b) = RND $ (29908911*a + b) `mod` 268435399
 
-randomB :: RND -> (Bool, RND)
-randomB (RND gen0) = (res == 0, RND gen1)
-  where (gen1, res) = (gen0 + 4282663) `divMod` 2 -- aka cc65
+
+randomR :: Random a => (a, a) -> RND -> (a, RND)
+{-# INLINE[0] randomR #-}
+randomR a g = (head $ randomRs a g, snd $ next g)
+{-# RULES
+"randomR/Bool" randomR = randomBool
+"randomR/Int" randomR = randomInt
+"randomR/Double" randomR = randomDouble
+"randomR/Integer" randomR = randomInteger
+#-}
+
+-- | Boolean random
+-- module 2^30, (True,False) is inverse version of (False,True)
+-- entropy is reducing
+randomBool :: (Bool, Bool) -> RND -> (Bool, RND)
+-- randomBool _ _ = error "rBool"
+randomBool (True ,False) (RND gen0) = (res == 0, RND gen1)
+  where (gen1, res) = (gen0 *  17372909) `divMod` 2
+randomBool (False,True ) (RND gen0) = (res == 0, RND gen1)
+  where (gen1, res) = (gen0 * 177911525) `divMod` 2
+randomBool (False,False) g          = (False   , g       )
+randomBool (True ,True ) g          = (True    , g       )
+
+-- | Int random
+randomInt :: (Int, Int) -> RND -> (Int, RND)
+randomInt _ _ = error "rInt"
+-- | Integer random
+randomInteger :: (Integer, Integer) -> RND -> (Integer, RND)
+randomInteger _ _ = error "rInteger"
+-- | Double random
+randomDouble :: (Double, Double) -> RND -> (Double, RND)
+randomDouble (0,1) gen0 = (res, gen)
+  where
+    (new, gen) = next gen0
+    res = (fromIntegral new) / highLimit
+randomDouble a g = error "nop" -- (head $ randomRs a g, snd $ next g)
 
 {-
 randomR :: (Int,Int) -> RND -> (Int,RND)

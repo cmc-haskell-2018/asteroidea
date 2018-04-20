@@ -42,8 +42,8 @@ updateField model listCast field = let
 inBounds :: Model -> (Vec,Double,Transform) -> Bool
 inBounds m ((x,y) , _ , _) = flag
   where
-  	divHW = fromIntegral (mHeight m) / fromIntegral (mWidth m)
-  	flag = abs x < 1 && abs y < divHW
+    divHW = fromIntegral (mHeight m) / fromIntegral (mWidth m)
+    flag = abs x < 1 && abs y < divHW
 
 
 -- | Генерация из списка Cast списка вида (mutate colour, position)
@@ -70,12 +70,14 @@ pointBUStoFieldPoint
   -> (Double, Double) -- точка из би-квадрата
   -> (Int,Int)        -- точка на поле
 pointBUStoFieldPoint m (x, y) =
-  ( truncate $ scale *( x+1)
-  , truncate $ scale *(-y+divHW)
+  ( convert ( x+1)
+  , convert (-y+ratio)
   )
   where
-    divHW = fromIntegral (mHeight m) / fromIntegral (mWidth m)
-    scale = fromIntegral (mWidth  m) / 2
+    convert = truncate . (width/2 *)
+    ratio  = height / width
+    width  = fromIntegral (mWidth  m)
+    height = fromIntegral (mHeight m)
 
 -- | TODO alpha blending colours
 calcColour :: Transform -> (Double,Double,Double) -> Cell -> Cell
