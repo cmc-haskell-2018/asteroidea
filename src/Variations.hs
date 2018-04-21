@@ -24,6 +24,7 @@ binGVecToVar op v1 v2 = binaryOp
         gv' = gv {gvGen = gen <> gvGen gv}  -- новый генератор
         gv2 = v2 gv'
 
+{-
 instance Eq Variation where
   (==) v1 v2 = and [t1,t2,t3,t4]
    where
@@ -32,6 +33,7 @@ instance Eq Variation where
     t2 = (v1 $ GVec g (-1,-1)) == (v2 $ GVec g (-1,-1))
     t3 = (v1 $ GVec g (0.05,-0.234)) == (v2 $ GVec g (0.05,-0.234))
     t4 = (v1 $ GVec g (-1123,1.1)) == (v2 $ GVec g (-1123,1.1))
+-}
 
 instance Num Variation where
   (+) = binGVecToVar (+)
@@ -46,9 +48,28 @@ instance Fractional Variation where
   (/) = binGVecToVar (/)
 
 -- ======== преобразования
+
 -- | афинное преобразование
-affine :: AffineMatrix -> Variation 
-affine m g@(GVec _ (x,y)) = g {gvVec = (xx m * x + xy m * y + ox m, yx m * x + yy m * y + oy m)}
+{- @
+ [ xx xy ox ]   [x]    [xx*x + xy*y + ox]
+ [ yx yy oy ] x [y] == [yx*x + yy*y + oy]
+ [ 0  0  1  ]   [1]    [        1       ]
+   @
+-}
+affine :: AffineMatrix -> Variation
+{-# INLINE[~1] affine #-}
+affine (AffineMatrix sx 0 0 sy 0 0)
+  g@(GVec _ (x,y))
+  = g {gvVec = (x * sx, y * sy)}
+affine (AffineMatrix sx 0 0 sy a b)
+  g@(GVec _ (x,y))
+  = g {gvVec = (x * sx + a, y * sy + b)}
+affine (AffineMatrix xx0 xy0 yx0 yy0 a b)
+  g@(GVec _ (x,y))
+  = g {gvVec = (x', y')}
+  where
+    x' = xx0 * x + xy0 * y + a
+    y' = yx0 * x + yy0 * y + b
 
 -- | сферическое преобразование
 spherical :: Variation
@@ -57,15 +78,16 @@ spherical  g@(GVec _ (x,y))  = g{gvVec = (coef *x, coef *y)}
 
 -- | отображение в стиле множества Жюлиа
 juliaN ::Double-> Double-> Variation 
-juliaN  power dist g@(GVec gen _) = GVec gen' (r**(dist/power)*(cos t) , r**(dist/power)*(sin t))
+juliaN  power dist g@(GVec gen _) =
+  GVec gen' (r**(dist/power)*(cos t) , r**(dist/power)*(sin t))
   where r = magnitude g
-        (k, gen') = random gen
+        (k, gen') = randomR (0,1) gen
         p3 = fromInteger . truncate $ k*power
         t = (phase g + 2*pi*p3)/power
 
 -- | линейное преобразование
 linear :: Variation
-linear  g = g
+linear g = g
 
 -- | синусоидальное преобразование
 sinusoidal :: Variation
@@ -109,8 +131,8 @@ hyperbolic g = g {gvVec = ((sin th)/r, r*(cos th))}
 -- | square
 square :: Variation
 square (GVec gen _) = GVec n2 (psi1 - 0.5 , psi2 - 0.5)
-  where (psi1, n1) = random gen
-        (psi2, n2) = random n1
+  where (psi1, n1) = randomR (0,1) gen
+        (psi2, n2) = randomR (0,1) n1
 
 -- | eyefish
 eyefish :: Variation
@@ -129,31 +151,39 @@ cylinder g@(GVec _ (x,y)) = g{gvVec = (sin x , y)}
 -- | noise
 noise :: Variation
 noise (GVec gen (x,y)) = GVec n2 (psi1 * x * (cos (2*pi*psi2)) , psi1 * y * (sin (2*pi*psi2)))
-  where (psi1, n1) = random gen
-        (psi2, n2) = random n1 
+  where (psi1, n1) = randomR (0,1) gen
+        (psi2, n2) = randomR (0,1) n1 
 
 -- | blur
 blur :: Variation
 blur (GVec gen _) = GVec n2 (psi1 * (cos (2*pi*psi2)) , psi1 * (sin (2*pi*psi2)))
-  where (psi1, n1) = random gen
-        (psi2, n2) = random n1
+  where (psi1, n1) = randomR (0,1) gen
+        (psi2, n2) = randomR (0,1) n1
 
 -- | gaussian
 gaussian :: Variation
 gaussian gv = GVec n5 (s . cos $ arg , s . sin $ arg)
   where
     n0 = gvGen gv
-    (psi1, n1) = random n0
-    (psi2, n2) = random n1
-    (psi3, n3) = random n2
-    (psi4, n4) = random n3
-    (psi5, n5) = random n4
+    (psi1, n1) = randomR (0,1) n0
+    (psi2, n2) = randomR (0,1) n1
+    (psi3, n3) = randomR (0,1) n2
+    (psi4, n4) = randomR (0,1) n3
+    (psi5, n5) = randomR (0,1) n4
     s = (*) $ psi1 + psi2 + psi3 + psi4 - 2
     arg = 2*pi*psi5
 
 -- | exponential 
-exponential :: Double-> Double-> Variation
-exponential dx dy g@(GVec _ (x,y)) = g{gvVec = ((exp (x - 1 + dx)) * (cos (pi*(y+dy))) , (exp (x - 1 + dx)) * (sin (pi*(y+dy))))}
+exponential :: Double -> Double -> Variation
+exponential dx dy g@(GVec _ (x,y)) =
+  g { gvVec
+           =( expX * cos phi
+            , expX * sin phi
+            )
+    }
+  where
+    expX = (exp $ x - 1 + dx)
+    phi  = pi*(y+dy)
 
 -- | покомпонентный квадрат
 -- квадрат, разреженный с краёв. смыкается по осям к (0,0)
@@ -188,5 +218,6 @@ mirrorR gv@(GVec g (x,y)) = GVec g' (x',y')
   where
     r = radiusSqr gv
     (i,g') = randomR (False,True) g
-    y' = if i then y else y/r
-    x' = if i then x else x/r
+    ff = if i then id else (/r)
+    y' = ff y
+    x' = ff x

@@ -1,25 +1,30 @@
+{-# LANGUAGE NegativeLiterals #-}
+{-|
+Module      : Tile
+Description : Example fractal: Tiles
+Copyright   : Just Nothing
+Stability   : Stable
+-}
 module Model.Tile (mainModel) where
---import Control.Category
-import Variations
---import Graphics.Gloss
+import Variations (affine)
+import Gradient   (paletteToDouble)
 import Types
-import Gradient
-
+-- | export model
 mainModel :: Model
 mainModel = exampleModel
 
-
+-- | DEBUG affine 1
 dbgAffine1 :: AffineMatrix
-dbgAffine1 = AffineMatrix 0.5 0 0 0.5 0.5 0.5
+dbgAffine1 = stdMatrix {ox =  0.5 , oy =  0.5 }
 -- | DEBUG affine 2
 dbgAffine2 :: AffineMatrix
-dbgAffine2 = AffineMatrix 0 0.5 (-0.5) 0 (-0.5) (-0.5)
+dbgAffine2 = stdMatrix {ox = -0.5 , oy = -0.5 }
 -- | DEBUG affine 3
 dbgAffine3 :: AffineMatrix
-dbgAffine3 = AffineMatrix 0.5 0 0 0.5 0.5 (-0.5)
+dbgAffine3 = stdMatrix {ox =  0.5 , oy = -0.5 }
 -- | DEBUG affine 4
 dbgAffine4 :: AffineMatrix
-dbgAffine4 = AffineMatrix 0 0.5 (-0.5) 0 (-0.5) 0.5
+dbgAffine4 = stdMatrix {ox = -0.5 , oy =  0.5 }
 
 t1 :: Transform
 -- ^ DEBUG transform 1

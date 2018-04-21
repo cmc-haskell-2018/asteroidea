@@ -1,39 +1,48 @@
+{-# LANGUAGE NegativeLiterals #-}
+{-|
+Module      : Square
+Description : Example fractal: Square
+Copyright   : Just Nothing
+Stability   : Stable
+-}
 module Model.Square (mainModel) where
---import Control.Category
-import Variations
---import Graphics.Gloss
+import Variations   (affine, exponential)
+import Gradient     (paletteToDouble)
 import Types
-import Gradient
+-- | export model
 mainModel :: Model
 mainModel = exampleModel
 
+tempMx :: AffineMatrix
+tempMx = stdMatrix{xx=t, yy=t}
+  where t = 1/3
 
 v1 :: AffineMatrix
-v1 = AffineMatrix 0.333333333 0 0 0.333333333 0 0
+v1 = tempMx
 
 v2 :: AffineMatrix
-v2 = AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0
+v2 = tempMx{ox =  1/3             }
 
 v3 :: AffineMatrix
-v3 = AffineMatrix 0.333333333 0 0 0.333333333 0 (-0.333333333)
+v3 = tempMx{            oy = -1/3 }
 
 v4 :: AffineMatrix
-v4 = AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0
+v4 = tempMx{ox = -1/3             }
 
 v5 :: AffineMatrix
-v5 = AffineMatrix 0.333333333 0 0 0.333333333 0 0.333333333
+v5 = tempMx{            oy =  1/3 }
 
 v6 :: AffineMatrix
-v6 = AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 0.333333333
+v6 = tempMx{ox =  1/3 , oy =  1/3 }
 
 v7 :: AffineMatrix
-v7 = AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) 0.333333333
+v7 = tempMx{ox = -1/3 , oy =  1/3 }
 
 v8 :: AffineMatrix
-v8 = AffineMatrix 0.333333333 0 0 0.333333333 (-0.333333333) (-0.333333333)
+v8 = tempMx{ox = -1/3 , oy = -1/3 }
 
 v9 :: AffineMatrix
-v9 = AffineMatrix 0.333333333 0 0 0.333333333 0.333333333 (-0.333333333)
+v9 = tempMx{ox =  1/3 , oy = -1/3 }
 
 
 
@@ -93,7 +102,7 @@ exampleModel :: Model
 exampleModel = templateModel { 
                        mTransforms = [t1,t2,t3,t4,t5,t6,t7,t8,t9]
                      , mGradient = grad 
-                     , mShiftX = (-0.5)
+                     , mShiftX = -0.5
                      , mScale = 2
                      , mFinal = Just templateTransform { tVariation = exponential 1 0 . (*2) }
                      }

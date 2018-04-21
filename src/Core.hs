@@ -20,6 +20,7 @@ prepareModel :: Model -> Model
 prepareModel model = model
   { mTransforms = map initCol $ map initOne list
   , mFinal      = initCol <$> final
+  , mRotation   = (pi/180*) $ mRotation model
   }
   where
     list  = mTransforms model
@@ -119,13 +120,13 @@ applyCamera :: Model -> Vec -> Vec
 applyCamera m (x,y) = (x',y')
   where
     (shiftX, shiftY) = (x+ mShiftX m, y+ mShiftY m)
-    rotRad = (pi/180*) $ mRotation m
-    sinT = sin rotRad
-    cosT = cos rotRad
+    rotRad = mRotation m
+    sinT = scl * (sin rotRad)
+    cosT = scl * (cos rotRad)
     scl = mScale m
-    (rotX, rotY) = ( shiftX*cosT-shiftY*sinT, shiftY*cosT+shiftX*sinT)
-    (x',y') =(rotX * scl,rotY * scl)
+    (rotX, rotY) = (shiftX*cosT-shiftY*sinT, shiftY*cosT+shiftX*sinT)
+    (x',y') =(rotX,rotY)
 
 -- | Список случайных точек из би-единичного квадрата:
 randBUSlist :: Int -> [Vec]
-randBUSlist seed = generate (-1,1) (split $ RND seed)
+randBUSlist seed = generate (-1,1) (RND seed)

@@ -1,35 +1,39 @@
+{-# LANGUAGE NegativeLiterals #-}
+{-|
+Module      : Hex
+Description : Example fractal: Hex
+Copyright   : Just Nothing
+Stability   : Stable
+-}
 module Model.Hex (mainModel) where
-
---import Control.Category
-import Variations
-import Gradient
---import Graphics.Gloss
+import Variations (affine)
+import Gradient   (paletteToDouble)
 import Types
-
+-- | export model
 mainModel :: Model
 mainModel = exampleModel
 
-
+-- | DEBUG affine 1
 af1 :: AffineMatrix
-af1 = AffineMatrix 0.5 0 0 0.5 1 0
-
+af1 = stdMatrix {ox=  1                     }
+-- | DEBUG affine 2
 af2 :: AffineMatrix
-af2 = AffineMatrix 0.5 0 0 0.5 0.49975 0.866169
-
+af2 = stdMatrix {ox=  0.49975 ,oy= 0.866169 }
+-- | DEBUG affine 3
 af3 :: AffineMatrix
-af3 = AffineMatrix 0.5 0 0 0.5 0.49975 (-0.86616)
-
+af3 = stdMatrix {ox=  0.49975 ,oy= -0.86616 }
+-- | DEBUG affine 4
 af4 :: AffineMatrix
-af4 = AffineMatrix 0.5 0 0 0.5 (-0.49975) (-0.86616)
-
+af4 = stdMatrix {ox= -0.49975 ,oy= -0.86616 }
+-- | DEBUG affine 5
 af5 :: AffineMatrix
-af5 = AffineMatrix 0.5 0 0 0.5 (-0.49975) 0.86616
-
+af5 = stdMatrix {ox= -0.49975 ,oy=  0.86616 }
+-- | DEBUG affine 6
 af6 :: AffineMatrix
-af6 = AffineMatrix 0.5 0 0 0.5 (-1) 0
-
+af6 = stdMatrix {ox= -1                     }
+-- | DEBUG affine 7
 af7 :: AffineMatrix
-af7 = AffineMatrix 0.5 0 0 0.5 0 0
+af7 = stdMatrix
 
 
 
