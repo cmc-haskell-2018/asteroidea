@@ -5,7 +5,7 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 
-module Plotter (initField, updateField, linearFieldIndex) where
+module Plotter (initField, createField, linearFieldIndex) where
 import Types
 import qualified Gradient                      (colorMap)
 import qualified Data.Vector.Unboxed as Vector (unsafeThaw, unsafeFreeze,generate)
@@ -23,12 +23,12 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
 
 -- | Функция размещения в поле ряда точек.
 -- Если я успею, то сделаю всё более красиво и понятно.
-updateField  ::  Model
-  -> Field
+createField  ::  Model
   -> [(Vec,Double,Transform)]  
   -> Field
-updateField model field listCast = let
+createField model listCast = let
     listFieldPoints = produceListFromCasts model $ filter (inBounds model) listCast
+    field = initField model
   in runST $ do 
      mutableVector <- Vector.unsafeThaw field
      _             <- mapM_

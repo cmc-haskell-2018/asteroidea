@@ -11,25 +11,35 @@ import Plotter
 import PostColoring
 import System.Random
 import Codec.Picture
+import Control.Monad(zipWithM_, foldM_, sequence_ )
 
 animate :: Model -- m1
         -> Model -- m2
         -> Int -- number of inerpolation points in between
-        -> IO () -- not sure here
+        -> IO () 
 animate m1 m2 num = do 
   genRand <-  newStdGen
   let (seed, _) = next genRand
-  let startField =  initField m1 -- we will use sizes and bckCol of m1
   let points1 = calcFlame m1 seed
   let points2 = calcFlame m2 seed
   let interCoeffs = map ( / ( fromIntegral num + 1) ) $ take num [1.0,2.0..]
   let interpolated = map (interpolate points1 points2) interCoeffs
   let all = points1 : interpolated ++ [points2]
-  let fields = map (updateField m1 startField) all --updateField mainModel (calcFlame mainModel seed) startField
+  let fields = map (createField m1)  all --updateField mainModel (calcFlame mainModel seed) startField
   let generator = (\ field -> generateImage (fieldCellToPixel m1 field) (mWidth m1) (mHeight m1)) 
   let images = map generator fields
-  savePngImage  "./pic.png" (ImageRGBA8 $ head  images) -- just to make it compile 
+  let paths = take (length images) filenames
+  zipWithM_ (\p im -> savePngImage p $ ImageRGBA8 im) paths images
 
+  
+
+
+filenames :: [String]
+filenames = map intToString [0,1..]
+  where
+  	intToString i | i< 10 = "0"++"0"++ show i ++".png"
+  	intToString i | i< 100 = "0"++ show i ++".png" 
+  	intToString i | i< 1000 = show i ++".png" 
 
 -- | inerpolate two model results
 interpolate :: [(Vec,Double,Transform)] -- from the first model

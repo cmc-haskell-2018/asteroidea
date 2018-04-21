@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 140185eb506218904ed4001d3cb457421af51d5ea97c5b74d9dbdffa99518ef7
+-- hash: 4489046ddbbda153a73cf3e09997e00f517afe69b6e00a76dcc3129bc41622e2
 
 name:           asteroidea
 version:        0.8.0
@@ -41,6 +41,7 @@ library
       Matrix
       Model.Hex
       Model.Serpinski
+      Model.Serpinski0
       Model.Sphere
       Model.Square
       Model.Tile
