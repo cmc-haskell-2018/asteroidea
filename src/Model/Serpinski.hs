@@ -37,6 +37,7 @@ t3 :: Transform
 -- ^ DEBUG transform 3
 t3 = templateTransform { 
                 tVariation     = affine dbgAffine3
+               -- , tOpacity = 0
                }
 t4 :: Transform
 -- ^ DEBUG transform 4

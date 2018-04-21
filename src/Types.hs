@@ -134,7 +134,7 @@ templateModel = Model {
   , mShiftX           = 0
   , mShiftY           = 0
   , mRotation         = 0
-  , mBackgroundColour = (\_->(0,0,0,0))
+  , mBackgroundColour = (\_->(0,0,0,1))
   , mOuterIter        = 21845
   , mInnerIter        = 256
 }

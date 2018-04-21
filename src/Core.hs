@@ -91,9 +91,10 @@ calcOne model (gv, col, tran) =
   , newCol
   , newTran)
   where
-    newGVec =  tVariation tran $ newGV
-    newCol = calcCol tran col  
     (newTran, newGV) = calcPtr model (tran, gv)
+    newGVec =  tVariation newTran $ newGV
+    newCol = calcCol newTran col  
+    
 
 -- | Calculate color
 calcCol :: Transform -> Double -> Double
