@@ -4,11 +4,12 @@ Description : declarating types, implementation of main data, etc
 Copyright   : Just Nothing
 Stability   : in progress
 -}
-module Types (module Types, module GVector) where -- re-export GVector for Everyone using Types
+module Types (module Types, module GVector, module Matrix) where -- re-export GVector for Everyone using Types
 import Prelude
 import qualified Data.Vector.Unboxed as Vector
 import GVector
 import Gradient
+import Matrix
 
 -- | Точка и цвет в карте градиентов [0,1)
 type Cast = (Vec, Double)
@@ -25,57 +26,6 @@ linearFieldIndex m (i, j) = i + j * (mWidth m)
 
 -- | Вариация как она есть - перевод GVec -> GVec
 type Variation = (GVec -> GVec)
-
--- | Матрицы афинных преобразований
-{- @
- [ xx xy ox ]
- [ yx yy oy ]
- [ 0  0  1  ]
-   @
--}
-data AffineMatrix = AffineMatrix {
-  xx, xy :: Double,
-  yx, yy :: Double,
-  ox, oy :: Double
-} deriving(Show)
-
--- DO NOT TOUCH THIS
--- | Вращение
-{- @
- [cos theta, - sin theta, 0]   [ xx xy ox ]
- [sin theta,   cos theta, 0] x [ yx yy oy ]
- [        0,           0, 1]   [ 0  0  1  ]
-   @
--}
-rotate :: Double -> AffineMatrix -> AffineMatrix
-rotate angle (AffineMatrix xx0 xy0 yx0 yy0 a b) =
-  AffineMatrix xx1 xy1 yx1 yy1 a b
-  where
-    xx1    = ff xx0 (-yx0)
-    xy1    = ff xy0 (-yy0)
-    yx1    = ff yx0   xx0
-    yy1    = ff yy0   xy0
-    ff x y = cosA*x + sinA*y
-    angle' = angle * pi / 180
-    sinA = sin angle'
-    cosA = cos angle'
-
-scale :: Double -> AffineMatrix ->  AffineMatrix
-scale coeff am = scaleX coeff $ scaleY coeff am
-
-scaleX :: Double -> AffineMatrix ->  AffineMatrix
-scaleX coeff am = am { xx = coeff * xx am, yx = coeff * yx am }
-
-scaleY :: Double -> AffineMatrix ->  AffineMatrix
-scaleY coeff am = am { yy = coeff * yy am, xy = coeff * xy am }
-
-translate :: Vec -> AffineMatrix -> AffineMatrix
-translate (x, y) am = am { ox = x + ox am , oy = y + oy am} 
-
--- | стандартная уменьшающая матрица, шаблон
-stdMatrix :: AffineMatrix
-{-# INLINABLE stdMatrix #-}
-stdMatrix = AffineMatrix 0.5 0 0 0.5 0 0
 
 -- | Преобразование точки, цвета и всего такого
 -- | По сути - Transform олицетворяет отображение из старой точки и цвета в новые точку и цвет

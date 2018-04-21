@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2289464aca2b6c35305908f871e89550a9d202d61d7b73481df10b2fd2f46dda
+-- hash: 84834dfde964f50e4e5455d0058e7d5d51f129773ca517be911924691ee401e3
 
 name:           asteroidea
 version:        0.8.0
@@ -38,6 +38,7 @@ library
       Core
       Gradient
       GVector
+      Matrix
       Model.Hex
       Model.Serpinski
       Model.Serpinski0
