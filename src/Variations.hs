@@ -24,6 +24,13 @@ binGVecToVar op v1 v2 = binaryOp
         gv' = gv {gvGen = gen <> gvGen gv}  -- новый генератор
         gv2 = v2 gv'
 
+type PlainVariation = (Vec -> Vec)
+
+applyGVec :: PlainVariation -> Variation
+applyGVec func = \g -> g {gvVec = func $ gvVec g}
+
+
+
 {-
 instance Eq Variation where
   (==) v1 v2 = and [t1,t2,t3,t4]
@@ -34,6 +41,7 @@ instance Eq Variation where
     t3 = (v1 $ GVec g (0.05,-0.234)) == (v2 $ GVec g (0.05,-0.234))
     t4 = (v1 $ GVec g (-1123,1.1)) == (v2 $ GVec g (-1123,1.1))
 -}
+
 
 instance Num Variation where
   (+) = binGVecToVar (+)
@@ -58,17 +66,14 @@ instance Fractional Variation where
 affine :: AffineMatrix -> Variation
 {-# INLINE[1] affine #-}
 affine (AffineMatrix sx 0 0 sy 0 0)
-  g@(GVec _ (x,y))
-  = g {gvVec = (x * sx, y * sy)}
+  = applyGVec $ \(x,y) -> (x * sx, y * sy)
 affine (AffineMatrix sx 0 0 sy a b)
-  g@(GVec _ (x,y))
-  = g {gvVec = (x * sx + a, y * sy + b)}
+  = applyGVec $ \(x,y) -> (x * sx + a, y * sy + b)
 affine (AffineMatrix xx0 xy0 yx0 yy0 a b)
-  g@(GVec _ (x,y))
-  = g {gvVec = (x', y')}
-  where
-    x' = xx0 * x + xy0 * y + a
-    y' = yx0 * x + yy0 * y + b
+  = applyGVec $ \(x,y) -> let
+      x' = xx0 * x + xy0 * y + a
+      y' = yx0 * x + yy0 * y + b
+    in (x', y')
 
 -- | сферическое преобразование
 spherical :: Variation

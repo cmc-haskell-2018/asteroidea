@@ -18,12 +18,10 @@ data GVec = GVec {
   gvVec :: Vec     -- ^ Вектор
 } deriving(Eq,Show)
 
-
 -- | Вычленение x,y координат из GVec
-gvX :: GVec -> Double
-gvX (GVec _ (x ,_)) = x 
-gvY :: GVec -> Double
-gvY (GVec _ (_ ,y)) = y 
+gvX, gvY :: GVec -> Double
+gvX (GVec _ (x ,_)) = x
+gvY (GVec _ (_ ,y)) = y
 
 instance RandomGen GVec where
   next = nextGen

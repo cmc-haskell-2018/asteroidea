@@ -12,34 +12,24 @@ import PostColoring
 import System.Random
 import Codec.Picture
 import Control.Monad(zipWithM_, foldM_, sequence_ )
+import Model.Serpinski as M0
+import Model.Serpinski0 as M1
 
 animate :: Model -- m1
         -> Model -- m2
         -> Int -- number of inerpolation points in between
-        -> IO () 
-animate m1 m2 num = do 
-  genRand <-  newStdGen
-  let (seed, _) = next genRand
-  let points1 = calcFlame m1 seed
-  let points2 = calcFlame m2 seed
-  let interCoeffs = map ( / ( fromIntegral num + 1) ) $ take num [1.0,2.0..]
-  let interpolated = map (interpolate points1 points2) interCoeffs
-  let all = points1 : interpolated ++ [points2]
-  let fields = map (createField m1)  all --updateField mainModel (calcFlame mainModel seed) startField
-  let generator = (\ field -> generateImage (fieldCellToPixel m1 field) (mWidth m1) (mHeight m1)) 
-  let images = map generator fields
-  let paths = take (length images) filenames
-  zipWithM_ (\p im -> savePngImage p $ ImageRGBA8 im) paths images
-
-  
-
-
-filenames :: [String]
-filenames = map intToString [0,1..]
-  where
-  	intToString i | i< 10 = "0"++"0"++ show i ++".png"
-  	intToString i | i< 100 = "0"++ show i ++".png" 
-  	intToString i | i< 1000 = show i ++".png" 
+        -> Int -- seed
+        -> [Image PixelRGBA8]
+animate m1 m2 num seed = let
+  points1 = calcFlame m1 seed
+  points2 = calcFlame m2 seed
+  interCoeffs = map ( / ( fromIntegral num + 1) ) $ take num [1.0,2.0..]
+  interpolated = map (interpolate points1 points2) interCoeffs
+  all = points1 : interpolated ++ [points2]
+  fields = map (createField m1)  all --updateField mainModel (calcFlame mainModel seed) startField
+  generator = (\ field -> generateImage (fieldCellToPixel m1 field) (mWidth m1) (mHeight m1)) 
+  images = map generator fields
+  in images
 
 -- | inerpolate two model results
 interpolate :: [(Vec,Double,Transform)] -- from the first model
