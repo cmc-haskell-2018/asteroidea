@@ -65,14 +65,14 @@ remixRND ((RND a), (RND b)) = ((RND gen0), (RND gen1))
     gen1 = c*21876 `mod` 262139
 
 -- | генерация списка точек заданного диапазона
-generate :: (Double, Double) -> (RND, RND) -> [(Double, Double)]
+generate :: (Double, Double) -> RND -> [(Double, Double)]
 {-# INLINABLE generate #-}
-generate (-1,1) genPair = newPair genPair
-generate (a,b) genPair | a<0 && b>0 = map func $ newPair genPair
+generate (-1,1) gen = newPair (split gen)
+generate (a,b) gen | a<0 && b>0 = map func $ newPair (split gen)
   where
     func = \(x,y) -> (x*a', y*b)
     a' = abs a
-generate (a,b) genPair = map func $ generate (-1, b-c) genPair
+generate (a,b) gen = map func $ generate (-1, b-c) gen
   where
     c = 1+a
     func = (\(x,y)->(x+c,y+c))
@@ -90,6 +90,12 @@ newPair ((RND a), (RND b))
     res0 = (fromIntegral gen0) / 1073741823
     res1 = (fromIntegral gen1) / 1073741823
     nextGen = (RND gen0, RND gen1)
+
+{-
+-- | генерация пары double
+randomW :: ((Double,Double),(Double,Double)) -> RND -> (Double,Double)
+randomW ((0,1),(0,1)) (RND gen) =
+-}
 
 -- | Instance of Random Class with specialization
 --   but something went wrong...

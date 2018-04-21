@@ -27,31 +27,38 @@ linearFieldIndex m (i, j) = i + j * (mWidth m)
 type Variation = (GVec -> GVec)
 
 -- | Матрицы афинных преобразований
+{- @
+ [ xx xy ox ]
+ [ yx yy oy ]
+ [ 0  0  1  ]
+   @
+-}
 data AffineMatrix = AffineMatrix {
-  xx :: Double,
-  
-  yx :: Double,
-  xy :: Double, -- | FIXME
-
-  yy :: Double, 
-  ox :: Double, 
-  oy :: Double
+  xx, xy :: Double,
+  yx, yy :: Double,
+  ox, oy :: Double
 } deriving(Show)
 
-
-
+-- DO NOT TOUCH THIS
+-- | Вращение
+{- @
+ [cos theta, - sin theta, 0]   [ xx xy ox ]
+ [sin theta,   cos theta, 0] x [ yx yy oy ]
+ [        0,           0, 1]   [ 0  0  1  ]
+   @
+-}
 rotate :: Double -> AffineMatrix -> AffineMatrix
-rotate angle am = AffineMatrix xxNew yxNew xyNew yyNew oxNew oyNew
-            where 
-                xxNew = cosA * xx am - sinA * yx am
-                xyNew = cosA * xy am - sinA * yy am
-                yxNew = sinA * xx am + cosA * yx am
-                yyNew = sinA * xy am + cosA * yy am
-                oxNew = ox am
-                oyNew = oy am
-                angle' = angle * pi / 180
-                sinA = sin angle'
-                cosA = cos angle'
+rotate angle (AffineMatrix xx0 xy0 yx0 yy0 a b) =
+  AffineMatrix xx1 xy1 yx1 yy1 a b
+  where
+    xx1    = ff xx0 (-yx0)
+    xy1    = ff xy0 (-yy0)
+    yx1    = ff yx0   xx0
+    yy1    = ff yy0   xy0
+    ff x y = cosA*x + sinA*y
+    angle' = angle * pi / 180
+    sinA = sin angle'
+    cosA = cos angle'
 
 scale :: Double -> AffineMatrix ->  AffineMatrix
 scale coeff am = scaleX coeff $ scaleY coeff am
@@ -65,9 +72,10 @@ scaleY coeff am = am { yy = coeff * yy am, xy = coeff * xy am }
 translate :: Vec -> AffineMatrix -> AffineMatrix
 translate (x, y) am = am { ox = x + ox am , oy = y + oy am} 
 
--- | тождественная матрица
-idMatrix :: AffineMatrix
-idMatrix = AffineMatrix 1 0 0 1 0 0
+-- | стандартная уменьшающая матрица, шаблон
+stdMatrix :: AffineMatrix
+{-# INLINABLE stdMatrix #-}
+stdMatrix = AffineMatrix 0.5 0 0 0.5 0 0
 
 -- | Преобразование точки, цвета и всего такого
 -- | По сути - Transform олицетворяет отображение из старой точки и цвета в новые точку и цвет
@@ -86,7 +94,7 @@ tXaos :: [Double]
 }
 
 templateTransform :: Transform
-{-# INLINE templateTransform #-}
+{-# INLINABLE templateTransform #-}
 templateTransform = Transform {
                  tVariation     = id
                , tWeight        = 1
@@ -122,7 +130,7 @@ data Model = Model {
 }
 
 templateModel :: Model
-{-# INLINE templateModel #-}
+{-# INLINABLE templateModel #-}
 templateModel = Model {
     mName             = "42"
   , mTransforms       = []

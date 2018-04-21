@@ -1,16 +1,20 @@
-module Model.Sphere (mainModel) where  
---import Control.Category
+{-# LANGUAGE NegativeLiterals #-}
+{-|
+Module      : Sphere
+Description : Example fractal: Sphere
+Copyright   : Just Nothing
+Stability   : Stable
+-}
+module Model.Sphere (mainModel) where
 import Variations
---import Graphics.Gloss
 import Types
-
+-- | export model
 mainModel :: Model
 mainModel = exampleModel
 
-
-
+-- | DEBUG affine 2
 v2 :: AffineMatrix
-v2 = AffineMatrix (-0.2853) (0.35476) (-0.35476) (-0.285302) (-0.36607) (0.011145)
+v2 = AffineMatrix -0.2853 0.35476 -0.35476 -0.285302 -0.36607 0.011145
 
 t1 :: Transform
 -- ^ DEBUG transform 1

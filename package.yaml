@@ -20,6 +20,7 @@ ghc-options:
 - -O2
 - -fexcess-precision
 - -optc-ffast-math
+- -ddump-rules
 
 dependencies:
 - base >= 4.7 && < 5
@@ -39,6 +40,5 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    - -fexcess-precision
     dependencies:
     - asteroidea
