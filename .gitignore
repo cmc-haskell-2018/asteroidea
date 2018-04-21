@@ -14,6 +14,7 @@ src/*.sh
 .hpc
 .hsenv
 .cabal-sandbox/
+*.cabal
 cabal.sandbox.config
 *.prof
 *.aux
