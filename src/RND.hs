@@ -58,9 +58,7 @@ unionRND (RND a) (RND b) = RND $ (29908911*a + b) `mod` 268435399
 -- | смешение двух генераторов, получение сдвига на новые состояния
 -- | 18 bit LCG from 10 bit lagoon
 remixRND :: (RND, RND) -> (RND, RND)
-remixRND ((RND a), (RND b)) =
-  if c >= 1024 then ((RND b), (RND a))
-  else ((RND gen0), (RND gen1))
+remixRND ((RND a), (RND b)) = ((RND gen0), (RND gen1))
   where
     c = abs(b-a)
     gen0 = c*92717 `mod` 262139
@@ -93,7 +91,7 @@ newPair ((RND a), (RND b))
     res1 = (fromIntegral gen1) / 1073741823
     nextGen = (RND gen0, RND gen1)
 
--- | Instance of Random Class with specializtion
+-- | Instance of Random Class with specialization
 --   but something went wrong...
 randomR :: Random a => (a, a) -> RND -> (a, RND)
 {-# INLINE[0] randomR #-}
@@ -102,7 +100,6 @@ randomR a g = (head $ randomRs a g, snd $ next g)
 "randomR/Bool" randomR = randomBool
 "randomR/Int" randomR = randomInt
 "randomR/Double" randomR = randomDouble
-"randomR/Integer" randomR = randomInteger
 #-}
 
 -- | Boolean random
@@ -140,9 +137,6 @@ randomInt (x,y) (RND gen0)
     m = y' - x' + 1
     (gen1, new) = (a * gen + c) `divMod` m
 
--- | Integer random
-randomInteger :: (Integer, Integer) -> RND -> (Integer, RND)
-randomInteger _ _ = error "rInteger"
 -- | Double random
 randomDouble :: (Double, Double) -> RND -> (Double, RND)
 randomDouble (0,1) gen0 = (res, gen)
@@ -154,4 +148,4 @@ randomDouble (-1,1) (RND gen0) = (res, RND gen)
     gen = (520332806*gen0) `mod` 536870909
     new = gen - highLimit
     res = (fromIntegral new) / highLimit
-randomDouble _ _ = error "nop" -- (head $ randomRs a g, snd $ next g)
+randomDouble a g = (head $ randomRs a g, snd $ next g)

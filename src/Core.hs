@@ -20,15 +20,19 @@ initXaos :: Model -> Model
 initXaos m@(Model {mTransforms = trs}) = m { mTransforms = map ini trs }
   where
     originWeights = map tWeight trs
-    ini tr = tr {tXaos = list}
+    ini tr = tr
+      { tXaos
+      = weightNormalize
+      $ rankedWeights
+      $ xaosWeights
+      $ originWeights
+      }
       where
-        xaos = tXaos tr
         alter [] = id
         alter ll = zipWith (*) ll
-        xaosWeights = (alter xaos) originWeights
-        getRankedWeights = scanl (+) (0::Double) $ xaosWeights
-        weightNormalCoef = (/last getRankedWeights)
-        list = map weightNormalCoef getRankedWeights
+        xaosWeights = (alter $ tXaos tr)
+        rankedWeights weights = tail $ scanl (+) (0::Double) $ weights
+        weightNormalize weights = map (/last weights) weights
 
 -- | Calculate whole fractal
 calcFlame :: Model -> Int -> [(Vec,Double,Transform)]
@@ -67,9 +71,12 @@ calcPath model vec = path
 -- | Calculate one point and color
 calcOne :: Model -> CastGen -> CastGen
 {-# INLINE calcOne #-}
-calcOne model (gv, col, tran) = (newGVec, newCol, newTran)
+calcOne model (gv, col, tran) =
+  ( newGVec
+  , newCol
+  , newTran)
   where
-    newGVec =  tVariation tran $ newGV 
+    newGVec =  tVariation tran $ newGV
     newCol = calcCol tran col  
     (newTran, newGV) = calcPtr model (tran, gv)
 
@@ -88,7 +95,7 @@ calcPtr m (tran, gv) = (newTran, newGV)
     gen0 = gvGen gv
     (threshold, gen1) = randomR (0, 1) gen0
     newGV = gv {gvGen = gen1}
-    index = (-1 + ) $ fromJust $ findIndex (>= threshold) (tXaos tran)
+    index = fromJust $ findIndex (>= threshold) (tXaos tran)
     newTran = mTransforms m !! index
 
 applyCamera :: Model -> Vec -> Vec
