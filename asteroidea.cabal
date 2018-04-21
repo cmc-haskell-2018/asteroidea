@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 66ff10888b1300190464a573d0ad87cc0dedc159f4acbef2aacf74776101f5eb
+-- hash: 2289464aca2b6c35305908f871e89550a9d202d61d7b73481df10b2fd2f46dda
 
 name:           asteroidea
 version:        0.8.0
@@ -40,6 +40,7 @@ library
       GVector
       Model.Hex
       Model.Serpinski
+      Model.Serpinski0
       Model.Sphere
       Model.Square
       Model.Tile
