@@ -5,13 +5,13 @@ Description : Example fractal: Tiles
 Copyright   : Just Nothing
 Stability   : Stable
 -}
-module Model.Tile (mainModel) where
+module Model.Tile (listModel) where
 import Variations (affine)
 import Gradient   (paletteToDouble)
 import Types
 -- | export model
-mainModel :: Model
-mainModel = exampleModel
+listModel :: [Model]
+listModel  = [exampleModel]
 
 -- | DEBUG affine 1
 dbgAffine1 :: AffineMatrix
@@ -55,9 +55,10 @@ t4 = templateTransform {
 -- | exampleModel 42
 exampleModel :: Model 
 exampleModel = templateModel {
-                       mTransforms = [t1,t2,t3,t4]
-                     , mGradient = grad
-                     }
+    mName       = "tile"
+  , mTransforms = [t1,t2,t3,t4]
+  , mGradient = grad
+                             }
   where
     grad = paletteToDouble "\
     \4B6ECA0AA1F007B8EC78DAF7A3E9EBB3E9E9A4EBE5A4E9E66AAEEB04B8EB03B9\

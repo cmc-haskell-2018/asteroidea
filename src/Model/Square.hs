@@ -5,13 +5,13 @@ Description : Example fractal: Square
 Copyright   : Just Nothing
 Stability   : Stable
 -}
-module Model.Square (mainModel) where
+module Model.Square (listModel) where
 import Variations   (affine, exponential)
 import Gradient     (paletteToDouble)
 import Types
 -- | export model
-mainModel :: Model
-mainModel = exampleModel
+listModel :: [Model]
+listModel  = [exampleModel]
 
 tempMx :: AffineMatrix
 tempMx = stdMatrix{xx=t, yy=t}
@@ -99,12 +99,13 @@ t9 = templateTransform {
 
 -- | exampleModel 42
 exampleModel :: Model 
-exampleModel = templateModel { 
-                       mTransforms = [t1,t2,t3,t4,t5,t6,t7,t8,t9]
-                     , mGradient = grad 
-                     , mShiftX = -0.5
-                     , mScale = 2
-                     , mFinal = Just templateTransform { tVariation = exponential 1 0 . (*2) }
+exampleModel = templateModel {
+    mName       = "square"
+  , mTransforms = [t1,t2,t3,t4,t5,t6,t7,t8,t9]
+  , mGradient = grad 
+  , mShiftX = -0.5
+  , mScale = 2
+  , mFinal = Just templateTransform { tVariation = exponential 1 0 . (*2) }
                      }
   where
     grad = paletteToDouble "\

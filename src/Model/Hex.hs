@@ -5,13 +5,13 @@ Description : Example fractal: Hex
 Copyright   : Just Nothing
 Stability   : Stable
 -}
-module Model.Hex (mainModel) where
+module Model.Hex  (listModel) where
 import Variations (affine)
 import Gradient   (paletteToDouble)
 import Types
 -- | export model
-mainModel :: Model
-mainModel = exampleModel
+listModel :: [Model]
+listModel  = [exampleModel]
 
 -- | DEBUG affine 1
 af1 :: AffineMatrix
@@ -87,12 +87,13 @@ t7 = templateTransform {
 -- | exampleModel 42
 exampleModel :: Model 
 exampleModel = templateModel {
-                       mTransforms = [t1,t2,t3,t4,t5,t6,t7]
-                     , mGradient = grad
-                     , mWidth = 800
-                     , mHeight = 450
-                     , mInnerIter = 256
-                     }
+    mName       = "hex"
+  , mTransforms = [t1,t2,t3,t4,t5,t6,t7]
+  , mGradient = grad
+  , mWidth = 800
+  , mHeight = 450
+  , mInnerIter = 256
+                             }
   where
     grad = paletteToDouble "\
     \00003A00004000003D00002500001C0000250D00433D00947037DFB8A0FFCABE\

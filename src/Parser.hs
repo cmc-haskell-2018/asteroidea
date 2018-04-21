@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -w #-}
 {-|
 Module      : Parser
 Description : file to model

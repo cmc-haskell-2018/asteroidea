@@ -5,12 +5,12 @@ Description : Example fractal: Sierpinski triangle
 Copyright   : Just Nothing
 Stability   : Stable
 -}
-module Model.Serpinski (mainModel) where
+module Model.Serpinski (listModel) where
 import Variations (affine, exponential, mirrorX, mirrorY)
 import Types
 -- | export model
-mainModel::Model
-mainModel = exampleModel
+listModel :: [Model]
+listModel  = [exampleModel, exampleModel']
 
 -- | DEBUG affine 1
 dbgAffine1 :: AffineMatrix
@@ -53,7 +53,20 @@ t4 = templateTransform {
 -- | exampleModel 42
 exampleModel :: Model 
 exampleModel = templateModel {
-                       mTransforms = [t1,t2,t3,t4]
-                     , mRotation = 90
-                     , mFinal = Just templateTransform { tVariation =  ( exponential 1 0) . (affine $ AffineMatrix 2.5 (-2.5) 1 1 (-2.15) 0 ) . mirrorX . mirrorY  }               
-                     }
+    mName       = "serpinski"
+  , mTransforms = [t1,t2,t3,t4]
+  , mRotation   = 90
+  , mFinal      = Just templateTransform {
+        tVariation =  ( exponential 1 0)
+                    . (  affine
+                       $ AffineMatrix 2.5 (-2.5) 1 1 (-2.15) 0
+                      )
+                    . mirrorX . mirrorY  }               
+                             }
+-- | exampleModel 42
+exampleModel' :: Model 
+exampleModel' = exampleModel {
+    mName       = "serpinski0"
+  , mFinal      = Just templateTransform      {
+        tVariation =  mirrorX . mirrorY       }
+                             }

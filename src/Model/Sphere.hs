@@ -5,12 +5,12 @@ Description : Example fractal: Sphere
 Copyright   : Just Nothing
 Stability   : Stable
 -}
-module Model.Sphere (mainModel) where
-import Variations
+module Model.Sphere (listModel) where
+import Variations   (spherical, affine)
 import Types
 -- | export model
-mainModel :: Model
-mainModel = exampleModel
+listModel :: [Model]
+listModel  = [exampleModel]
 
 -- | DEBUG affine 2
 v2 :: AffineMatrix
@@ -25,7 +25,7 @@ t1 = templateTransform {
 t2 :: Transform
 -- ^ DEBUG transform 2
 t2 = templateTransform { 
-                tVariation     = affine v2
+                 tVariation     = affine v2
                , tColorPosition = 1
                }
 
@@ -33,5 +33,6 @@ t2 = templateTransform {
 -- | exampleModel 42
 exampleModel :: Model 
 exampleModel = templateModel {
-                       mTransforms = [t1,t2]
-                     }
+    mName       = "sphere"
+  , mTransforms = [t1,t2]
+                             }
