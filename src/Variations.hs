@@ -48,7 +48,6 @@ instance Fractional Variation where
   (/) = binGVecToVar (/)
 
 -- ======== преобразования
-
 -- | афинное преобразование
 {- @
  [ xx xy ox ]   [x]    [xx*x + xy*y + ox]
@@ -57,7 +56,7 @@ instance Fractional Variation where
    @
 -}
 affine :: AffineMatrix -> Variation
-{-# INLINE[~1] affine #-}
+{-# INLINE[1] affine #-}
 affine (AffineMatrix sx 0 0 sy 0 0)
   g@(GVec _ (x,y))
   = g {gvVec = (x * sx, y * sy)}
