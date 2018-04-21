@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 84834dfde964f50e4e5455d0058e7d5d51f129773ca517be911924691ee401e3
+-- hash: 4489046ddbbda153a73cf3e09997e00f517afe69b6e00a76dcc3129bc41622e2
 
 name:           asteroidea
 version:        0.8.0
@@ -45,6 +45,7 @@ library
       Model.Sphere
       Model.Square
       Model.Tile
+      Parser
       Plotter
       PostColoring
       RND

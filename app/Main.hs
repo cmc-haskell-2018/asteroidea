@@ -6,6 +6,7 @@ import Plotter
 import PostColoring
 import Const
 import Types
+import Parser
 import System.Random
 import Codec.Picture
 import Graphics.Gloss
