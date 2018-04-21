@@ -24,10 +24,10 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
 -- | Функция размещения в поле ряда точек.
 -- Если я успею, то сделаю всё более красиво и понятно.
 updateField  ::  Model
-  -> [(Vec,Double,Transform)]
   -> Field
+  -> [(Vec,Double,Transform)]  
   -> Field
-updateField model listCast field = let
+updateField model field listCast = let
     listFieldPoints = produceListFromCasts model $ filter (inBounds model) listCast
   in runST $ do 
      mutableVector <- Vector.unsafeThaw field
