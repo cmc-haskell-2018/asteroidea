@@ -75,10 +75,16 @@ pointBUStoFieldPoint m (x, y) =
   )
   where
     convert = truncate . (width/2 *)
-    ratio  = height / width
-    width  = fromIntegral (mWidth  m)
-    height = fromIntegral (mHeight m)
+    ratio   = height / width
+    width   = fromIntegral (mWidth  m)
+    height  = fromIntegral (mHeight m)
 
 -- | TODO alpha blending colours
 calcColour :: Transform -> (Double,Double,Double) -> Cell -> Cell
-calcColour _ (r1,g1,b1) (r2, g2, b2, a) = ( (r2+r1), (g2+g1), (b2+b1), (a+1))
+calcColour transform (r0,g0,b0) (r2, g2, b2, a) =
+  ( (r2+r1), (g2+g1), (b2+b1), (a+opac))
+  where
+    opac = tOpacity transform
+    r1   = r0 * opac
+    g1   = g0 * opac
+    b1   = b0 * opac

@@ -8,7 +8,7 @@ module Core(calcFlame)  where
 import Types
 import RND
 import Data.List
-import Data.Maybe (fromJust, isNothing)
+import Data.Maybe (fromJust)
 -- import System.Random (StdGen, next, split, genRange)
 
 {- | Если xaos в трансформе - пустой список,
@@ -16,11 +16,25 @@ import Data.Maybe (fromJust, isNothing)
 xaos и веса не меняются в процессе вычисления =>
 все необходимые "модифицированные" веса можно вычислить заранее
 -}
-initXaos :: Model -> Model
-initXaos m@(Model {mTransforms = trs}) = m { mTransforms = map ini trs }
+prepareModel :: Model -> Model
+prepareModel model = model
+  { mTransforms = map initCol $ map initOne list
+  , mFinal      = initCol <$> final
+  }
   where
-    originWeights = map tWeight trs
-    ini tr = tr
+    list  = mTransforms model
+    final = mFinal      model
+    originWeights = map tWeight $ list
+    initCol transform = transform
+      { tColorSpeed = k
+      , tColorPosition = c
+      }
+      where
+        speed = tColorSpeed transform
+        posit = tColorPosition transform
+        k     = (1 + speed)/2
+        c     = (1 - speed)*posit/2
+    initOne transform = transform
       { tXaos
       = weightNormalize
       $ rankedWeights
@@ -30,33 +44,34 @@ initXaos m@(Model {mTransforms = trs}) = m { mTransforms = map ini trs }
       where
         alter [] = id
         alter ll = zipWith (*) ll
-        xaosWeights = (alter $ tXaos tr)
+        xaosWeights = (alter $ tXaos transform)
         rankedWeights weights = tail $ scanl (+) (0::Double) $ weights
         weightNormalize weights = map (/last weights) weights
 
 -- | Calculate whole fractal
 calcFlame :: Model -> Int -> [(Vec,Double,Transform)]
-calcFlame model seed = finalestPoints
+calcFlame rawModel seed = finalPoints
   where
-    pointList = take outerIter (randBUSlist seed) -- лист с точками что будем обсчитывать
+    model = prepareModel rawModel
     outerIter = mOuterIter model -- внешний цикл
-    preparedModel = initXaos model
-    points = concatMap (calcPath preparedModel) pointList
-    finalpoints = if isNothing $ mFinal model 
-      then points
-      else map (calcFinal $ fromJust $ mFinal model) points
-    finalestPoints =
-        map
-        (  \ (GVec _ vec, c,i) -> ((applyCamera model vec), c, i) )
-        finalpoints
+    pointList = take outerIter (randBUSlist seed) -- лист с точками что будем обсчитывать
+    points    = concatMap (calcPath model) pointList
+    finalize Nothing      = id
+    finalize (Just final) = map (calcFinal final)
+    camera = applyCamera model
+    appcmr = \ (GVec _ vec, c,i) -> (camera vec, c, i)
+    finalPoints =
+           map appcmr
+         $ finalize (mFinal model) points
 
 -- | calculate Final transform
 -- it doesn't change pointers
 calcFinal :: Transform -> CastGen -> CastGen
-calcFinal tran (gv, col, ptr) = (newGVec, newCol, ptr)
+calcFinal transform (gvec, colour, pointer)
+  = (newGVec, newColour, pointer)
   where    
-    newCol = calcCol tran col
-    newGVec =  tVariation tran $ gv 
+    newColour = calcCol transform colour
+    newGVec  = tVariation transform $ gvec
 
 -- | Calculate and plot Path of one point
 calcPath ::  Model -> Vec -> [CastGen]
@@ -82,11 +97,12 @@ calcOne model (gv, col, tran) =
 
 -- | Calculate color
 calcCol :: Transform -> Double -> Double
-calcCol tran col = newCol
+calcCol tran col = result
   where
-    speed = tColorSpeed tran
-    pos = tColorPosition tran
-    newCol = ((1 + speed)*col + (1 - speed)*pos) / 2
+    speed  = tColorSpeed tran
+    posit  = tColorPosition tran
+    result = speed * col + posit
+    -- result = ((1 + speed)* col + (1 - speed)*posit)/2
 
 -- | Calculate what transform will be used next
 calcPtr :: Model -> (Transform, GVec) -> (Transform, GVec)
