@@ -5,7 +5,7 @@ Description : Collected fractal models
 Copyright   : Just Nothing
 Stability   : Stable
 -}
-module Model.Library(findModel, anyModel) where
+module Model.Library(findModel, anyModel, anyPair) where
 import Types (Model(..))
 import qualified Model.Serpinski
 import qualified Model.Sphere
@@ -16,6 +16,9 @@ import Data.List
 
 anyModel :: Model
 anyModel = snd $ head mainList
+anyPair  :: (Model, Model)
+anyPair  = (m0,m1)
+  where (m0:m1:[]) = Model.Serpinski.listModel
 
 findModel :: String -> Model
 findModel sec = search temp

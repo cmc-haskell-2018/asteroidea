@@ -7,29 +7,19 @@ Copyright   : Just Nothing
 Stability   : in progress
 -}
 module Variations where
-import Prelude  
---import Control.Category
+import Prelude 
+import Data.Function
 import RND
 import Types
 
 -- | convert binary GVec operation to binary Variation operation
--- if you really need different random generators, use 'splitGen'
--- @ split :: GVec -> (GVec,GVec) @
 binGVecToVar :: (GVec->GVec->GVec)->Variation->Variation->Variation
-binGVecToVar op v1 v2 = binaryOp
-  where
-    binaryOp gv = op gv1 gv2
-      where
-        gv1@(GVec gen _) = v1 gv
-        gv' = gv {gvGen = gen <> gvGen gv}  -- новый генератор
-        gv2 = v2 gv'
+binGVecToVar op = flip . (flip (\v -> on op ($v)))
 
 type PlainVariation = (Vec -> Vec)
 
 applyGVec :: PlainVariation -> Variation
 applyGVec func = \g -> g {gvVec = func $ gvVec g}
-
-
 
 {-
 instance Eq Variation where

@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -w #-}
 {-|
 Module      : PostColoring
 Description : post coloring of the field
@@ -10,40 +11,15 @@ Data для хранения всех параметров постобрабо�
 Собственно функция что принимает эти параметры, поле и выдает картинку/поле :: PostColorParams->Field->Field
 --}
 module PostColoring where
-
 import Types
-import Codec.Picture
-import Graphics.Gloss
 import qualified Data.Vector.Unboxed as Vector
-import Data.Vector.Storable (unsafeToForeignPtr)
--- import Graphics.Gloss
 
-type PostColorParam = Double
 -- |...
 --параметр обработки
+type PostColorParam = Double
+-- | все параметры обработки
 type PostColorParams = [PostColorParam]
---все параметры обработки
 
+-- | главная функция постобработки
 postColoring :: PostColorParams -> Field -> Field
 postColoring _ f = f
---главная функция постобработки
-
-fromImageRGBA8 :: Image PixelRGBA8 -> Picture
-fromImageRGBA8 
-  Image { imageWidth = w, imageHeight = h, imageData = idat } =
-  bitmapOfForeignPtr w h
-                     (BitmapFormat TopToBottom PxRGBA)
-                     ptr True
-    where (ptr, _, _) = unsafeToForeignPtr idat
-
--- it's actually belongs to a post-coloring
--- | convert Field element to pixel 
-fieldCellToPixel :: Model -> Field  -> Int -> Int -> PixelRGBA8
-fieldCellToPixel m field x y =
-  toPixel $  field  Vector.! (linearFieldIndex m (x,y))
-  where
-    toPixel (r, g, b, a) = PixelRGBA8 nr ng nb 255
-     where
-      nr = fromInteger $ round $ (r/a)*255
-      ng = fromInteger $ round $ (g/a)*255
-      nb = fromInteger $ round $ (b/a)*255

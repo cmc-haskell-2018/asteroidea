@@ -8,15 +8,13 @@ module Animation  where
 import Types
 import Core
 import Plotter
-import PostColoring
-import Codec.Picture
 
 animate
   :: Model -- m1
   -> Model -- m2
   -> Int   -- number of interpolation points
   -> Int   -- seed
-  -> [Image PixelRGBA8]
+  -> [Field]
 animate m1 m2 num seed = let
   points1 = calcFlame m1 seed
   points2 = calcFlame m2 seed
@@ -24,13 +22,7 @@ animate m1 m2 num seed = let
   interpolated = map (interpolate points1 points2) interCoeffs
   allPoints = points1 : interpolated ++ [points2]
   fields = map (createField m1) allPoints
-  generator = ( \ field
-                -> generateImage
-                     (fieldCellToPixel m1 field)
-                     (mWidth m1)
-                     (mHeight m1)
-              )
-  in map generator fields
+  in fields
 
 -- | inerpolate two model results
 interpolate
