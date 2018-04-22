@@ -19,7 +19,7 @@ binGVecToVar op = flip . (flip (\v -> on op ($v)))
 type PlainVariation = (Vec -> Vec)
 
 applyGVec :: PlainVariation -> Variation
-{-# INLINABLE affine #-}
+{-# INLINABLE applyGVec #-}
 applyGVec func = \g -> g {gvVec = func $ gvVec g}
 
 {-

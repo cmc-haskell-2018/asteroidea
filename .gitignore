@@ -21,6 +21,7 @@ cabal.sandbox.config
 *.hp
 *.png
 *.gif
+*.jpg
 *.eventlog
 .stack-work/
 cabal.project.local

@@ -9,6 +9,16 @@ import Types
 import Core
 import Plotter
 
+{-
+И знаете что? Скрипты давали полную свободу
+над функциональными преобразованиями, из одной модели в другую.
+И там сделать последовательный вывод было намного проще.
+Моя машинка, дорогая и горячо любимая,
+носит только 5,1 ГБ свободной оперативной памяти.
+И ради её спокойствия я не буду запускать интерполяцию более,
+чем на 10 состояний. Да и то много.
+-}
+-- | Интерполяция двух моделей.
 animate
   :: Model -- m1
   -> Model -- m2
@@ -24,7 +34,7 @@ animate m1 m2 num seed = let
   fields = map (createField m1) allPoints
   in fields
 
--- | inerpolate two model results
+-- | Интерполяция линейная, конечных точек.
 interpolate
   :: [(Vec,Double,Transform)] -- from the first model
   -> [(Vec,Double,Transform)] -- from the second model
