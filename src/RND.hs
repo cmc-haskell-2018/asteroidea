@@ -100,7 +100,7 @@ randomW ((0,1),(0,1)) (RND gen) =
 -- | Instance of Random Class with specialization
 --   but something went wrong...
 randomR :: Random a => (a, a) -> RND -> (a, RND)
-{-# INLINE[0] randomR #-}
+{-# INLINE[1] randomR #-}
 randomR a g = (head $ randomRs a g, snd $ next g)
 {-# RULES
 "randomR/Bool" randomR = randomBool

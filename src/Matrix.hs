@@ -3,6 +3,11 @@ Module      : Matrix
 Description : matrix operations
 Copyright   : Just Nothing
 Stability   : in progress
+
+Матрицы аффинных преобразований,
+основной инструмент наших вычислений.
+Их можно будет (потом, только не сегодня) разложить на композицию,
+и сильно сократить время выполнения в сложных случаях.
 -}
 module Matrix where
 
@@ -20,7 +25,7 @@ data AffineMatrix = AffineMatrix {
 } deriving(Show)
 
 -- DO NOT TOUCH THIS
--- | Вращение
+-- | Вращение - умножение слева на матрицу вращения
 {- @
  [cos theta, - sin theta, 0]   [ xx xy ox ]
  [sin theta,   cos theta, 0] x [ yx yy oy ]
@@ -28,7 +33,7 @@ data AffineMatrix = AffineMatrix {
    @
 -}
 rotate :: Double -> AffineMatrix -> AffineMatrix
-{-# INLINE[~1] rotate #-}
+{-# INLINE[~2] rotate #-}
 rotate angle (AffineMatrix xx0 xy0 yx0 yy0 a b) =
   AffineMatrix xx1 xy1 yx1 yy1 a b
   where
@@ -41,21 +46,25 @@ rotate angle (AffineMatrix xx0 xy0 yx0 yy0 a b) =
     sinA = sin angle'
     cosA = cos angle'
 
+-- Увеличение в coeff раз
 scale :: Double -> AffineMatrix ->  AffineMatrix
 scale coeff am = scaleX coeff $ scaleY coeff am
 
+-- Увеличение X в coeff раз
 scaleX :: Double -> AffineMatrix ->  AffineMatrix
 scaleX coeff am = am { xx = coeff * xx am, xy = coeff * xy am }
 
+-- Увеличение Y в coeff раз
 scaleY :: Double -> AffineMatrix ->  AffineMatrix
 scaleY coeff am = am { yy = coeff * yy am, yx = coeff * yx am }
 
+-- Перенос на вектор сдвига
 translate :: (Double,Double) -> AffineMatrix -> AffineMatrix
 translate (x, y) am = am { ox = x + ox am , oy = y + oy am} 
 
 -- | стандартная уменьшающая матрица, шаблон
 stdMatrix :: AffineMatrix
-{-# INLINE stdMatrix #-}
+{-# INLINABLE stdMatrix #-}
 stdMatrix = AffineMatrix 0.5 0 0 0.5 0 0
 
 -- | Произведение матриц

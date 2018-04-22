@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c09a3dd77a7317bb1497a4ced5c420498e70b5b91025e47b73f02f43176517a0
+-- hash: 6c017ef5e16709c0277adfd3a4bbff9d0d4a6cd3a539bedd05554c99ab2fcee3
 
 name:           asteroidea
 version:        0.8.0
@@ -49,6 +49,7 @@ library
       Plotter
       PostColoring
       RND
+      RunIO
       Types
       Variations
   other-modules:

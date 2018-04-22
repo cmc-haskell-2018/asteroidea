@@ -15,6 +15,8 @@ import Data.Maybe (fromJust)
 то будем считать что переходы к любой другой трансформе равновозможны
 xaos и веса не меняются в процессе вычисления =>
 все необходимые "модифицированные" веса можно вычислить заранее
+Сюда же относится небольшая подготовка - 
+свёртка коэффициентов смешения цветов.
 -}
 prepareModel :: Model -> Model
 prepareModel model = model
@@ -49,8 +51,11 @@ prepareModel model = model
         rankedWeights weights = tail $ scanl (+) (0::Double) $ weights
         weightNormalize weights = map (/last weights) weights
 
--- | Calculate whole fractal
-calcFlame :: Model -> Int -> [(Vec,Double,Transform)]
+-- | Обсчёт полного фрактала
+calcFlame
+  :: Model -- ^ параметры модели
+  -> Int   -- ^ зерно генерации
+  -> [(Vec,Double,Transform)]
 calcFlame rawModel seed = finalPoints
   where
     model = prepareModel rawModel
@@ -65,8 +70,8 @@ calcFlame rawModel seed = finalPoints
            map appcmr
          $ finalize (mFinal model) points
 
--- | calculate Final transform
--- it doesn't change pointers
+-- | Расчёт финальной трансформы
+-- не меняет указателя на последнюю применённую
 calcFinal :: Transform -> CastGen -> CastGen
 calcFinal transform (gvec, colour, pointer)
   = (newGVec, newColour, pointer)
@@ -74,7 +79,7 @@ calcFinal transform (gvec, colour, pointer)
     newColour = calcCol transform colour
     newGVec  = tVariation transform $ gvec
 
--- | Calculate and plot Path of one point
+-- | Расчёт пути, состоящего из пробросов одной начальной точки
 calcPath ::  Model -> Vec -> [CastGen]
 calcPath model vec = path
   where
@@ -84,7 +89,7 @@ calcPath model vec = path
     infPath = iterate (calcOne model) start -- весь путь точки
     path = drop 20 $ take innerIter $ infPath 
 
--- | Calculate one point and color
+-- | Расчёт одного броска
 calcOne :: Model -> CastGen -> CastGen
 {-# INLINE calcOne #-}
 calcOne model (gv, col, tran) =
@@ -97,7 +102,7 @@ calcOne model (gv, col, tran) =
     newCol = calcCol newTran col  
     
 
--- | Calculate color
+-- | Расчёт смещения цвета
 calcCol :: Transform -> Double -> Double
 calcCol tran col = result
   where
@@ -106,7 +111,7 @@ calcCol tran col = result
     result = speed * col + posit
     -- result = ((1 + speed)* col + (1 - speed)*posit)/2
 
--- | Calculate what transform will be used next
+-- | Выборка одной трансформы
 calcPtr :: Model -> (Transform, GVec) -> (Transform, GVec)
 calcPtr m (tran, gv) = (newTran, newGV)
   where
@@ -114,8 +119,9 @@ calcPtr m (tran, gv) = (newTran, newGV)
     (threshold, gen1) = randomR (0, 1) gen0
     newGV = gv {gvGen = gen1}
     index = fromJust $ findIndex (>= threshold) (tXaos tran)
-    newTran = mTransforms m !! index
+    newTran =  mTransforms m !! index
 
+-- | Применение камеры
 applyCamera :: Model -> Vec -> Vec
 applyCamera m (x,y) = (x',y')
   where

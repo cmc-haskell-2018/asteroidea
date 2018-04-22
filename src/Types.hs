@@ -2,9 +2,9 @@
 Module      : Types
 Description : declarating types, implementation of main data, etc
 Copyright   : Just Nothing
-Stability   : in progress
+Stability   : Stable
 -}
-module Types (module Types, module GVector, module Matrix) where -- re-export GVector for Everyone using Types
+module Types (module Types, module GVector, module Matrix) where
 import Prelude
 import qualified Data.Vector.Unboxed as Vector
 import GVector
@@ -16,33 +16,52 @@ type Cast = (Vec, Double)
 
 -- | Бросок , цвет , номер трансформы
 type CastGen = (GVec,Double,Transform)
-
+-- МБ, переформировать как Data.Vector.Mutable.Vector
+-- из Cell == Unbox (,,,) ?
+-- | Ячейка поля - четыре вещественных значения, RGB и counter
 type Cell = (Double,Double,Double,Double)
+-- | Поле, двумерный (в нашем воображении)
+-- распакованный (по вектору для каждой компоненты Cell)
+-- вектор значений
 type Field = Vector.Vector Cell
-
+-- | перевод из двумерных координат в линейное смещение внутри структуры поля
 linearFieldIndex :: Model -> (Int, Int) -> Int
 linearFieldIndex m (i, j) = i + j * (mWidth m)
 {-# INLINE linearFieldIndex #-}
 
+-- МБ, оформить как Rand -> (Vec -> Vec) ?
+-- Тогда можно сгенерировать отдельно список трансформ, каждая из которых возьмёт генератор и даст отображение (Vec -> Vec) плюс (Col -> Col).
+-- И проход по линии 256 бросков сведётся к генерации трансформ,
+-- и свёртке этих функций ( (Vec -> Vec) , (Col -> Col) ).
+-- Генерацию трансформ можо вести быстро и легко,
+-- ввести в рандом выдачу нескольких значений (остатков),
+-- и будут одновременно выдаваться и номер трансформы,
+-- и случайное зерно для вариации.
 -- | Вариация как она есть - перевод GVec -> GVec
 type Variation = (GVec -> GVec)
 
--- | Преобразование точки, цвета и всего такого
--- | По сути - Transform олицетворяет отображение из старой точки и цвета в новые точку и цвет
--- | Обычно это отображение точек - это сложное выражение из функций-вариаций
+{- | Преобразование точки, цвета и всего такого
+По сути - Transform олицетворяет отображение
+из старой точки и цвета в новые точку и цвет.
+Обычно такое отображение точек - это сложное выражение из функций-вариаций
+Это отображение обладает влиянием на:
+вероятностное распределение,
+конечное размещение точки в поле
+-}
 data Transform = Transform {
--- | возможны линейные комбинации, композиция, параметры =>
--- variation :: VTree
-tVariation :: Variation,  
+-- | возможны линейные комбинации, композиция, параметры
+tVariation :: Variation,
+-- | вес в вероятностном распределении
 tWeight :: Double,
--- ^ вес в вероятностном распределении
-tColorPosition :: Double,
-tColorSpeed :: Double,
--- ^ калибровка коэффициентов при смешении
+-- | калибровка коэффициентов при смешении цветов
+tColorPosition, tColorSpeed :: Double,
+-- | яркость - мера влияния трансформы на точку конечного поля
 tOpacity :: Double,
+-- | xaos - переопределение вероятностного пространства
+-- в терминах данной трансформы
 tXaos :: [Double]
 }
-
+-- | шаблон модели
 templateTransform :: Transform
 {-# INLINABLE templateTransform #-}
 templateTransform = Transform {
@@ -54,31 +73,27 @@ templateTransform = Transform {
                , tXaos          = []
                }
 
--- | Набоор параметров, однозначно задающих фрактал
+-- | Набор параметров, однозначно задающих фрактал
 data Model = Model {
+  -- | имя модели, используется в разборе аргументов запуска
   mName :: String,
   -- | череда трансформ
   mTransforms :: [Transform],
-  -- viewPoint, условно
+  -- | финальная трансформа, применяемая после выбранной, но до камеры
   mFinal :: Maybe Transform,
   -- | карта градиентов
-  -- стоит сделать матрицей
-  -- мб Data.Vector?
   mGradient :: Gradient,
-  -- | Размер картинки, 
-  --backGrCol :: Cell
+  -- | размер картинки
   mWidth, mHeight :: Int,
-  -- | зум
-  mScale :: Double,
-  -- | смещение
-  mShiftX, mShiftY :: Double,
-  -- | и поворот.
-  mRotation :: Double,
+  -- КМК, лучше сделать отображением типа аффинной матрицы
+  -- | Камера: зум-фактор, смещение и поворот.
+  mScale, mShiftX, mShiftY, mRotation  :: Double,
+  -- | Фоновый цвет
   mBackgroundColour :: (Int -> Cell),
-  mOuterIter :: Int,
-  mInnerIter :: Int
+  -- | параметры счёта
+  mOuterIter,mInnerIter :: Int
 }
-
+-- | Шаблон модели
 templateModel :: Model
 {-# INLINABLE templateModel #-}
 templateModel = Model {

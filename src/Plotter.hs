@@ -13,7 +13,7 @@ import qualified Data.Vector.Unboxed.Mutable as Mutable (modify)
 import           Control.Monad.ST              (runST)
 
 
--- | Initialize field
+-- | Создание поля, заполнение по mBackgroundColour
 initField :: Model -> Field
 initField m = Vector.generate (sizeX*sizeY) initFunction
   where
@@ -21,13 +21,18 @@ initField m = Vector.generate (sizeX*sizeY) initFunction
     sizeY = mHeight m
     initFunction = mBackgroundColour m  
 
--- | Функция размещения в поле ряда точек.
--- Если я успею, то сделаю всё более красиво и понятно.
-createField  ::  Model
-  -> [(Vec,Double,Transform)]  
+-- | Функция создания и заполнения фрактала.
+-- И я надеюсь, что когда-нибудь она разделится
+-- на создание, размещение одной серии 256,
+-- и заполнение всего фрактала
+-- в разных функциях, как это было изначально.
+createField 
+  :: Model                    -- ^ параметры модели
+  -> [(Vec,Double,Transform)] -- ^ список точек
   -> Field
 createField model listCast = let
-    listFieldPoints = produceListFromCasts model $ filter (inBounds model) listCast
+    filteredPoints = filter (inBounds model) listCast
+    listFieldPoints = produceListFromCasts model filteredPoints
     field = initField model
   in runST $ do 
      mutableVector <- Vector.unsafeThaw field
@@ -39,19 +44,20 @@ createField model listCast = let
   where
     plot vector = \(c,v) -> Mutable.modify vector c v
 
+-- | Проверка на соответствие границ
+-- Лежит ли точка в пределах поля модели?
 inBounds :: Model -> (Vec,Double,Transform) -> Bool
 inBounds m ((x,y) , _ , _) = flag
   where
     divHW = fromIntegral (mHeight m) / fromIntegral (mWidth m)
     flag = abs x < 1 && abs y < divHW
 
-
 -- | Генерация из списка Cast списка вида (mutate colour, position)
 -- для работы 'Vector.Mutable.modify'
 produceListFromCasts
-  :: Model                -- ^ Параметры преобразований. Зачем я их таскаю?
-  -> [(Vec,Double,Transform)]   -- ^ Структура бросков. TODO effective
-  -> [(Cell -> Cell,Int)] -- ^ Результат - функция-модификатор и индекс.
+  :: Model                    -- ^ Параметры преобразований.
+  -> [(Vec,Double,Transform)] -- ^ Структура бросков.
+  -> [(Cell -> Cell,Int)]     -- ^ Результат - функция-модификатор и индекс.
 produceListFromCasts model startList =
   map convert startList
   where
@@ -64,11 +70,12 @@ produceListFromCasts model startList =
       $ coord             )
     grad = Gradient.colorMap . mGradient
 
--- | convert index from virtual field as BUS to real field as Vector
+-- | Переход от представления точки как вектора в масштабе би-квадрата,
+-- к представлению точки как ячейки двумерного поля.
 pointBUStoFieldPoint
-  :: Model            -- параметры модели
-  -> (Double, Double) -- точка из би-квадрата
-  -> (Int,Int)        -- точка на поле
+  :: Model            -- ^ параметры модели
+  -> (Double, Double) -- ^ точка из би-квадрата
+  -> (Int,Int)        -- ^ точка на поле
 pointBUStoFieldPoint m (x, y) =
   ( convert ( x+1)
   , convert (-y+ratio)
@@ -79,8 +86,11 @@ pointBUStoFieldPoint m (x, y) =
     width   = fromIntegral (mWidth  m)
     height  = fromIntegral (mHeight m)
 
--- | TODO alpha blending colours
-calcColour :: Transform -> (Double,Double,Double) -> Cell -> Cell
+-- | Вычисление цвета, в результате размещения точки в поле.
+calcColour
+  :: Transform              -- ^ трансформа, определяющая поведение функции
+  -> (Double,Double,Double) -- ^ цвет для размещения
+  -> (Cell -> Cell)         -- ^ функция изменения ячейки поля
 calcColour transform (r0,g0,b0) (r2, g2, b2, a) =
   ( (r2+r1), (g2+g1), (b2+b1), (a+opac))
   where

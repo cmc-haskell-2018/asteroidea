@@ -19,6 +19,7 @@ binGVecToVar op = flip . (flip (\v -> on op ($v)))
 type PlainVariation = (Vec -> Vec)
 
 applyGVec :: PlainVariation -> Variation
+{-# INLINABLE affine #-}
 applyGVec func = \g -> g {gvVec = func $ gvVec g}
 
 {-
@@ -54,16 +55,19 @@ instance Fractional Variation where
    @
 -}
 affine :: AffineMatrix -> Variation
-{-# INLINE[1] affine #-}
+{-# INLINE[~1] affine #-}
 affine (AffineMatrix sx 0 0 sy 0 0)
-  = applyGVec $ \(x,y) -> (x * sx, y * sy)
+  g@(GVec _ (x,y))
+  = g {gvVec = (x * sx, y * sy)}
 affine (AffineMatrix sx 0 0 sy a b)
-  = applyGVec $ \(x,y) -> (x * sx + a, y * sy + b)
+  g@(GVec _ (x,y))
+  = g {gvVec = (x * sx + a, y * sy + b)}
 affine (AffineMatrix xx0 xy0 yx0 yy0 a b)
-  = applyGVec $ \(x,y) -> let
-      x' = xx0 * x + xy0 * y + a
-      y' = yx0 * x + yy0 * y + b
-    in (x', y')
+  g@(GVec _ (x,y))
+  = g {gvVec = (x', y')}
+  where
+    x' = xx0 * x + xy0 * y + a
+    y' = yx0 * x + yy0 * y + b
 
 -- | сферическое преобразование
 spherical :: Variation
@@ -195,18 +199,21 @@ hyperb g@(GVec _ (x,y)) = g {gvVec =  (x / y , y / x)}
 sumMultAxis :: Variation
 sumMultAxis g@(GVec _ (x,y)) = g {gvVec = ((x+y) * x , (x+y) * y )}
 
+-- | случайное отражение от оси абсцисс
 mirrorX :: Variation
 mirrorX (GVec g (x,y)) = GVec g' (x',y)
   where
     (i,g') = randomR (False,True) g
     x' = if i then x else negate x
 
+-- | случайное отражение от оси ординат
 mirrorY :: Variation
 mirrorY (GVec g (x,y)) = GVec g' (x,y')
   where
     (i,g') = randomR (False,True) g
     y' = if i then y else negate y
 
+-- | ?
 mirrorR :: Variation
 mirrorR gv@(GVec g (x,y)) = GVec g' (x',y')
   where
