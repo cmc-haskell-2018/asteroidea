@@ -40,12 +40,12 @@ parseModel (fName : fVal : rest) mod
 -- | parse a single transform
 parseTran :: Transform -> [String] -> Transform
 parseTran tran (fName : fVal : rest)
-  -- | (fName == "tVariation") =
+  --  (fName == "tVariation") =
   	| (fName == "tWeight") = parseTran tran {tWeight = read fVal :: Double} rest
   	| (fName == "tColorPosition") = parseTran tran {tColorPosition = read fVal :: Double} rest
   	| (fName == "tColorSpeed") = parseTran tran {tColorSpeed = read fVal :: Double} rest
   	| (fName == "tOpacity") = parseTran tran {tOpacity = read fVal :: Double} rest
-  	-- | (fName == "tXaos") = 
+  	--  (fName == "tXaos") = 
 
 --parseVar :: String -> Variation
 
