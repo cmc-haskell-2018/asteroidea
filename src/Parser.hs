@@ -18,24 +18,22 @@ splitt c s = firstWord : (splitt c rest)
 
 -- contents <- readFile "a.txt"
 -- words $ contents
-parseModel :: [String] -> Model  
-parseModel ("mName" : nam : "mTransforms" : trans : "mFinal" : fin : "mGradient" : grad : "mWidth" : width : "mHeight" : height : "mScale" : scale : 
-	       "mShiftX" : shX : "mShiftY" : shY : "mRotation" : rot : "mBackgroundColour" : b1 : b2 : b3 : "mOuterIter" : out : "mInnerIter" : inner : _) =
-	templateModel { mName = nam
-     			--, mTransforms = parseTrans trans
-     			--, mFinal = head $ parseTrans $ final
-     			  , mGradient = paletteToDouble grad
-     			  , mWidth = read width :: Int
-     			  , mHeight = read height :: Int
-     			  , mScale = read scale :: Double
-     			  , mShiftX = read shX :: Double
-     			  , mShiftY = read shY :: Double 
-     			  , mRotation = read rot :: Double
-     			  , mBackgroundColour = (\_ -> (read b1 :: Double,read b2 :: Double, read b3 :: Double, 1))
-     			  , mOuterIter = read out :: Int
-     			  , mInnerIter = read inner :: Int
-     			  }
 
+parseModel :: [String] -> Model -> Model  
+parseModel (fName : fVal : rest) mod 
+    | (fName == "mName")             = (parseModel rest mod {mName = fVal})
+ -- | (fName == "mTransforms")       = 
+ -- | (fName == "mFinal")            =
+ 	| (fName == "mGradient")         = (parseModel rest mod {mGradient = paletteToDouble fVal})
+ 	| (fName == "mWidth")            = (parseModel rest mod {mWidth = read fVal :: Int})
+ 	| (fName == "mHeight")           = (parseModel rest mod {mHeight = read fVal :: Int})
+ 	| (fName == "mScale")            = (parseModel rest mod {mScale = read fVal :: Double})
+ 	| (fName == "mShiftX")           = (parseModel rest mod {mShiftX = read fVal :: Double})
+ 	| (fName == "mShiftY")           = (parseModel rest mod {mShiftY = read fVal :: Double})
+ 	| (fName == "mRotation")         = (parseModel rest mod {mRotation = read fVal :: Double})
+ 	| (fName == "mBackgroundColour") = (parseModel (tail $ tail $ rest) mod {mBackgroundColour = (\_ -> (read fVal :: Double, read (head rest) :: Double, read (head $ tail $ rest) :: Double, 1))})
+ 	| (fName == "mOuterIter")        = (parseModel rest mod {mOuterIter = read fVal :: Int})
+ 	| (fName == "mInnerIter")        = (parseModel rest mod {mInnerIter = read fVal :: Int})
 
 --parseTrans :: String -> [Transform]
 
