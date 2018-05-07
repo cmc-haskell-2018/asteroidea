@@ -6,7 +6,7 @@ Copyright   : Just Nothing
 Stability   : Stable
 -}
 module Model.Serpinski (listModel) where
-import Variations (affine, exponential, mirrorX, mirrorY)
+import Variations 
 import Types
 -- | export model
 listModel :: [Model]
@@ -57,10 +57,10 @@ exampleModel = templateModel {
   , mTransforms = [t1,t2,t3,t4]
   , mRotation   = 90
   , mFinal      = Just templateTransform {
-        tVariation =  ( exponential 1 0)
-                    . (  affine
-                       $ AffineMatrix 2.5 (-2.5) 1 1 (-2.15) 0
-                      )
+        tVariation =   (exponential 1 0)
+                    .  ( affine
+                       $ AffineMatrix 2.5 (-2.5) 1 1 (-2.15) 0)
+                      
                     . mirrorX . mirrorY  }               
                              }
 -- | exampleModel 42

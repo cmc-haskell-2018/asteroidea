@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -w #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-|
 Module      : Parser
 Description : file to model
@@ -10,6 +11,7 @@ import Types
 import Variations	
 import Gradient
 import Data.List.Split
+import Data.List
 
 -- contents <- readFile "a.txt"
 -- words $ contents
@@ -36,21 +38,94 @@ parseModel (fName : fVal : rest) mod
     | (fName == "mOuterIter")        = parseModel rest mod {mOuterIter = read fVal :: Int}
     | (fName == "mInnerIter")        = parseModel rest mod {mInnerIter = read fVal :: Int}
     | otherwise                      = mod
+parseModel (_:[]) mod = mod
 
 -- | parse a single transform
 parseTran :: Transform -> [String] -> Transform
 parseTran tran (fName : fVal : rest)
-  --  (fName == "tVariation") =
-  	| (fName == "tWeight") = parseTran tran {tWeight = read fVal :: Double} rest
+    | (fName == "tVariation")     = tran {tVariation = parseVar (intercalate " " $ fVal:rest)}
+  	| (fName == "tWeight")        = parseTran tran {tWeight = read fVal :: Double} rest
   	| (fName == "tColorPosition") = parseTran tran {tColorPosition = read fVal :: Double} rest
-  	| (fName == "tColorSpeed") = parseTran tran {tColorSpeed = read fVal :: Double} rest
-  	| (fName == "tOpacity") = parseTran tran {tOpacity = read fVal :: Double} rest
-  	--  (fName == "tXaos") = 
+  	| (fName == "tColorSpeed")    = parseTran tran {tColorSpeed = read fVal :: Double} rest
+  	| (fName == "tOpacity")       = parseTran tran {tOpacity = read fVal :: Double} rest
+  	| (fName == "tXaos")          = let 
+  	                                tak = takeWhile (/= "tVariation") (fVal : rest)
+  	                                dro = dropWhile (/= "tVariation") (fVal : rest)
+  						            in parseTran tran {tXaos = parseXaos tak} dro 
 
---parseVar :: String -> Variation
+parseXaos :: [String] -> [Double]
+parseXaos str = map (read) str
 
--- S = F [OP F]
---  F = variation [params] | (S)
--- OP = . | + | *
+-- parseVar words str
 
--- blur . ( id + juliaN 12 3)
+getVar :: [String] -> Variation
+getVar (fName:pars) 
+    | (fName == "juliaN")      = juliaN (read $ head pars) (read $ pars !! 1)
+    | (fName == "affine")      = affine (AffineMatrix (read $ pars !! 0) (read $ pars !! 1) (read $ pars !! 2) (read $ pars !! 3) (read $ pars !! 4) (read $ pars !! 5))
+    | (fName == "spherical")   = spherical
+    | (fName == "linear")      = linear
+    | (fName == "sinusoidal")  = sinusoidal
+    | (fName == "swirl")       = swirl
+    | (fName == "horseshoe")   = horseshoe
+    | (fName == "polar")       = polar
+    | (fName == "disc")        = disc
+    | (fName == "spiral")      = spiral
+    | (fName == "hyperbolic")  = hyperbolic
+    | (fName == "square")      = square
+    | (fName == "eyefish")     = eyefish
+    | (fName == "bubble")      = bubble
+    | (fName == "cylinder")    = cylinder
+    | (fName == "noise")       = noise
+    | (fName == "blur")        = blur
+    | (fName == "gaussian")    = gaussian
+    | (fName == "exponential") = exponential (read $ head pars) (read $ pars !! 1)
+    | (fName == "eachSquare")  = eachSquare
+    | (fName == "hyperb")      = hyperb
+    | (fName == "sumMultAxis") = sumMultAxis
+    | (fName == "mirrorX")     = mirrorX
+	| (fName == "mirrorY")     = mirrorY
+	| (fName == "mirrorR")     = mirrorR
+	| otherwise                = (\ (GVec g _) -> GVec g (read fName,0)) 
+    
+delim :: [Char]
+delim = ['+',':','*']
+
+parseVar :: String -> Variation 
+parseVar str | ( head str == '(' && rest == [] ) = curV
+   where (cur, rest) = parseParen str
+         curV        = parseVar cur
+
+parseVar str | (head str == '(') = (getOp op) curV restV
+   where (cur,rest) = parseParen str
+         curV       = parseVar cur
+         op         = head rest
+         restV      = parseVar $ tail rest
+         getOp '+'  = (+)
+         getOp ':'  = (.)
+         getOp '*'  = (*)
+
+parseVar str | (rest == []) = curV
+   where cur   = takeWhile (\x -> not $ elem x delim) str
+         curV  = getVar $ words cur
+         rest  = dropWhile (\x -> not $ elem x delim) str
+
+parseVar str | otherwise = (getOp op) curV restV
+   where cur   = takeWhile (\x -> not $ elem x delim) str
+         curV  = getVar $ words cur
+         rest  = dropWhile (\x -> not $ elem x delim) str
+         op    = head rest
+         restV = parseVar $ tail rest
+         getOp '+' = (+)
+         getOp ':' = (.)
+         getOp '*' = (*)
+
+-- | Paretheses parsing
+parseParen :: String -> (String, String)
+parseParen str = parseParen' 0 [] str
+parseParen' :: Int -> String -> String -> (String,String)
+parseParen' i pr (x:xs) | (x == '(' && i == 0) = parseParen' (i+1) pr xs
+                        | (x == '(')           = parseParen' (i+1) (pr ++ [x]) xs
+                        | (x == ')' && i == 1) = (pr, xs)
+                        | (x == ')')           = parseParen' (i-1) (pr ++ [x]) xs
+                        | otherwise            = parseParen' i (pr ++ [x]) xs
+--0.1*(affine -0.5 0 0 -0.5 0.5 0.5 + bubble)
