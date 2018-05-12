@@ -7,6 +7,7 @@ Stability   : Stable
 -}
 module Model.Serpinski (listModel) where
 import Variations 
+
 import Types
 -- | export model
 listModel :: [Model]
@@ -46,7 +47,7 @@ t3 = templateTransform {
 t4 :: Transform
 -- ^ DEBUG transform 4
 t4 = templateTransform { 
-                tVariation     = affine dbgAffine4 
+                tVariation     = 0.1*bubble +  affine dbgAffine4 
                , tColorPosition = 1
                , tColorSpeed = 0
                }
@@ -63,9 +64,11 @@ exampleModel :: Model  -- square
 exampleModel = templateModel {
     mName       = "serpinski"
 
+
   , mTransforms = [t1,t2,t3,t4']
 , mFinal      = Just templateTransform      {
-        tVariation =   0.02*blur +  (affine $ AffineMatrix 2 0 0 2 (-1) (-1))     }          
+        tVariation =     (affine $ AffineMatrix 2 0 0 2 (-1) (-1))     }          
+
                              }
 
 exampleModel' :: Model  -- triangle
@@ -93,3 +96,4 @@ m3 = exampleModel {
 , mFinal      = Just templateTransform      {
         tVariation = ( exponential 1 0) . ( affine $ AffineMatrix 2.5 (-2.5) 1 1 (-2.15) 0 ) . mirrorX . mirrorY }
      }
+
