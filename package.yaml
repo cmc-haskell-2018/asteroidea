@@ -28,6 +28,7 @@ dependencies:
 - random
 - JuicyPixels
 - vector
+- split
 
 library:
   source-dirs: src

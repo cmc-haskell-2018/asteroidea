@@ -17,18 +17,52 @@ import qualified Control.Monad as M
 import Data.Vector.Storable (unsafeToForeignPtr)
 import qualified Data.Vector.Unboxed as Vector
 import Data.List
+import Parser
 
 -- Думаю перейти на cmdargs
 -- | Разбор параметров командной строки.
 parseArgs :: [String] -> (Int -> IO())
 parseArgs commandArgs = case commandArgs of {
        (par:xs)      -> case par of
+       "read"        -> parseRead
        "pic"         -> parsePicture       xs
        "interpol"    -> parseInterpolation xs
        "anime"       -> parseAnimation     xs
        _             -> error "ParseError"
     ;  _             -> parseInterpolation []
                                             }
+
+parseRead :: Int -> IO()
+parseRead int = do
+  contents <- readFile "C:/programs/Haskell/JustNothing/asteroidea/src/a.txt"
+  let func = (savePngImage "./pic.png")
+  let gen = (runPicture $ parseModel (words contents) templateModel)
+  let img = gen int
+  let pic = fromImageRGBA8 $ convertRGBA8 img
+  let window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY)) 
+  func img
+  Graphics.Gloss.animate window white (\_->pic)
+  -- where
+  --   func = (savePngImage "./pic.png")
+  --   gen = (runPicture $ parseModel $ words contents)
+  --   img = gen int
+  --   pic = fromImageRGBA8 $ convertRGBA8 img
+  --   window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
+
+-- parsePicture _                   = runWindow
+--                                    (savePngImage "./pic.png")
+--                                    (runPicture $ L.anyModel)
+
+-- -- | Запуск вывода и отображения в окне
+-- runWindow :: (DynamicImage -> IO ()) -> (Int -> DynamicImage) -> Int -> IO ()
+-- runWindow func gen int = do
+--     func img
+--     Graphics.Gloss.animate window white (\_->pic)
+--   where
+--     img = gen int
+--     pic = fromImageRGBA8 $ convertRGBA8 img
+--     window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY))
+
 
 -- | Разбор параметров анимации.
 parseAnimation :: [String] -> (Int -> IO ())

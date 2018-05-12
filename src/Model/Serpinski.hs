@@ -60,6 +60,7 @@ exampleModel = templateModel {
   , mFinal      = Just templateTransform {
         tVariation =  (  exponential 1 0) . (  affine $ AffineMatrix 2.5 (-2.5) 1 1 (-2.15) 0 ) . mirrorX . mirrorY  
       }              
+
                              }
 -- | exampleModel 42
 exampleModel' :: Model 

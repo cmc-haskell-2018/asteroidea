@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6c017ef5e16709c0277adfd3a4bbff9d0d4a6cd3a539bedd05554c99ab2fcee3
+-- hash: c7f42d48bb927f9654923b3bbb17d7032eb481b10143d34ecd5cc513340ae587
 
 name:           asteroidea
 version:        0.8.0
@@ -12,6 +12,7 @@ homepage:       https://github.com/cmc-haskell-2018/asteroidea#readme
 bug-reports:    https://github.com/cmc-haskell-2018/asteroidea/issues
 author:         Team «Just Nothing»
 copyright:      Team «Just Nothing»
+license-file:   LICENSE
 build-type:     Simple
 cabal-version:  >= 1.10
 
@@ -31,6 +32,7 @@ library
     , base >=4.7 && <5
     , gloss
     , random
+    , split
     , vector
   exposed-modules:
       Animation
@@ -67,6 +69,7 @@ executable asteroidea
     , base >=4.7 && <5
     , gloss
     , random
+    , split
     , vector
   other-modules:
       Paths_asteroidea
