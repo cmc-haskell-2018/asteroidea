@@ -6,11 +6,11 @@ Copyright   : Just Nothing
 Stability   : Stable
 -}
 module Model.Serpinski (listModel) where
-import Variations (affine, exponential, mirrorX, mirrorY)
+import Variations 
 import Types
 -- | export model
 listModel :: [Model]
-listModel  = [exampleModel, exampleModel']
+listModel  = [exampleModel, exampleModel', m2, m3]
 
 -- | DEBUG affine 1
 dbgAffine1 :: AffineMatrix
@@ -50,23 +50,46 @@ t4 = templateTransform {
                , tColorPosition = 1
                , tColorSpeed = 0
                }
+
+t4' :: Transform
+-- ^ DEBUG transform 4
+t4' = templateTransform { 
+                tVariation     = affine $ AffineMatrix 0.5 0 0 0.5 0.5 0.5 
+               , tColorPosition = 1
+               , tColorSpeed = 0
+               }
 -- | exampleModel 42
-exampleModel :: Model 
+exampleModel :: Model  -- square
 exampleModel = templateModel {
     mName       = "serpinski"
-  , mTransforms = [t1,t2,t3,t4]
-  , mRotation   = 90
-  , mFinal      = Just templateTransform {
-        tVariation =  ( exponential 1 0)
-                    . (  affine
-                       $ AffineMatrix 2.5 (-2.5) 1 1 (-2.15) 0
-                      )
-                    . mirrorX . mirrorY  }               
+
+  , mTransforms = [t1,t2,t3,t4']
+, mFinal      = Just templateTransform      {
+        tVariation =   0.02*blur +  (affine $ AffineMatrix 2 0 0 2 (-1) (-1))     }          
                              }
--- | exampleModel 42
-exampleModel' :: Model 
+
+exampleModel' :: Model  -- triangle
 exampleModel' = exampleModel {
     mName       = "serpinski0"
-  , mFinal      = Just templateTransform      {
-        tVariation =  mirrorX . mirrorY       }
+      , mTransforms = [t1,t2,t3,t4]
+    , mFinal      = Just templateTransform      {
+        tVariation =   (affine $ AffineMatrix 2 0 0 2 (-1) (-1))     }
                              }
+
+m2 :: Model  -- expo from square
+m2 = exampleModel {
+    mName       = "serpinski2"
+  , mTransforms = [t1,t2,t3,t4']
+, mFinal      = Just templateTransform      {
+        tVariation =  (exponential 1 0) . (affine $ AffineMatrix 2.5 0 0 1 (-2.15) 0) . (affine $ AffineMatrix 2 0 0 2 (-1) (-1))     }
+     }
+
+m3 :: Model -- expo from triangle
+m3 = exampleModel {
+    mName       = "serpinski3"
+          , mRotation = 45
+  , mTransforms = [t1,t2,t3,t4]
+
+, mFinal      = Just templateTransform      {
+        tVariation = ( exponential 1 0) . ( affine $ AffineMatrix 2.5 (-2.5) 1 1 (-2.15) 0 ) . mirrorX . mirrorY }
+     }
