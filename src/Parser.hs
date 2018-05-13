@@ -40,18 +40,22 @@ parseModel (fName : fVal : rest) mod
     | otherwise                      = mod
 parseModel (_:[]) mod = mod
 
+tranDelims :: [String]
+tranDelims = ["tVariation", "tWeight", "tColorPosition", "tColorSpeed", "tOpacity", "tXaos"]
+
 -- | parse a single transform
 parseTran :: Transform -> [String] -> Transform
 parseTran tran (fName : fVal : rest)
-    | (fName == "tVariation")     = tran {tVariation = parseVar (intercalate " " $ fVal:rest)}
+     | (fName == "tVariation")     = let (var, remains) = span (\x -> not $ elem x tranDelims) (fVal : rest)
+                                          in parseTran tran {tVariation = parseVar $ intercalate " " var} remains 
   	| (fName == "tWeight")        = parseTran tran {tWeight = read fVal :: Double} rest
   	| (fName == "tColorPosition") = parseTran tran {tColorPosition = read fVal :: Double} rest
   	| (fName == "tColorSpeed")    = parseTran tran {tColorSpeed = read fVal :: Double} rest
   	| (fName == "tOpacity")       = parseTran tran {tOpacity = read fVal :: Double} rest
-  	| (fName == "tXaos")          = let 
-  	                                tak = takeWhile (/= "tVariation") (fVal : rest)
-  	                                dro = dropWhile (/= "tVariation") (fVal : rest)
-  						            in parseTran tran {tXaos = parseXaos tak} dro 
+  	| (fName == "tXaos")          = let (xaos, remains) = span (\x -> not $ elem x tranDelims) (fVal : rest)
+  						            in parseTran tran {tXaos = parseXaos xaos} remains 
+     | otherwise = tran
+parseTran tran _ = tran
 
 parseXaos :: [String] -> [Double]
 parseXaos str = map (read) str
@@ -83,41 +87,39 @@ getVar (fName:pars)
     | (fName == "hyperb")      = hyperb
     | (fName == "sumMultAxis") = sumMultAxis
     | (fName == "mirrorX")     = mirrorX
-	| (fName == "mirrorY")     = mirrorY
-	| (fName == "mirrorR")     = mirrorR
-	| otherwise                = (\ (GVec g _) -> GVec g (read fName,0)) 
+    | (fName == "mirrorY")     = mirrorY
+    | (fName == "mirrorR")     = mirrorR
+    | otherwise                = (\ (GVec g _) -> GVec g (read fName,0)) 
     
 delim :: [Char]
 delim = ['+',':','*']
 
-parseVar :: String -> Variation 
-parseVar str | ( head str == '(' && rest == [] ) = curV
-   where (cur, rest) = parseParen str
+getOpAndRest :: String -> ( (Variation -> Variation -> Variation), String )
+getOpAndRest [] = ((.), [])
+getOpAndRest str  = (getop charOp, rest)
+  where
+     (charOp:rest) = dropWhile (== ' ') str
+     getop '+' = (+)
+     getop '*' = (*)
+     getop _   = (.)
+
+
+parseVar :: String -> Variation
+parseVar [] = id
+parseVar str | ( head str == ' ' ) = parseVar $ tail str
+parseVar str | ( head str == '(' ) = op curV restV
+   where (cur, restWithOp) = parseParen str
          curV        = parseVar cur
+         restV      = parseVar rest
+         (op, rest) = getOpAndRest restWithOp        
 
-parseVar str | (head str == '(') = (getOp op) curV restV
-   where (cur,rest) = parseParen str
-         curV       = parseVar cur
-         op         = head rest
-         restV      = parseVar $ tail rest
-         getOp '+'  = (+)
-         getOp ':'  = (.)
-         getOp '*'  = (*)
-
-parseVar str | (rest == []) = curV
+parseVar str | otherwise = op curV restV
    where cur   = takeWhile (\x -> not $ elem x delim) str
          curV  = getVar $ words cur
-         rest  = dropWhile (\x -> not $ elem x delim) str
+         restWithOp  = dropWhile (\x -> not $ elem x delim) str
+         (op, rest) = getOpAndRest restWithOp
+         restV = parseVar rest
 
-parseVar str | otherwise = (getOp op) curV restV
-   where cur   = takeWhile (\x -> not $ elem x delim) str
-         curV  = getVar $ words cur
-         rest  = dropWhile (\x -> not $ elem x delim) str
-         op    = head rest
-         restV = parseVar $ tail rest
-         getOp '+' = (+)
-         getOp ':' = (.)
-         getOp '*' = (*)
 
 -- | Paretheses parsing
 parseParen :: String -> (String, String)

@@ -24,7 +24,7 @@ import Parser
 parseArgs :: [String] -> (Int -> IO())
 parseArgs commandArgs = case commandArgs of {
        (par:xs)      -> case par of
-       "read"        -> parseRead
+       "read"        -> parseRead          xs
        "pic"         -> parsePicture       xs
        "interpol"    -> parseInterpolation xs
        "anime"       -> parseAnimation     xs
@@ -32,9 +32,9 @@ parseArgs commandArgs = case commandArgs of {
     ;  _             -> parseInterpolation []
                                             }
 
-parseRead :: Int -> IO()
-parseRead int = do
-  contents <- readFile "C:/programs/Haskell/JustNothing/asteroidea/src/a.txt"
+parseRead :: [String] -> Int -> IO()
+parseRead (path:_) int = do
+  contents <- readFile path
   let func = (savePngImage "./pic.png")
   let gen = (runPicture $ parseModel (words contents) templateModel)
   let img = gen int
@@ -42,6 +42,7 @@ parseRead int = do
   let window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY)) 
   func img
   Graphics.Gloss.animate window white (\_->pic)
+parseRead _ _ = error "No file path given"
   -- where
   --   func = (savePngImage "./pic.png")
   --   gen = (runPicture $ parseModel $ words contents)
