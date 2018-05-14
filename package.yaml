@@ -28,6 +28,7 @@ dependencies:
 - random
 - JuicyPixels
 - vector
+- matrix
 - split
 
 library:
