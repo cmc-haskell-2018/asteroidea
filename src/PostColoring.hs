@@ -46,7 +46,7 @@ tempToField field = Vector.fromList field
 
 -- | supersampling, работающая с TempField
 postColoringTemp :: PostColorParams -> TempField -> TempField
-postColoringTemp params field = supersampling params field
+postColoringTemp params@(oldwidth, oldheight, scale, gamma) field = supersampling params (imageFilter oldwidth scale field)
 
 
 -- | разделение таблицы, хранящейся в списке, на полоски из клеток
@@ -57,21 +57,21 @@ postColoringTemp params field = supersampling params field
 -- | ccdd |
 supersampling :: PostColorParams -> TempField -> TempField
 supersampling _ [] = []
-supersampling (oldwidth, oldheight, scale, gamma) field = divide ++ supersampling (oldwidth, oldheight, scale, gamma) remaining
+supersampling params@(oldwidth, oldheight, scale, gamma) field = divide ++ supersampling params remaining
     where
         (cut, remaining) = splitAt (oldwidth * scale) field
-        divide = getHistograms (oldwidth, oldheight, scale, gamma) (supersampling2 (oldwidth, oldheight, scale, gamma) cut)
+        divide = getHistograms params (supersampling2 params cut)
 
 -- | aabbaabb -> [aabb, aabb]
 supersampling2 :: PostColorParams -> TempField -> [TempField]
-supersampling2 (oldwidth, oldheight, scale, gamma) lineOfHistograms = cut : supersampling2 (oldwidth, oldheight, scale, gamma) remaining
+supersampling2 params@(oldwidth, oldheight, scale, gamma) lineOfHistograms = cut : supersampling2 params remaining
     where 
         (cut, remaining) = splitAt oldwidth lineOfHistograms
 
 -- | [aabb, aabb] -> aaaabbbb -> AB (применение supersampling)
 getHistograms :: PostColorParams -> [TempField] -> TempField
 getHistograms _ [] = []
-getHistograms (oldwidth, oldheight, scale, gamma) histograms = (getFinalCell (foldl1 (++) (map (take scale) histograms)) gamma) : (getHistograms (oldwidth, oldheight, scale, gamma) (map (drop scale) histograms))
+getHistograms params@(oldwidth, oldheight, scale, gamma) histograms = (getFinalCell (foldl1 (++) (map (take scale) histograms)) gamma) : (getHistograms params (map (drop scale) histograms))
 
 -- | получение Cell из Field по x и y
 getCell :: Int -> Field -> Int -> Int -> Cell
@@ -124,13 +124,13 @@ grayscale :: Cell -> Double
 grayscale (r, g, b, a) = 0.299 * r + 0.587 * g + 0.114 * b
 
 -- | применение фильтра
-filter :: Int -> Scale -> TempField -> TempField
-filter = filterStep 0
+imageFilter :: Int -> Scale -> TempField -> TempField
+imageFilter = imageFilterStep 0
 
 -- | шаг фильтра для каждого элемента field по номеру
-filterStep :: Int -> Int -> Scale -> TempField -> TempField
-filterStep pixelNum width scale field | pixelNum == (length field) = []
-                                      | otherwise = applyFilter (boxBlur scale) (correspondingToPixel pixelNum width scale field) : filterStep (pixelNum + 1) width scale field
+imageFilterStep :: Int -> Int -> Scale -> TempField -> TempField
+imageFilterStep pixelNum width scale field | pixelNum == (length field) = []
+                                      | otherwise = applyFilter (boxBlur scale) (correspondingToPixel pixelNum width scale field) : imageFilterStep (pixelNum + 1) width scale field
 
 -- | выделение окружающих пикселей в зависимости от scale
 correspondingToPixel :: Int -> Int -> Scale -> TempField -> Histogram
