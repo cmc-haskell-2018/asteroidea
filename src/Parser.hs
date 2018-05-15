@@ -13,32 +13,39 @@ import Gradient
 import Data.List.Split
 import Data.List
 
--- contents <- readFile "a.txt"
--- words $ contents
+
+parseModel :: String -> Model -> Model
+parseModel f mod = checkModel $ parseModel' (words f) mod 
+
+-- | check the xaos arguments
+checkModel :: Model -> Model
+checkModel mod
+    | and $ map (== ( length $ mTransforms mod)) $ map ( length . tXaos) $ mTransforms mod = mod
+    | otherwise = error "wrong number of args in Xaos"
 
 -- | read a model from the file
-parseModel :: [String] -> Model -> Model  
-parseModel (fName : fVal : rest) mod 
-    | (fName == "mName")             = parseModel rest mod {mName = fVal}
+parseModel' :: [String] -> Model -> Model
+parseModel' (fName : fVal : rest) mod 
+    | (fName == "mName")             = parseModel' rest mod {mName = fVal}
     | (fName == "mTransforms")       = let 
                                        l = (splitOn ["endT"] (fVal : rest))
                                        trans = map (parseTran templateTransform) (init l)
                                        r = last l 
-    								   in parseModel r mod {mTransforms = trans}
+    								   in parseModel' r mod {mTransforms = trans}
     | (fName == "mFinal")            = let (t:r:[]) = (splitOn ["endF"] (fVal : rest)) 
-									   in parseModel r mod {mFinal = Just (parseTran templateTransform t )}
-    | (fName == "mGradient")         = parseModel rest mod {mGradient = paletteToDouble fVal}
-    | (fName == "mWidth")            = parseModel rest mod {mWidth = read fVal :: Int}
-    | (fName == "mHeight")           = parseModel rest mod {mHeight = read fVal :: Int}
-    | (fName == "mScale")            = parseModel rest mod {mScale = read fVal :: Double}
-    | (fName == "mShiftX")           = parseModel rest mod {mShiftX = read fVal :: Double}
-    | (fName == "mShiftY")           = parseModel rest mod {mShiftY = read fVal :: Double}
-    | (fName == "mRotation")         = parseModel rest mod {mRotation = read fVal :: Double}
-    | (fName == "mBackgroundColour") = parseModel (drop 2 rest) mod {mBackgroundColour = (\_ -> (read fVal :: Double, read (head rest) :: Double, read (head $ tail $ rest) :: Double, 1))}
-    | (fName == "mOuterIter")        = parseModel rest mod {mOuterIter = read fVal :: Int}
-    | (fName == "mInnerIter")        = parseModel rest mod {mInnerIter = read fVal :: Int}
-    | otherwise                      = mod
-parseModel (_:[]) mod = mod
+									   in parseModel' r mod {mFinal = Just (parseTran templateTransform t )}
+    | (fName == "mGradient")         = parseModel' rest mod {mGradient = paletteToDouble fVal}
+    | (fName == "mWidth")            = parseModel' rest mod {mWidth = read fVal :: Int}
+    | (fName == "mHeight")           = parseModel' rest mod {mHeight = read fVal :: Int}
+    | (fName == "mScale")            = parseModel' rest mod {mScale = read fVal :: Double}
+    | (fName == "mShiftX")           = parseModel' rest mod {mShiftX = read fVal :: Double}
+    | (fName == "mShiftY")           = parseModel' rest mod {mShiftY = read fVal :: Double}
+    | (fName == "mRotation")         = parseModel' rest mod {mRotation = read fVal :: Double}
+    | (fName == "mBackgroundColour") = parseModel' (drop 2 rest) mod {mBackgroundColour = (\_ -> (read fVal :: Double, read (head rest) :: Double, read (head $ tail $ rest) :: Double, 1))}
+    | (fName == "mOuterIter")        = parseModel' rest mod {mOuterIter = read fVal :: Int}
+    | (fName == "mInnerIter")        = parseModel' rest mod {mInnerIter = read fVal :: Int}
+    | otherwise                      = error ("Error, no such argument in model: " ++ fName)
+parseModel' _ mod = mod
 
 tranDelims :: [String]
 tranDelims = ["tVariation", "tWeight", "tColorPosition", "tColorSpeed", "tOpacity", "tXaos"]
@@ -54,13 +61,11 @@ parseTran tran (fName : fVal : rest)
   	| (fName == "tOpacity")       = parseTran tran {tOpacity = read fVal :: Double} rest
   	| (fName == "tXaos")          = let (xaos, remains) = span (\x -> not $ elem x tranDelims) (fVal : rest)
   						            in parseTran tran {tXaos = parseXaos xaos} remains 
-     | otherwise = tran
+     | otherwise = error ("Error, no such argument in transform: " ++ fName)
 parseTran tran _ = tran
 
 parseXaos :: [String] -> [Double]
 parseXaos str = map (read) str
-
--- parseVar words str
 
 getVar :: [String] -> Variation
 getVar (fName:pars) 
@@ -130,4 +135,3 @@ parseParen' i pr (x:xs) | (x == '(' && i == 0) = parseParen' (i+1) pr xs
                         | (x == ')' && i == 1) = (pr, xs)
                         | (x == ')')           = parseParen' (i-1) (pr ++ [x]) xs
                         | otherwise            = parseParen' i (pr ++ [x]) xs
---0.1*(affine -0.5 0 0 -0.5 0.5 0.5 + bubble)
