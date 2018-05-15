@@ -15,8 +15,10 @@ import Data.List
 
 
 parseModel :: String -> Model -> Model
-parseModel f mod = checkModel $ parseModel' (words f) mod 
-
+parseModel file mod 
+    | (elem "tXaos" (words file)) = checkModel $ parseModel' (words file) mod 
+    | otherwise = parseModel' (words file) mod
+    
 -- | check the xaos arguments
 checkModel :: Model -> Model
 checkModel mod
