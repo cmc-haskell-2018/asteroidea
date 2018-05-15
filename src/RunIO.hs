@@ -18,6 +18,7 @@ import Data.Vector.Storable (unsafeToForeignPtr)
 import qualified Data.Vector.Unboxed as Vector
 import Data.List
 import Parser
+import PostColoring
 
 -- Думаю перейти на cmdargs
 -- | Разбор параметров командной строки.
@@ -183,9 +184,14 @@ fromImageRGBA8
 -- | image generator, pair model-field is determing its behaving
 generateImageM :: Model -> Field -> Image PixelRGBA8
 generateImageM m1 field = generateImage
-                     (fieldCellToPixel m1 field)
+                     (fieldCellToPixel m1 postColoredField)
                      (mWidth m1)
                      (mHeight m1)
+                      where
+                        postColoredField = postColoring params field
+                        params = (mWidth m1, mHeight m1, floor $ mScale m1, defaultGamma)
+
+
 -- | scanner for field, returns PixelRGBA8
 fieldCellToPixel :: Model -> Field  -> Int -> Int -> PixelRGBA8
 fieldCellToPixel m field x y =
