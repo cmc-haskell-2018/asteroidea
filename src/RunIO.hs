@@ -188,8 +188,7 @@ generateImageM m1 field = generateImage
                      (mWidth m1)
                      (mHeight m1)
                       where
-                        postColoredField = postColoring params field
-                        params = (mWidth m1, mHeight m1, defaultScale, defaultGamma)
+                        postColoredField = postColoring m1 field
 
 
 -- | scanner for field, returns PixelRGBA8

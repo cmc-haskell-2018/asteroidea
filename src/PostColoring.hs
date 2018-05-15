@@ -32,11 +32,11 @@ type TempField = [Cell]
 type TempMatrix = Matrix.Matrix Cell
 
 -- | главная функция постобработки
-postColoring :: PostColorParams -> Field -> Field
-postColoring params field = tempToField (postColoringTemp params (fieldToTemp field))
+postColoring :: Model -> Field -> Field
+postColoring model field = tempToField (postColoringTemp (mWidth model, mHeight model, defaultScale, defaultGamma) (fieldToTemp field))
 
 defaultScale :: Scale
-defaultScale = 3
+defaultScale = 1
 
 defaultGamma :: Gamma
 defaultGamma = 2.2

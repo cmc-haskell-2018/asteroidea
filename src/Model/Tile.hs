@@ -58,8 +58,8 @@ exampleModel = templateModel {
     mName       = "tile"
   , mTransforms = [t1,t2,t3,t4]
   , mGradient = grad
-  {--, mWidth = 300
-  , mHeight = 300--}
+  , mWidth = 300
+  , mHeight = 300
                              }
   where
     grad = paletteToDouble "\
