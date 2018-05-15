@@ -35,6 +35,9 @@ type TempMatrix = Matrix.Matrix Cell
 postColoring :: PostColorParams -> Field -> Field
 postColoring params field = tempToField (postColoringTemp params (fieldToTemp field))
 
+defaultScale :: Scale
+defaultScale = 3
+
 defaultGamma :: Gamma
 defaultGamma = 2.2
 
@@ -56,7 +59,7 @@ tempToField field = Vector.fromList field
 -- | supersampling, работающая с TempField
 postColoringTemp :: PostColorParams -> TempField -> TempField
 postColoringTemp params@(oldwidth, oldheight, scale, gamma) field | scale == 1 = field
-                                                                  | otherwise = supersampling params $ imageFilter field oldwidth oldheight scale
+                                                                  | otherwise = {--supersampling params $--} imageFilter field oldwidth oldheight scale
 
 -- | разделение таблицы, хранящейся в списке, на полоски из клеток
 -- |______
@@ -136,7 +139,7 @@ grayscale (r, g, b, a) = 0.299 * r + 0.587 * g + 0.114 * b
 
 -- | применение фильтра
 imageFilter :: TempField -> Int -> Int -> Scale -> TempField
-imageFilter field width height scale = imageFilterStep 0 matrix width scale r
+imageFilter field width height scale = imageFilterStep 0 matrix width height scale r
     where
         matrix = safeMatrix r (Matrix.fromList height width field)
         r = div (scale - 1) 2
@@ -159,12 +162,13 @@ generator r n0 m0 matrix (i, j) = Matrix.unsafeGet newi newj matrix
             else 2 * m0 - j
 
 -- | шаг фильтра для каждого элемента matrix по номеру
-imageFilterStep :: Int -> TempMatrix -> Int -> Scale -> Scale -> TempField
-imageFilterStep pixelNum matrix width scale r | pixelNum == (length matrix) = []
-                                              | otherwise = a `Sync.par` b `Sync.pseq` a : b
+imageFilterStep :: Int -> TempMatrix -> Int -> Int -> Scale -> Scale -> TempField
+imageFilterStep pixelNum matrix width height scale r | pixelNum == (width * height) = []
+                                                     | otherwise = applyFilter (boxBlur scale) (correspondingToPixel pixelNum width r matrix) : imageFilterStep (pixelNum + 1) matrix width height scale r
+{--                                                     | otherwise = a `Sync.par` b `Sync.pseq` a : b
     where
         a = applyFilter (boxBlur scale) (correspondingToPixel pixelNum width r matrix)
-        b = imageFilterStep (pixelNum + 1) matrix width scale r
+        b = imageFilterStep (pixelNum + 1) matrix width height scale r--}
 
 -- | выделение окружающих пикселей в зависимости от scale
 correspondingToPixel :: Int -> Int -> Scale -> TempMatrix -> Histogram
@@ -184,7 +188,7 @@ getClosePixels i j i1 i2 j1 j2 matrix | j == j2 = elem : []
                                       | i == i2 = elem : getClosePixels i1 (j + 1) i1 i2 j1 j2 matrix
                                       | otherwise = elem : getClosePixels (i + 1) j i1 i2 j1 j2 matrix
                                         where
-                                            elem = Matrix.unsafeGet i1 j1 matrix
+                                            elem = Matrix.unsafeGet i j matrix
 
 applyFilter :: [Double] -> Histogram -> Cell
 applyFilter kernel histogram = foldl1 foldOperation $ zipWith filterOperation kernel histogram

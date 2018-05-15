@@ -52,12 +52,14 @@ t4 = templateTransform {
                , tColorPosition = 1
                , tColorSpeed    = 1
                }
--- | exampleModel 42
+-- | exampleModel 42 (временно уменьшена, ранее без указания mWidth и mHeight)
 exampleModel :: Model 
 exampleModel = templateModel {
     mName       = "tile"
   , mTransforms = [t1,t2,t3,t4]
   , mGradient = grad
+  {--, mWidth = 300
+  , mHeight = 300--}
                              }
   where
     grad = paletteToDouble "\
