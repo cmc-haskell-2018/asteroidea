@@ -36,7 +36,7 @@ parseRead :: [String] -> Int -> IO()
 parseRead (path:_) int = do
   contents <- readFile path
   let func = (savePngImage "./pic.png")
-  let gen = (runPicture $ parseModel (words contents) templateModel)
+  let gen = (runPicture $ parseModel contents templateModel)
   let img = gen int
   let pic = fromImageRGBA8 $ convertRGBA8 img
   let window = (InWindow "Just Nothing" (winX, winY) (startPosX, startPosY)) 
