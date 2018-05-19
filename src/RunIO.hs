@@ -184,17 +184,17 @@ fromImageRGBA8
 -- | image generator, pair model-field is determing its behaving
 generateImageM :: Model -> Field -> Image PixelRGBA8
 generateImageM m1 field = generateImage
-                     (fieldCellToPixel m1 postColoredField)
-                     (mWidth m1)
-                     (mHeight m1)
+                     (fieldCellToPixel newWidth postColoredField)
+                     (newWidth)
+                     (newHeight)
                       where
-                        postColoredField = postColoring m1 field
+                        (postColoredField, newWidth, newHeight) = postColoring m1 field
 
 
 -- | scanner for field, returns PixelRGBA8
-fieldCellToPixel :: Model -> Field  -> Int -> Int -> PixelRGBA8
-fieldCellToPixel m field x y =
-  toPixel $  field  Vector.! (linearFieldIndex m (x,y))
+fieldCellToPixel :: Int -> Field -> Int -> Int -> PixelRGBA8
+fieldCellToPixel width field x y =
+  toPixel $  field  Vector.! (linearFieldIndexW width (x,y))
   where
     toPixel (r, g, b, a) = PixelRGBA8 nr ng nb 255
      where

@@ -27,6 +27,9 @@ type Field = Vector.Vector Cell
 -- | перевод из двумерных координат в линейное смещение внутри структуры поля
 linearFieldIndex :: Model -> (Int, Int) -> Int
 linearFieldIndex m (i, j) = i + j * (mWidth m)
+
+linearFieldIndexW :: Int  -> (Int, Int) -> Int
+linearFieldIndexW width (i, j) = i + j * width
 {-# INLINE linearFieldIndex #-}
 
 -- МБ, оформить как Rand -> (Vec -> Vec) ?
