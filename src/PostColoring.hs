@@ -143,10 +143,12 @@ foldOperation (r1, g1, b1, a1) (r2, g2, b2, a2) = (r1 + r2, g1 + g2, b1 + b2, a1
 
 supersampling :: (Width, Height, SupersamplingScale, Gamma) -> TempField -> TempField
 supersampling (oldwidth, oldheight, scale, gamma) field | scale == 1 = field
-                                                        | otherwise = supersamplingChoosingHistogram 1 1 (oldwidth, oldheight, scale, gamma, maxalpha) matrix
+                                                        | otherwise = supersamplingChoosingHistogram 1 1 (currentwidth, currentheight, scale, gamma, maxalpha) matrix
                                                             where
                                                                 maxalpha = getMaxAlpha field
                                                                 matrix = Matrix.fromList oldheight oldwidth field
+                                                                currentwidth = oldwidth - mod oldwidth scale
+                                                                currentheight = oldheight - mod oldheight scale
 
 -- | max alpha
 getMaxAlpha :: Bucket -> Double
