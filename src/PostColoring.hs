@@ -48,7 +48,7 @@ postColoring model field = (tempToField (postColoringTemp params (fieldToTemp fi
         newheight = div oldheight scale
 
 defaultKernelSize :: KernelSize
-defaultKernelSize = 3
+defaultKernelSize = 5
 
 boxBlur :: KernelSize -> [Double]
 boxBlur scale = map ((*) (1 / fromIntegral (scale * scale))) [1..]
@@ -97,12 +97,25 @@ safeMatrix r matrix = Matrix.matrix (2 * r + n0) (2 * r + m0) (generator r n0 m0
 generator :: Int -> Int -> Int -> TempMatrix -> ((Int, Int) -> Cell)
 generator r n0 m0 matrix (i, j) = Matrix.unsafeGet newi newj matrix
     where
-        newi = if i >= r && i <= n0 - r
+        newi = if i <= r
+                then r - i + 1
+                else if i > n0 + r
+                        then 2 * n0 + r - i + 1
+                        else i - r
+        newj = if j <= r
+                then 2 * r - j + 1
+                else if j > m0 + r
+                        then 2 * m0 + r - j + 1
+                        else j - r
+
+{--
+        newi = if i > r && i <= n0 - r
             then i
             else 2 * n0 - i
-        newj = if j >= r && j <= m0 - r
+        newj = if j > r && j <= m0 - r
             then j
             else 2 * m0 - j
+--}
 
 -- | шаг фильтра для каждого элемента matrix по номеру
 kernelFilterStep :: Int -> (Width, Height, [Double], Int) -> TempMatrix -> TempField
