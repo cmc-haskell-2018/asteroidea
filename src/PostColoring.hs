@@ -48,7 +48,7 @@ postColoring model field = (tempToField (postColoringTemp params (fieldToTemp fi
         newheight = div oldheight scale
 
 defaultKernelSize :: KernelSize
-defaultKernelSize = 5
+defaultKernelSize = 3
 
 boxBlur :: KernelSize -> [Double]
 boxBlur scale = map ((*) (1 / fromIntegral (scale * scale))) [1..]
@@ -58,7 +58,7 @@ boxBlur scale = map ((*) (1 / fromIntegral (scale * scale))) [1..]
 -- |        center = div (scale + 1) 2
 
 defaultScale :: SupersamplingScale
-defaultScale = 3
+defaultScale = 1
 
 defaultGamma :: Gamma
 defaultGamma = 2.2
@@ -89,33 +89,43 @@ kernelFilter params@(width, height, ksize, kernel) field | ksize == 1 = field
 
 -- | решение проблемы об обработке концов изображения - отзеркаливание
 safeMatrix :: Int -> TempMatrix -> TempMatrix
-safeMatrix r matrix = Matrix.matrix (2 * r + n0) (2 * r + m0) (generator r n0 m0 matrix)
+safeMatrix r matrix = Matrix.matrix (2 * r + rows) (2 * r + cols) (generator r matrix)
     where
-        n0 = Matrix.nrows matrix
-        m0 = Matrix.ncols matrix
+        rows = Matrix.nrows matrix
+        cols = Matrix.ncols matrix
 
-generator :: Int -> Int -> Int -> TempMatrix -> ((Int, Int) -> Cell)
-generator r n0 m0 matrix (i, j) = Matrix.unsafeGet newi newj matrix
+
+-- | Преобразование координаты ячейки расширенной матрицы
+-- в координату ячейки исходной матрицы.
+--
+-- Ячейки в центре расширенной матрицы соответствуют
+-- ячейкам исходной матрицы.
+--
+-- Ячейки по краям расширенной матрицы соответствуют
+-- ячейкам зеркальной версии исходной матрицы.
+--
+-- TODO: пример.
+--
+-- >>> map (fromExtendedCoord 10 3) [1..16]
+-- [3,2,1,1,2,3,4,5,6,7,8,9,10,10,9,8]
+fromExtendedCoord
+  :: Int  -- ^ Размер исходной матрицы (по одной координате).
+  -> Int  -- ^ Расширение матрицы (с одной стороны).
+  -> Int  -- ^ Координата в расширенной матрице.
+  -> Int  -- ^ Координата в исходной матрице.
+fromExtendedCoord n r i
+  | i <= r      = r - i + 1          -- левый/верхний край
+  | i > n + r   = 2 * n + r - i + 1  -- правый/нижний край
+  | otherwise   = i - r              -- середина
+
+generator :: Int -> TempMatrix -> ((Int, Int) -> Cell)
+generator r matrix (row, col) = Matrix.unsafeGet oldRow oldCol matrix
     where
-        newi = if i <= r
-                then r - i + 1
-                else if i > n0 + r
-                        then 2 * n0 + r - i + 1
-                        else i - r
-        newj = if j <= r
-                then 2 * r - j + 1
-                else if j > m0 + r
-                        then 2 * m0 + r - j + 1
-                        else j - r
+      oldRow = fromExtendedCoord rows r row
+      oldCol = fromExtendedCoord cols r col
 
-{--
-        newi = if i > r && i <= n0 - r
-            then i
-            else 2 * n0 - i
-        newj = if j > r && j <= m0 - r
-            then j
-            else 2 * m0 - j
---}
+      rows = Matrix.nrows matrix
+      cols = Matrix.ncols matrix
 
 -- | шаг фильтра для каждого элемента matrix по номеру
 kernelFilterStep :: Int -> (Width, Height, [Double], Int) -> TempMatrix -> TempField
