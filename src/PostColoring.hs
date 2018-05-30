@@ -15,8 +15,6 @@ import Types
 import qualified Data.Vector.Unboxed as Vector
 import qualified Data.Matrix as Matrix
 import qualified GHC.Conc.Sync as Sync
---import qualified Data.Tuple.Select as Select
---import qualified Debug.Trace as Trace
 
 --типы параметров обработки
 type Width = Int                        -- ^ Ширина входящего изображения (до supersampling)
@@ -32,7 +30,8 @@ type Bucket = [Cell]                    -- ^ подматрица, хранит 
 type TempField = [Cell]                 -- ^ всё изображение, представленное в виде списка
 type TempMatrix = Matrix.Matrix Cell    -- ^ всё изображение, представленное в виде матрицы
 
-postColoring    -- ^ главная функция постобработки
+-- | главная функция постобработки
+postColoring
     :: Model                    -- ^ модель изображения (имеющая необходимые параметры)
     -> Field                    -- ^ всё изображение, представленное в виде Field (вектор)
     -> (Field, Width, Height)   -- ^ (итоговое изображение, его ширина, его высота)
@@ -48,33 +47,40 @@ postColoring model field = (tempToField (postColoringTemp params (fieldToTemp fi
         newwidth = div oldwidth scale
         newheight = div oldheight scale
 
-defaultKernelSize   -- ^ значение по умолчанию размера матрицы для матричного фильтра
+-- | значение по умолчанию размера матрицы для матричного фильтра
+defaultKernelSize
     :: KernelSize
 defaultKernelSize = 3
 
-boxBlur      -- ^ значение по умолчанию матрицы для матричного фильтра
+-- | значение по умолчанию матрицы для матричного фильтра
+boxBlur
     :: Kernel
 boxBlur scale = map ((*) (1 / fromIntegral (scale * scale))) [1..]
 
-defaultScale -- ^ значение по умолчанию кратности уменьшения при суперсемплинг
+-- | значение по умолчанию кратности уменьшения при суперсемплинг
+defaultScale
     :: SupersamplingScale
 defaultScale = 1
 
-defaultGamma -- ^ значение по умолчанию коэффициента гамма-коррекции
+-- | значение по умолчанию коэффициента гамма-коррекции
+defaultGamma
     :: Gamma
 defaultGamma = 2.2
 
-fieldToTemp  -- ^ перевод Field -> TempField (перед функциями пост-обработки)
+-- | перевод Field -> TempField (перед функциями пост-обработки)
+fieldToTemp
     :: Field
     -> TempField
 fieldToTemp field = Vector.toList field
 
-tempToField  -- ^ перевод TempField -> Field (после функций пост-обработки)
+-- | перевод TempField -> Field (после функций пост-обработки)
+tempToField
     :: TempField
     -> Field
 tempToField field = Vector.fromList field
 
-postColoringTemp    -- ^ главная функция постобработки, работающая с TempField
+-- | главная функция постобработки, работающая с TempField
+postColoringTemp
     :: PostColorParams  -- ^ все параметры постобработки, упакованные в специальный тип
     -> TempField        -- ^ входящее изображение, представленное в виде списка
     -> TempField        -- ^ получаемое изображение, представленное в виде списка
@@ -84,7 +90,8 @@ postColoringTemp params@(oldwidth, oldheight, ksize, kernel, scale, gamma) field
         supersamplingParams = (oldwidth, oldheight, scale, gamma)
 
 
-kernelFilter    -- ^ применение матричного фильтра (а точнее, подготовка изображения к его применению)
+-- | применение матричного фильтра (а точнее, подготовка изображения к его применению)
+kernelFilter
     :: (Width, Height, KernelSize, Kernel)  -- ^ (ширина, высота, размер матрицы и матрица матричного фильтра)
     -> TempField    -- ^ входящее изображение, представленное в виде списка
     -> TempField    -- ^ получаемое изображение, представленное в виде списка
@@ -173,7 +180,8 @@ correspondingToPixel pixelNum width r matrix = getClosePixels startRow startColu
         centerX = r + 1 + mod pixelNum width
         centerY = r + 1 + div pixelNum width
 
-getClosePixels -- ^ извлечения подматрицы из произвольной матрицы
+-- | извлечение подматрицы из произвольной матрицы
+getClosePixels
     :: Int          -- ^ координата (в матрице) Y текущего элемента подматрицы
     -> Int          -- ^ координата (в матрице) X текущего элемента подматрицы
     -> Int          -- ^ координата (в матрице) Y верхнего левого элемента подматрицы
@@ -188,7 +196,8 @@ getClosePixels i j i1 i2 j1 j2 matrix | j == j2 = elem : []
                                         where
                                             elem = Matrix.unsafeGet i j matrix
 
-applyFilter -- ^ применение матричного фильтра к пикселю (окрестности пикселя)
+-- | применение матричного фильтра к пикселю (окрестности пикселя)
+applyFilter
     :: [Double] -- ^ матрица матричного фильтра
     -> Bucket   -- ^ окрестность пикселя в виде списка
     -> Cell     -- ^ итоговый пиксель
@@ -202,14 +211,15 @@ filterOperation
     -> Cell     -- ^ результат умножения
 filterOperation k (r, g, b, a) = (r * k, g * k, b * k, a * k)
 
-foldOperation   -- ^ сложения результатов умножения (функции filterOperation)
+-- | сложение результатов умножения (функции filterOperation)
+foldOperation
     :: Cell     -- ^ слагаемое
     -> Cell     -- ^ слагаемое
     -> Cell     -- ^ сумма
 foldOperation (r1, g1, b1, a1) (r2, g2, b2, a2) = (r1 + r2, g1 + g2, b1 + b2, a1 + a2)
 
-
-supersampling   -- ^ функция применения суперсемплинга (подготовки к нему)
+-- | функция применения суперсемплинга (подготовки к нему)
+supersampling
     :: (Width, Height, SupersamplingScale, Gamma) -- ^ (ширина и высота старого изображения, кратность уменьшения при суперсемплинг, коэффициент гамма-коррекции)
     -> TempField    -- ^ входящее изображение, представленное в виде списка
     -> TempField    -- ^ полученное изображение, представленное в виде списка
@@ -221,7 +231,8 @@ supersampling (oldwidth, oldheight, scale, gamma) field | scale == 1 = field
                                                                 currentwidth = oldwidth - mod oldwidth scale
                                                                 currentheight = oldheight - mod oldheight scale
 
-getMaxAlpha -- ^ подсчет максимального альфа-канала во всём изображении
+-- | подсчет максимального альфа-канала во всём изображении
+getMaxAlpha
     :: TempField    -- ^ входящее изображение, представленное в виде списка
     -> Double       -- ^ max alpha
 getMaxAlpha h = foldl1 max $ map (getComponent 3) h
@@ -242,8 +253,8 @@ supersamplingChoosingHistogram i j params@(oldwidth, oldheight, scale, gamma, ma
                                                                                                | otherwise = elem : supersamplingChoosingHistogram (i + scale) j params matrix
                                                                                                 where
                                                                                                     elem = getFinalCell (supersamplingGettingHistogram 0 0 i j scale matrix) maxalpha gamma
-
-supersamplingGettingHistogram -- ^ извлечения блока из матрицы изображения
+-- | извлечения блока из матрицы изображения
+supersamplingGettingHistogram
     :: Int                  -- ^ координата Y текущего пикселя в блоке
     -> Int                  -- ^ координата X текущего пикселя в блоке
     -> Int                  -- ^ номер по Y текущего блока в матрице
@@ -258,10 +269,10 @@ supersamplingGettingHistogram ishift jshift i j scale matrix | jshift == scale =
                                                                     elem = Matrix.unsafeGet (i + ishift) (j + jshift) matrix
 
 -- | применение суперсэмплинга и гамма-коррекции
--- | к данному блоку
--- | 
--- | данная функция вызывает фильтрации для
--- | каждого канал и объединяет их
+-- к данному блоку
+-- 
+-- данная функция вызывает фильтрации для
+-- каждого канала и объединяет их
 getFinalCell
     :: Bucket   -- ^ блок, представленный в виде списка
     -> Double   -- ^ максимальный альфа-канал во всём изображении
@@ -274,7 +285,8 @@ getFinalCell h maxalpha gamma = (r, g, b, a)
         b = getFinalColor 2 h maxalpha gamma
         a = getAvgComponent 3 h
 
-getFinalColor   -- ^ final_pixel_color[x][y] := color_avg[x][y] * alpha[x][y]^(1/gamma)
+-- | final_pixel_color[x][y] := color_avg[x][y] * alpha[x][y]^(1/gamma)
+getFinalColor
     :: Int      -- ^ номер канала (r=0, g=1, b=2)
     -> Bucket   -- ^ блок, представленный в виде списка
     -> Double   -- ^ максимальный альфа-канал во всём изображении
@@ -282,19 +294,22 @@ getFinalColor   -- ^ final_pixel_color[x][y] := color_avg[x][y] * alpha[x][y]^(1
     -> Double   -- ^ итоговое значение канала
 getFinalColor i h maxalpha gamma = (getAvgComponent i h) * ((getAlpha h maxalpha) ** (1 / gamma))
 
-getAvgComponent -- ^ получение среднего значения канала в блоке
+-- | получение среднего значения канала в блоке
+getAvgComponent
     :: Int      -- ^ номер канала (r=0, g=1, b=2, a=3)
     -> Bucket   -- ^ блок, представленный в виде списка
     -> Double
 getAvgComponent i h = (foldl1 (+) $ map (getComponent i) h) / (fromIntegral $ length h)
 
-getAlpha -- ^ alpha[x][y] := log10(avg[x][y]) / log10(max)
+-- | alpha[x][y] := log10(avg[x][y]) / log10(max)
+getAlpha
     :: Bucket   -- ^ блок, представленный в виде списка
     -> Double   -- ^ максимальный альфа-канал во всём изображении
     -> Double   -- ^ alpha[x][y]
 getAlpha h maxalpha = (log $ getAvgComponent 3 h) / (log maxalpha)
 
-getComponent -- ^ извлечение компонента(канала) из Cell
+-- | извлечение компонента(канала) из Cell
+getComponent
     :: Int      -- ^ номер канала (r=0, g=1, b=2, a=3)
     -> Cell     -- ^ пиксель
     -> Double   -- ^ значение канала
